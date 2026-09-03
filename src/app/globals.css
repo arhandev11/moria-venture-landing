@@ -1,26 +1,33 @@
 @import "tailwindcss";
 
+@theme {
+  --color-indigo-brand: #383189;
+  --color-indigo-soft: #635e9f;
+  --color-gold: #fcc228;
+  --color-gold-deep: #f2ba2a;
+  --color-shell: #fafafa;
+  --color-cream: #f7f5f0;
+  --color-ink: #201f22;
+  --color-ink-muted: #4a4a52;
+  --color-rule: #d9d6cd;
+
+  --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: var(--color-shell);
+  --foreground: var(--color-ink);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+}
+
+/* Hero and section headings in the brand deck are set tight and heavy. */
+.display {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
 }
