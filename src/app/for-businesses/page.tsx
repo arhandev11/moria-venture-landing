@@ -4,10 +4,7 @@ import { Field, SubmitButton } from "@/components/form";
 import {
   Button,
   Container,
-  DefRow,
-  Eyebrow,
   ImageSlot,
-  NumberedItem,
   PageHero,
   Section,
   SectionTitle,
@@ -131,6 +128,9 @@ export default function ForBusinessesPage() {
     <>
       <PageHero
         title="For Businesses"
+        padding="pb-[100px] pt-[110px] lg:pb-[159px] lg:pt-[130px]"
+        ledeGap="mt-[50px]"
+        ledeClassName="max-w-[690px] text-[17px] leading-[29px]"
         lede="We back founders building category-defining companies across Indonesia and the Gulf. Leverage our unique Shariah capital corridor to expand globally."
         actions={
           <>
@@ -146,15 +146,28 @@ export default function ForBusinessesPage() {
 
       {/* Investment criteria */}
       <Section tone="cream">
-        <Container className="py-20">
+        <Container className="pb-[160px] pt-[169px]">
           <SectionTitle>Investment Criteria</SectionTitle>
-          <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)]">
-            <ImageSlot label="Founder meeting" ratio="aspect-3/4" />
+          <div className="mt-[110px] grid gap-14 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:gap-[73px]">
+            <ImageSlot
+              src="/assets/for-businesses/founder-meeting.jpg"
+              alt="A founder meeting in progress"
+              ratio="aspect-[480/620]"
+              rounded="rounded-lg"
+            />
             <dl>
               {CRITERIA.map((item) => (
-                <DefRow key={item.term} term={item.term}>
-                  {item.body}
-                </DefRow>
+                <div
+                  key={item.term}
+                  className="grid gap-2 border-t border-rule py-[26px] last:border-b sm:grid-cols-[minmax(0,320px)_minmax(0,1fr)] sm:gap-8"
+                >
+                  <dt className="text-[19px] font-semibold text-indigo-brand">
+                    {item.term}
+                  </dt>
+                  <dd className="text-[15px] leading-[24px] text-ink-muted">
+                    {item.body}
+                  </dd>
+                </div>
               ))}
             </dl>
           </div>
@@ -163,22 +176,38 @@ export default function ForBusinessesPage() {
 
       {/* Beyond capital */}
       <Section>
-        <Container className="py-20">
+        <Container className="pb-[190px] pt-[169px]">
           <SectionTitle>Beyond Capital</SectionTitle>
-          <ImageSlot className="mt-12" label="Strategy session" ratio="aspect-[1066/300]" />
+          <ImageSlot
+            className="mt-[88px]"
+            src="/assets/for-businesses/strategy-room.jpg"
+            alt="A strategy session"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
 
-          <div className="mt-14 grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2.4fr)]">
+          <div className="mt-[83px] grid gap-10 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-10">
             <div>
-              <p className="display text-indigo-brand text-[42px]">06</p>
-              <p className="mt-3 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/70">
+              <p className="text-[84px] font-bold leading-none text-indigo-brand">
+                06
+              </p>
+              <p className="t-eyebrow mt-[28px] text-ink/70">
                 Structural Value Additions
               </p>
             </div>
             <dl>
               {VALUE_ADDS.map((item) => (
-                <DefRow key={item.term} term={item.term}>
-                  {item.body}
-                </DefRow>
+                <div
+                  key={item.term}
+                  className="grid gap-2 border-t border-rule py-[22px] last:border-b sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)] sm:gap-8"
+                >
+                  <dt className="text-[19px] font-semibold text-indigo-brand">
+                    {item.term}
+                  </dt>
+                  <dd className="text-[15px] leading-[24px] text-ink-muted">
+                    {item.body}
+                  </dd>
+                </div>
               ))}
             </dl>
           </div>
@@ -187,14 +216,31 @@ export default function ForBusinessesPage() {
 
       {/* Process */}
       <Section tone="cream">
-        <Container className="py-20">
+        <Container className="pb-[205px] pt-[170px]">
           <SectionTitle>Our Process</SectionTitle>
-          <ImageSlot className="mt-12" label="Deal desk" ratio="aspect-[1066/300]" />
-          <div className="mt-14">
+          <ImageSlot
+            className="mt-[87px]"
+            src="/assets/for-businesses/deal-desk.jpg"
+            alt="The deal desk"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
+          <div className="mt-[80px]">
             {PROCESS.map((step) => (
-              <NumberedItem key={step.n} n={step.n} title={step.title}>
-                {step.body}
-              </NumberedItem>
+              <div
+                key={step.n}
+                className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-[60px] border-t border-rule py-[30px] last:border-b sm:grid-cols-[80px_minmax(0,300px)_minmax(0,1fr)] sm:gap-x-10"
+              >
+                <span className="text-[41px] font-bold leading-none text-indigo-brand">
+                  {step.n}
+                </span>
+                <h3 className="text-[19px] font-semibold text-indigo-brand">
+                  {step.title}
+                </h3>
+                <p className="text-[15px] leading-[24px] text-ink-muted">
+                  {step.body}
+                </p>
+              </div>
             ))}
           </div>
         </Container>
@@ -202,22 +248,28 @@ export default function ForBusinessesPage() {
 
       {/* Companies backed */}
       <section className="bg-gold">
-        <Container className="py-20">
+        <Container className="pb-[148px] pt-[129px]">
           <SectionTitle>Companies We&apos;ve Backed</SectionTitle>
-          <ImageSlot className="mt-12" label="Portfolio site visit" ratio="aspect-[1066/300]" />
-          <ul className="mt-12">
+          <ImageSlot
+            className="mt-[72px]"
+            src="/assets/for-businesses/site-visit.jpg"
+            alt="A portfolio site visit"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
+          <ul className="mt-[90px]">
             {BACKED.map(([name, sector, note]) => (
               <li
                 key={name}
-                className="grid items-center gap-3 border-t border-indigo-brand/25 py-6 last:border-b sm:grid-cols-3 sm:gap-10"
+                className="grid items-center gap-3 border-t border-indigo-brand/25 py-[26px] last:border-b sm:grid-cols-3 sm:gap-10"
               >
-                <p className="text-[17px] font-semibold text-indigo-brand">
+                <p className="text-[21px] font-semibold text-indigo-brand">
                   {name}
                 </p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-indigo-brand/80 sm:text-center">
+                <p className="t-eyebrow text-indigo-brand/80 sm:text-center">
                   {sector}
                 </p>
-                <p className="text-[15px] font-semibold text-indigo-brand sm:text-right">
+                <p className="text-[17px] font-semibold text-indigo-brand sm:text-right">
                   {note}
                 </p>
               </li>
@@ -228,16 +280,21 @@ export default function ForBusinessesPage() {
 
       {/* Submit pitch */}
       <Section id="submit-pitch">
-        <Container className="py-20">
-          <ImageSlot label="Editorial desk" ratio="aspect-[1066/300]" />
-          <SectionTitle className="mt-14">Submit Your Pitch</SectionTitle>
-          <p className="mt-6 max-w-lg text-[13px] leading-relaxed text-ink-muted">
+        <Container className="pb-[160px] pt-[161px]">
+          <ImageSlot
+            src="/assets/for-businesses/editorial-desk.jpg"
+            alt="An editorial desk"
+            ratio="aspect-[1250/239]"
+            rounded="rounded-lg"
+          />
+          <SectionTitle className="mt-[89px]">Submit Your Pitch</SectionTitle>
+          <p className="mt-[43px] max-w-[700px] text-[16px] leading-[26px] text-ink-muted">
             Fill out the institutional entry form below. Our cross-border
             evaluation committee processes requests weekly.
           </p>
 
-          <form className="mt-12 max-w-3xl">
-            <div className="grid gap-6 sm:grid-cols-2">
+          <form className="mt-[76px] max-w-[800px]">
+            <div className="grid gap-x-10 gap-y-[33px] sm:grid-cols-2">
               <Field label="Company Name" placeholder="e.g. PT Tech Nusantara" />
               <Field label="Founder / Contact Name" placeholder="e.g. Faris Kuddah" />
               <Field
@@ -251,22 +308,22 @@ export default function ForBusinessesPage() {
               />
             </div>
             <Field
-              className="mt-6"
+              className="mt-[33px]"
               label="Funding Stage & SP Total"
               placeholder="Pre-Series A, Series A, or specific Project Finance scale"
             />
             <Field
-              className="mt-6"
+              className="mt-[33px]"
               label="Elevator Pitch"
               rows={4}
               placeholder="Describe your business, growth goals, and compliance alignment."
             />
-            <SubmitButton className="mt-8">Submit</SubmitButton>
+            <SubmitButton className="mt-[43px]">Submit</SubmitButton>
           </form>
 
           <Link
             href="#"
-            className="mt-6 inline-block text-[12px] font-semibold text-indigo-brand underline"
+            className="mt-[42px] inline-block text-[13px] font-semibold text-indigo-brand underline"
           >
             Download Investment Thesis (PDF)
           </Link>
@@ -275,18 +332,23 @@ export default function ForBusinessesPage() {
 
       {/* FAQ */}
       <Section tone="cream">
-        <Container className="py-20">
+        <Container className="pb-[197px] pt-[169px]">
           <SectionTitle>Frequently Asked Questions</SectionTitle>
-          <dl className="mt-12">
+          <dl className="mt-[110px]">
             {FAQ.map((item) => (
-              <DefRow key={item.q} term={item.q}>
-                {item.a}
-              </DefRow>
+              <div
+                key={item.q}
+                className="grid gap-2 border-t border-rule py-[30px] last:border-b sm:grid-cols-[411px_minmax(0,1fr)] sm:gap-0"
+              >
+                <dt className="text-[19px] font-semibold text-indigo-brand">
+                  {item.q}
+                </dt>
+                <dd className="text-[15px] leading-[24px] text-ink-muted">
+                  {item.a}
+                </dd>
+              </div>
             ))}
           </dl>
-          <Eyebrow className="mt-10 text-ink/50">
-            Answers reflect the current fund cycle
-          </Eyebrow>
         </Container>
       </Section>
     </>

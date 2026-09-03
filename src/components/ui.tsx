@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
 
@@ -25,13 +26,17 @@ export function Button({
   return (
     <Link
       href={href}
-      className={`inline-flex items-center justify-center px-6 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] transition-colors ${TONE[tone]}`}
+      className={`t-label inline-flex h-[47px] items-center justify-center px-[34px] transition-colors ${TONE[tone]}`}
     >
       {children}
     </Link>
   );
 }
 
+/**
+ * The deck is drawn on a 1440px canvas with content running from x=80 to x=1360,
+ * so the container caps at 1440 and carries 80px of side padding at that width.
+ */
 export function Container({
   children,
   className = "",
@@ -40,7 +45,9 @@ export function Container({
   className?: string;
 }) {
   return (
-    <div className={`mx-auto w-full max-w-[1280px] px-6 md:px-10 ${className}`}>
+    <div
+      className={`mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-20 ${className}`}
+    >
       {children}
     </div>
   );
@@ -77,13 +84,7 @@ export function Eyebrow({
   children: ReactNode;
   className?: string;
 }) {
-  return (
-    <p
-      className={`text-[11px] font-bold uppercase tracking-[0.14em] text-indigo-brand ${className}`}
-    >
-      {children}
-    </p>
-  );
+  return <p className={`t-eyebrow text-indigo-brand ${className}`}>{children}</p>;
 }
 
 export function SectionTitle({
@@ -96,11 +97,7 @@ export function SectionTitle({
   as?: "h1" | "h2" | "h3";
 }) {
   return (
-    <Tag
-      className={`display text-indigo-brand text-[34px] sm:text-[44px] lg:text-[52px] ${className}`}
-    >
-      {children}
-    </Tag>
+    <Tag className={`t-section text-indigo-brand ${className}`}>{children}</Tag>
   );
 }
 
@@ -128,37 +125,45 @@ export function Supergraphic({
   );
 }
 
-/** Page hero shared by every inner page: big uppercase title, lede, optional actions. */
+/**
+ * Page hero shared by the inner pages. The deck sizes this band differently per
+ * page, so the padding, the gap under the headline and the lede's own size are
+ * all passed in.
+ */
 export function PageHero({
   title,
   lede,
   actions,
   actionsInline = false,
+  padding = "pb-[100px] pt-[110px] lg:pb-[132px] lg:pt-[110px]",
+  ledeGap = "mt-[45px]",
+  ledeClassName = "t-lede max-w-[640px]",
+  markClassName = "absolute right-0 top-0 h-[300px] w-[159px] opacity-40 sm:opacity-100 lg:h-[470px] lg:w-[250px]",
 }: {
-  title: string;
+  title: ReactNode;
   lede: ReactNode;
   actions?: ReactNode;
   actionsInline?: boolean;
+  padding?: string;
+  ledeGap?: string;
+  ledeClassName?: string;
+  markClassName?: string;
 }) {
   return (
-    <Section className="relative overflow-hidden border-b border-rule/60">
-      <Supergraphic className="absolute -top-6 right-0 h-[420px] w-auto opacity-40 sm:opacity-90 lg:h-[480px]" />
-      <Container className="relative py-16 lg:py-24">
-        <h1 className="display max-w-4xl text-indigo-brand text-[40px] uppercase sm:text-[56px] lg:text-[64px]">
-          {title}
-        </h1>
+    <Section className="relative overflow-hidden">
+      <AnimatedSupergraphic className={markClassName} />
+      <Container className={`relative ${padding}`}>
+        <h1 className="t-hero uppercase text-indigo-brand">{title}</h1>
         <div
-          className={`mt-8 lg:mt-10 ${
+          className={`${ledeGap} ${
             actionsInline
-              ? "flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between"
+              ? "flex flex-col gap-10 lg:flex-row lg:items-center lg:justify-between"
               : ""
           }`}
         >
-          <p className="max-w-xl text-[15px] leading-relaxed text-ink-muted">
-            {lede}
-          </p>
+          <p className={`${ledeClassName} text-ink-muted`}>{lede}</p>
           {actions ? (
-            <div className={`flex flex-wrap gap-3 ${actionsInline ? "" : "mt-8"}`}>
+            <div className={`flex flex-wrap gap-4 ${actionsInline ? "" : "mt-[55px]"}`}>
               {actions}
             </div>
           ) : null}
@@ -175,14 +180,14 @@ export function AnchorNav({
   items: { label: string; href: string }[];
 }) {
   return (
-    <div className="border-b border-rule/60 bg-cream">
+    <div className="border-y border-rule/60 bg-cream">
       <Container>
-        <ul className="flex flex-wrap items-center gap-x-6 gap-y-2 py-4">
+        <ul className="flex flex-wrap items-center gap-x-8 gap-y-2 py-6">
           {items.map((item, i) => (
-            <li key={item.href} className="flex items-center gap-6">
+            <li key={item.href} className="flex items-center gap-8">
               <a
                 href={item.href}
-                className={`text-[11px] font-bold uppercase tracking-[0.12em] ${
+                className={`t-eyebrow ${
                   i === 0 ? "text-indigo-brand" : "text-ink/70 hover:text-indigo-brand"
                 }`}
               >
@@ -209,11 +214,9 @@ export function Stat({
   divider?: boolean;
 }) {
   return (
-    <div className={divider ? "border-l border-rule pl-5 first:border-l-0 first:pl-0" : ""}>
-      <p className="display text-indigo-brand text-[34px] sm:text-[42px]">{value}</p>
-      <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/70">
-        {label}
-      </p>
+    <div className={divider ? "border-l border-rule pl-6 first:border-l-0 first:pl-0" : ""}>
+      <p className="t-stat text-indigo-brand">{value}</p>
+      <p className="t-eyebrow mt-3 text-ink/70">{label}</p>
     </div>
   );
 }
@@ -229,9 +232,9 @@ export function DefRow({
   termClassName?: string;
 }) {
   return (
-    <div className="grid gap-2 border-t border-rule py-6 last:border-b sm:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] sm:gap-10">
-      <dt className={`text-[15px] font-semibold ${termClassName}`}>{term}</dt>
-      <dd className="text-[13px] leading-relaxed text-ink-muted">{children}</dd>
+    <div className="grid gap-3 border-t border-rule py-7 last:border-b sm:grid-cols-[minmax(0,0.43fr)_minmax(0,0.57fr)] sm:gap-0">
+      <dt className={`text-[19px] font-semibold ${termClassName}`}>{term}</dt>
+      <dd className="text-[16px] leading-[26px] text-ink-muted">{children}</dd>
     </div>
   );
 }
@@ -246,19 +249,18 @@ export function NumberedItem({
   children: ReactNode;
 }) {
   return (
-    <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-5 border-t border-rule py-6 last:border-b">
-      <span className="display text-indigo-brand text-[30px] leading-none">{n}</span>
+    <div className="grid grid-cols-[auto_minmax(0,1fr)] gap-7 border-t border-rule py-9 last:border-b">
+      <span className="t-sub text-indigo-brand">{n}</span>
       <div>
-        <h3 className="text-[15px] font-semibold text-indigo-brand">{title}</h3>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-muted">{children}</p>
+        <h3 className="t-title text-indigo-brand">{title}</h3>
+        <p className="t-body mt-3 text-ink-muted">{children}</p>
       </div>
     </div>
   );
 }
 
 /**
- * Photography slot. The design deck uses stock imagery that did not ship with the
- * asset export, so slots without a `src` render a branded placeholder instead.
+ * Photography slot. Falls back to a branded placeholder when no source is given.
  */
 export function ImageSlot({
   src,
@@ -267,6 +269,7 @@ export function ImageSlot({
   ratio = "aspect-[16/7]",
   className = "",
   priority,
+  rounded = "rounded-xl",
 }: {
   src?: string;
   alt?: string;
@@ -274,16 +277,17 @@ export function ImageSlot({
   ratio?: string;
   className?: string;
   priority?: ComponentProps<typeof Image>["priority"];
+  rounded?: string;
 }) {
   if (src) {
     return (
-      <div className={`relative overflow-hidden rounded-xl ${ratio} ${className}`}>
+      <div className={`relative overflow-hidden ${rounded} ${ratio} ${className}`}>
         <Image
           src={src}
           alt={alt}
           fill
           priority={priority}
-          sizes="(max-width: 1280px) 100vw, 1200px"
+          sizes="(max-width: 1440px) 100vw, 1440px"
           className="object-cover"
         />
       </div>
@@ -291,14 +295,14 @@ export function ImageSlot({
   }
   return (
     <div
-      className={`relative flex items-end overflow-hidden rounded-xl border border-rule/60 bg-cream ${ratio} ${className}`}
+      className={`relative flex items-end overflow-hidden border border-rule/60 bg-cream ${rounded} ${ratio} ${className}`}
       aria-hidden
     >
       <Supergraphic
         src="/assets/brand/supergraphic-wide.svg"
         className="absolute -right-10 -top-10 h-[160%] w-auto opacity-70"
       />
-      <span className="relative m-5 text-[10px] font-bold uppercase tracking-[0.14em] text-ink/40">
+      <span className="t-eyebrow relative m-6 text-ink/40">
         {label ?? "Image placeholder"}
       </span>
     </div>

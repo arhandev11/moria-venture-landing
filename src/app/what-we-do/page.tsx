@@ -3,7 +3,6 @@ import { CtaBand } from "@/components/cta-band";
 import {
   AnchorNav,
   Container,
-  DefRow,
   ImageSlot,
   PageHero,
   Section,
@@ -39,7 +38,7 @@ const VENTURE_BUILDING = [
   },
 ];
 
-const CRITERIA = [
+const CRITERIA: [string, string][] = [
   ["Stage", "Seed, Pre-Series A, Series A, and short-cycle Supply Chain Trade"],
   [
     "Geography",
@@ -63,15 +62,16 @@ const CRITERIA = [
   ],
 ];
 
+/** Right-hand spec stack on the two capital-product sections. */
 function SpecList({ items }: { items: [string, string][] }) {
   return (
     <dl>
       {items.map(([label, value]) => (
-        <div key={label} className="border-b border-rule py-4 first:border-t">
-          <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink/60">
-            {label}
-          </dt>
-          <dd className="display mt-1 text-indigo-brand text-[22px]">{value}</dd>
+        <div key={label} className="border-b border-rule pb-4 pt-[21px] first:pt-0">
+          <dt className="t-eyebrow text-ink/60">{label}</dt>
+          <dd className="mt-2 text-[31px] font-semibold leading-none text-indigo-brand">
+            {value}
+          </dd>
         </div>
       ))}
     </dl>
@@ -83,7 +83,10 @@ export default function WhatWeDoPage() {
     <>
       <PageHero
         title="What We Do"
+        padding="pb-[100px] pt-[110px] lg:pb-[110px] lg:pt-[110px]"
         lede="Two capital products. One venture-building platform. Shariah-compliant from screening to exit. Connecting Southeast Asian innovation with Gulf Cooperation Council markets."
+        ledeGap="mt-[60px]"
+        ledeClassName="max-w-[660px] text-[24px] leading-[36px]"
       />
 
       <AnchorNav
@@ -97,21 +100,22 @@ export default function WhatWeDoPage() {
 
       {/* 01 Venture Capital */}
       <Section id="venture-capital">
-        <Container className="py-20">
+        <Container className="pb-[137px] pt-[133px]">
           <div className="text-right">
-            <p className="display text-indigo-brand text-[34px]">01</p>
-            <SectionTitle className="mt-2">Venture Capital</SectionTitle>
+            <p className="text-[77px] font-bold leading-none text-indigo-brand">01</p>
+            <SectionTitle className="mt-[27px]">Venture Capital</SectionTitle>
           </div>
 
           <ImageSlot
-            className="mt-12"
+            className="mt-[56px]"
             src="/assets/what-we-do/venture-capital.png"
             alt="Container port operations"
-            ratio="aspect-[2560/1120]"
+            ratio="aspect-[1280/560]"
+            rounded="rounded-lg"
           />
 
-          <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <div className="space-y-5 text-[13px] leading-relaxed text-ink-muted">
+          <div className="mt-[60px] grid gap-14 lg:grid-cols-[minmax(0,586px)_minmax(0,1fr)] lg:gap-[295px]">
+            <div className="space-y-6 text-[16px] leading-[26px] text-ink-muted">
               <p>
                 Our Venture Capital engine targets equity-based investments in
                 high-growth digital pioneers within Southeast Asia, particularly
@@ -140,19 +144,20 @@ export default function WhatWeDoPage() {
 
       {/* 02 Project Finance */}
       <Section tone="cream" id="project-finance">
-        <Container className="py-20">
-          <p className="display text-indigo-brand text-[34px]">02</p>
-          <SectionTitle className="mt-2">Project Finance</SectionTitle>
+        <Container className="pb-[144px] pt-[127px]">
+          <p className="text-[77px] font-bold leading-none text-indigo-brand">02</p>
+          <SectionTitle className="mt-[27px]">Project Finance</SectionTitle>
 
           <ImageSlot
-            className="mt-12"
+            className="mt-[56px]"
             src="/assets/what-we-do/project-finance.png"
             alt="Trade finance documentation"
-            ratio="aspect-[2560/1120]"
+            ratio="aspect-[1280/560]"
+            rounded="rounded-lg"
           />
 
-          <div className="mt-12 grid gap-12 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
-            <div className="space-y-5 text-[13px] leading-relaxed text-ink-muted">
+          <div className="mt-[60px] grid gap-14 lg:grid-cols-[minmax(0,586px)_minmax(0,1fr)] lg:gap-[295px]">
+            <div className="space-y-6 text-[16px] leading-[26px] text-ink-muted">
               <p>
                 Our Project Finance division implements short-cycle,
                 asset-backed transaction architecture designed to provide
@@ -181,24 +186,33 @@ export default function WhatWeDoPage() {
 
       {/* 03 Venture Building */}
       <Section id="venture-building">
-        <Container className="py-20">
+        <Container className="pb-[157px] pt-[127px]">
           <div className="text-right">
-            <p className="display text-indigo-brand text-[34px]">03</p>
-            <SectionTitle className="mt-2">Venture Building</SectionTitle>
+            <p className="text-[77px] font-bold leading-none text-indigo-brand">03</p>
+            <SectionTitle className="mt-[27px]">Venture Building</SectionTitle>
           </div>
 
           <ImageSlot
-            className="mt-12"
+            className="mt-[56px]"
             src="/assets/what-we-do/venture-building.png"
             alt="Portfolio operators in a working session"
-            ratio="aspect-[2560/1120]"
+            ratio="aspect-[1280/560]"
+            rounded="rounded-lg"
           />
 
-          <dl className="mt-14 lg:ml-auto lg:w-[75%]">
+          <dl className="mt-[80px] lg:ml-[295px]">
             {VENTURE_BUILDING.map((item) => (
-              <DefRow key={item.term} term={item.term}>
-                {item.body}
-              </DefRow>
+              <div
+                key={item.term}
+                className="grid gap-2 border-t border-rule py-6 last:border-b sm:grid-cols-[400px_minmax(0,1fr)] sm:gap-0"
+              >
+                <dt className="text-[22px] font-semibold text-indigo-brand">
+                  {item.term}
+                </dt>
+                <dd className="text-[16px] leading-[26px] text-ink-muted">
+                  {item.body}
+                </dd>
+              </div>
             ))}
           </dl>
         </Container>
@@ -206,27 +220,25 @@ export default function WhatWeDoPage() {
 
       {/* 04 Investment Criteria */}
       <Section tone="cream" id="investment-criteria">
-        <Container className="py-20">
-          <p className="display text-indigo-brand text-[34px]">04</p>
-          <SectionTitle className="mt-2">Investment Criteria</SectionTitle>
+        <Container className="pb-[122px] pt-[127px]">
+          <p className="text-[77px] font-bold leading-none text-indigo-brand">04</p>
+          <SectionTitle className="mt-[21px]">Investment Criteria</SectionTitle>
 
-          <dl className="mt-12">
+          <dl className="mt-[62px]">
             {CRITERIA.map(([label, value]) => (
               <div
                 key={label}
-                className="grid gap-2 border-t border-rule py-5 last:border-b sm:grid-cols-[260px_minmax(0,1fr)] sm:gap-10"
+                className="grid gap-2 border-t border-rule py-[20px] last:border-b sm:grid-cols-[401px_minmax(0,1fr)] sm:gap-0"
               >
-                <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink/70">
-                  {label}
-                </dt>
-                <dd className="text-[13px] leading-relaxed text-ink">{value}</dd>
+                <dt className="t-eyebrow text-ink/70">{label}</dt>
+                <dd className="text-[15px] leading-[24px] text-ink">{value}</dd>
               </div>
             ))}
           </dl>
         </Container>
       </Section>
 
-      <CtaBand />
+      <CtaBand padding="pb-[130px] pt-[168px]" />
     </>
   );
 }

@@ -18,7 +18,7 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-rule/60 bg-shell/95 backdrop-blur">
       <Container>
-        <div className="flex h-16 items-center justify-between">
+        <div className="flex h-[68px] items-center justify-between">
           <Link href="/" aria-label="Moria Ventures — home">
             <Image
               src="/assets/brand/logo-wordmark.svg"

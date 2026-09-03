@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { CtaBand } from "@/components/cta-band";
 import {
   Button,
@@ -8,7 +9,6 @@ import {
   Section,
   SectionTitle,
   Stat,
-  Supergraphic,
 } from "@/components/ui";
 
 const STATS = [
@@ -128,20 +128,25 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <Section className="relative overflow-hidden">
-        <Supergraphic className="absolute -top-10 right-0 h-[560px] w-auto opacity-40 sm:opacity-100 lg:h-[760px]" />
-        <Container className="relative py-16 lg:py-24">
+        <AnimatedSupergraphic className="absolute right-0 top-[80px] h-[560px] w-[297px] opacity-40 sm:opacity-100 lg:top-[110px] lg:h-[940px] lg:w-[499px]" />
+        <Container className="relative pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]">
           <Image
             src="/assets/brand/wordmark-hero.svg"
             alt="Moria Ventures"
             width={388}
             height={59}
             priority
-            className="h-9 w-auto lg:h-12"
+            className="h-10 w-auto lg:h-[57px]"
           />
-          <h1 className="display mt-8 max-w-4xl text-indigo-brand text-[38px] uppercase sm:text-[56px] lg:text-[68px]">
-            Shariah-Compliant Capital. Connecting Indonesia and the Gulf
+          {/* Line breaks are set to match the deck exactly. */}
+          <h1 className="t-hero mt-[60px] uppercase text-indigo-brand">
+            Shariah-Compliant
+            <br />
+            Capital. Connecting
+            <br />
+            Indonesia and the Gulf
           </h1>
-          <p className="mt-8 max-w-xl text-[15px] leading-relaxed text-ink-muted">
+          <p className="t-lede mt-14 max-w-[640px] text-ink-muted">
             <span className="font-semibold text-indigo-brand">
               PT Moria Global Ventures
             </span>{" "}
@@ -149,7 +154,7 @@ export default function HomePage() {
             innovation and Middle Eastern capital reserves, unlocking
             institutional Shariah venture access.
           </p>
-          <div className="mt-9 flex flex-wrap gap-3">
+          <div className="mt-12 flex flex-wrap gap-4">
             <Button href="/for-limited-partners" tone="indigo">
               I&apos;m an Investor
             </Button>
@@ -162,8 +167,8 @@ export default function HomePage() {
 
       {/* Headline metrics */}
       <Section className="border-y border-rule/60">
-        <Container className="py-12">
-          <div className="grid grid-cols-2 gap-8 lg:grid-cols-4">
+        <Container className="pb-[68px] pt-[75px]">
+          <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
             {STATS.map((stat) => (
               <Stat key={stat.label} {...stat} />
             ))}
@@ -173,41 +178,34 @@ export default function HomePage() {
 
       {/* Two engines */}
       <Section className="relative overflow-hidden">
-        <Supergraphic
-          src="/assets/brand/supergraphic-wide.svg"
-          className="absolute -left-24 top-24 h-[520px] w-auto opacity-80"
-          width={628}
-          height={556}
-        />
-        <Container className="relative py-20">
-          <div className="grid gap-12 lg:grid-cols-2">
+        <AnimatedSupergraphic className="absolute -left-[70px] top-24 h-[660px] w-[350px] opacity-80" />
+        <Container className="relative pb-[100px] pt-[98px]">
+          <div className="grid gap-16 lg:grid-cols-2 lg:gap-[88px]">
             {ENGINES.map((engine) => (
               <div key={engine.code}>
-                <p className="display text-indigo-brand text-[38px]">
-                  {engine.code}
-                </p>
-                <h2 className="mt-4 text-[17px] font-semibold text-ink">
+                <p className="t-sub text-indigo-brand">{engine.code}</p>
+                <h2 className="mt-7 text-[19px] font-semibold text-ink">
                   {engine.name}
                 </h2>
-                <p className="mt-3 max-w-lg text-[13px] leading-relaxed text-ink-muted">
+                <p className="mt-7 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
                   {engine.body}
                 </p>
               </div>
             ))}
           </div>
-          <SectionTitle className="mt-24 text-right">
+          <p className="t-display mt-20 text-right text-indigo-brand">
             Two Engines
             <br />
             One Mission
-          </SectionTitle>
+          </p>
         </Container>
       </Section>
 
       {/* Value proposition */}
       <Section tone="cream">
-        <Container className="py-20">
+        <Container className="sect">
           <SectionTitle className="text-right">Value Proposition</SectionTitle>
-          <dl className="mt-12 lg:ml-auto lg:w-[70%]">
+          <dl className="mt-[86px] lg:ml-auto lg:w-[74.6%]">
             {VALUE_PROPS.map((item) => (
               <DefRow key={item.term} term={item.term} termClassName="text-ink">
                 {item.body}
@@ -219,14 +217,14 @@ export default function HomePage() {
 
       {/* Corridor */}
       <Section tone="cream" className="border-t border-rule/60">
-        <Container className="py-20">
+        <Container className="sect">
           <SectionTitle>Indonesia — Saudi Arabia</SectionTitle>
-          <div className="mt-12 grid gap-12 lg:grid-cols-2">
+          <div className="mt-[82px] grid gap-16 lg:grid-cols-2 lg:gap-[57px]">
             <div>
-              <h3 className="text-[17px] font-semibold text-ink">
+              <h3 className="text-[19px] font-semibold text-ink">
                 A Trillion-Dollar Economic Corridor
               </h3>
-              <p className="mt-5 max-w-lg text-[13px] leading-relaxed text-ink-muted">
+              <p className="mt-10 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
                 As the world&apos;s largest Muslim-majority nation, Indonesia
                 holds massive untapped consumer markets and highly active
                 digital-native sectors. Saudi Arabia, driving Vision 2030,
@@ -237,16 +235,14 @@ export default function HomePage() {
               </p>
             </div>
             <div>
-              <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/60">
-                Strategic Eco-System Links
-              </p>
-              <ul className="mt-6 space-y-6">
+              <p className="t-eyebrow text-ink/60">Strategic Eco-System Links</p>
+              <ul className="mt-6 space-y-[14px]">
                 {ECOSYSTEM.map((item) => (
                   <li key={item.name}>
-                    <p className="text-[14px] font-semibold text-ink">
+                    <p className="text-[17px] font-semibold text-ink">
                       {item.name}
                     </p>
-                    <p className="mt-1 text-[12px] leading-relaxed text-ink-muted">
+                    <p className="mt-1 text-[13px] leading-[19px] text-ink-muted">
                       {item.body}
                     </p>
                   </li>
@@ -259,33 +255,28 @@ export default function HomePage() {
 
       {/* Portfolio table */}
       <Section className="relative overflow-hidden">
-        <Supergraphic
-          src="/assets/brand/supergraphic-tall.svg"
-          className="absolute -left-16 bottom-10 h-[520px] w-auto opacity-80"
-          width={344}
-          height={648}
-        />
-        <Container className="relative py-20">
+        <AnimatedSupergraphic className="absolute bottom-10 -left-[90px] h-[940px] w-[499px] opacity-80" />
+        <Container className="relative sect">
           <SectionTitle className="text-right">Portfolio</SectionTitle>
-          <div className="mt-12 overflow-x-auto lg:ml-auto lg:w-[72%]">
-            <table className="w-full min-w-[640px] text-left">
+          <div className="mt-[90px] overflow-x-auto lg:ml-auto lg:w-[73.5%]">
+            <table className="w-full min-w-[700px] text-left">
               <thead>
-                <tr className="border-b-2 border-rule text-[10px] font-bold uppercase tracking-[0.12em] text-ink/60">
-                  <th className="py-3 font-bold">Company</th>
-                  <th className="py-3 font-bold">Sector</th>
-                  <th className="py-3 font-bold">Country</th>
-                  <th className="py-3 font-bold">Stage</th>
+                <tr className="t-eyebrow border-b-2 border-rule text-ink/60">
+                  <th className="pb-4 font-bold">Company</th>
+                  <th className="pb-4 font-bold">Sector</th>
+                  <th className="pb-4 font-bold">Country</th>
+                  <th className="pb-4 font-bold">Stage</th>
                 </tr>
               </thead>
               <tbody>
                 {PORTFOLIO.map(([company, sector, country, stage]) => (
                   <tr key={company} className="border-b border-rule/70">
-                    <td className="py-5 text-[16px] font-semibold text-indigo-brand">
+                    <td className="t-title py-[19px] text-indigo-brand">
                       {company}
                     </td>
-                    <td className="py-5 text-[13px] text-ink-muted">{sector}</td>
-                    <td className="py-5 text-[13px] text-ink-muted">{country}</td>
-                    <td className="py-5 text-[10px] font-bold uppercase tracking-[0.1em] text-indigo-brand">
+                    <td className="t-body py-[19px] text-ink-muted">{sector}</td>
+                    <td className="t-body py-[19px] text-ink-muted">{country}</td>
+                    <td className="t-eyebrow py-[19px] text-indigo-brand">
                       {stage}
                     </td>
                   </tr>
@@ -298,12 +289,12 @@ export default function HomePage() {
 
       {/* Leadership */}
       <Section>
-        <Container className="py-20">
+        <Container className="sect">
           <SectionTitle>Leadership</SectionTitle>
-          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-20 grid gap-x-[58px] gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
             {LEADERSHIP.map((person) => (
               <article key={person.name}>
-                <div className="relative aspect-4/5 overflow-hidden rounded-lg bg-cream">
+                <div className="relative aspect-[9/10] overflow-hidden rounded-lg bg-cream">
                   <Image
                     src={person.photo}
                     alt={person.name}
@@ -312,13 +303,13 @@ export default function HomePage() {
                     className="object-cover object-top"
                   />
                 </div>
-                <h3 className="mt-5 text-[16px] font-semibold text-indigo-brand">
+                <h3 className="mt-5 text-[22px] font-semibold leading-tight text-indigo-brand">
                   {person.name}
                 </h3>
-                <p className="mt-1 text-[12px] font-semibold text-ink">
+                <p className="mt-2 text-[14px] font-semibold text-ink">
                   {person.role}
                 </p>
-                <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
+                <p className="mt-4 text-[13px] leading-[20px] text-ink-muted">
                   {person.body}
                 </p>
               </article>
@@ -329,25 +320,23 @@ export default function HomePage() {
 
       {/* Insights */}
       <Section tone="cream">
-        <Container className="py-20">
+        <Container className="sect">
           <SectionTitle className="text-right">Insights</SectionTitle>
-          <ul className="mt-12">
+          <ul className="mt-16 lg:ml-[124px]">
             {INSIGHTS.map((item) => (
               <li
                 key={item.title}
-                className="grid gap-3 border-t border-rule py-7 last:border-b sm:grid-cols-[180px_minmax(0,1fr)] sm:gap-10"
+                className="grid gap-3 border-t border-rule py-7 last:border-b sm:grid-cols-[302px_minmax(0,1fr)] sm:gap-0"
               >
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-ink/60">
-                  {item.kicker}
-                </p>
+                <p className="t-eyebrow text-ink/60">{item.kicker}</p>
                 <div>
                   <Link
                     href="#"
-                    className="text-[15px] font-semibold text-indigo-brand hover:underline"
+                    className="text-[23px] font-semibold leading-tight text-indigo-brand hover:underline"
                   >
                     {item.title}
                   </Link>
-                  <p className="mt-2 text-[12px] leading-relaxed text-ink-muted">
+                  <p className="mt-2 text-[13px] leading-[19px] text-ink-muted">
                     {item.body}
                   </p>
                 </div>
@@ -357,7 +346,17 @@ export default function HomePage() {
         </Container>
       </Section>
 
-      <CtaBand />
+      <CtaBand
+        title={
+          <>
+            Ready to invest in the future
+            <br />
+            of Shariah-compliant
+            <br />
+            innovation?
+          </>
+        }
+      />
     </>
   );
 }

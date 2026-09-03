@@ -33,17 +33,15 @@ export function PortfolioFilter({
   return (
     <>
       <div className="border-b border-rule/60 bg-cream">
-        <div className="mx-auto w-full max-w-[1280px] px-6 py-10 md:px-10">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink/70">
-            Filter by Sector
-          </p>
-          <div className="mt-4 flex flex-wrap gap-6">
+        <div className="mx-auto w-full max-w-[1440px] px-6 pb-[80px] pt-[70px] md:px-10 lg:px-20">
+          <p className="t-eyebrow text-ink/70">Filter by Sector</p>
+          <div className="mt-[28px] flex flex-wrap gap-8">
             {FILTERS.map((filter) => (
               <button
                 key={filter}
                 type="button"
                 onClick={() => setActive(filter)}
-                className={`border-b-2 pb-1 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors ${
+                className={`t-eyebrow border-b-2 pb-1 transition-colors ${
                   active === filter
                     ? "border-gold text-indigo-brand"
                     : "border-transparent text-ink/60 hover:text-indigo-brand"
@@ -57,34 +55,34 @@ export function PortfolioFilter({
       </div>
 
       <div className="bg-shell">
-        <div className="mx-auto w-full max-w-[1280px] px-6 py-20 md:px-10">
-          <h2 className="display text-right text-indigo-brand text-[34px] sm:text-[44px] lg:text-[52px]">
+        <div className="mx-auto w-full max-w-[1440px] px-6 pb-[155px] pt-[169px] md:px-10 lg:px-20">
+          <h2 className="t-section text-right text-indigo-brand">
             Active Investments
           </h2>
 
-          <div className="mt-12 overflow-x-auto lg:ml-auto lg:w-[72%]">
-            <table className="w-full min-w-[640px] text-left">
+          <div className="mt-[85px] overflow-x-auto lg:ml-auto lg:w-[72%]">
+            <table className="w-full min-w-[720px] text-left">
               <thead>
-                <tr className="border-b-2 border-rule text-[10px] font-bold uppercase tracking-[0.12em] text-ink/60">
-                  <th className="py-3 font-bold">Company</th>
-                  <th className="py-3 font-bold">Sector</th>
-                  <th className="py-3 font-bold">Stage</th>
-                  <th className="py-3 font-bold">Geography</th>
+                <tr className="t-eyebrow border-b-2 border-rule text-ink/60">
+                  <th className="pb-5 font-bold">Company</th>
+                  <th className="pb-5 font-bold">Sector</th>
+                  <th className="pb-5 font-bold">Stage</th>
+                  <th className="pb-5 font-bold">Geography</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.map((item) => (
                   <tr key={item.company} className="border-b border-rule/70">
-                    <td className="py-5 text-[16px] font-semibold text-indigo-brand">
+                    <td className="py-[25px] text-[21px] font-semibold text-indigo-brand">
                       {item.company}
                     </td>
-                    <td className="py-5 text-[13px] text-ink-muted">
+                    <td className="py-[25px] text-[16px] text-ink-muted">
                       {item.sector}
                     </td>
-                    <td className="py-5 text-[10px] font-bold uppercase tracking-[0.1em] text-indigo-brand">
+                    <td className="t-eyebrow py-[25px] text-indigo-brand">
                       {item.stage}
                     </td>
-                    <td className="py-5 text-[13px] text-ink-muted">
+                    <td className="py-[25px] text-[16px] text-ink-muted">
                       {item.geography}
                     </td>
                   </tr>

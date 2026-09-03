@@ -42,3 +42,6 @@ next-env.d.ts
 
 # source design deck (~80MB of client PDFs, not code)
 /design-refs/
+
+# playwright-mcp scratch output
+/.playwright-mcp/

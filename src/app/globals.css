@@ -25,9 +25,90 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Hero and section headings in the brand deck are set tight and heavy. */
-.display {
+/*
+ * Type scale lifted from the design deck. The deck is drawn on a 1440px canvas,
+ * so every step is expressed as a vw fraction of 1440 and clamped either side:
+ * at exactly 1440px wide the rendered size equals the measured size in the PDF.
+ */
+
+/* Hero headline — 80px / 92px at 1440. */
+.t-hero {
   font-weight: 700;
+  font-size: clamp(38px, 5.56vw, 80px);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+}
+
+/* Oversized display pair, e.g. "Two Engines / One Mission" — 127px / 120px. */
+.t-display {
+  font-weight: 700;
+  font-size: clamp(44px, 8.82vw, 127px);
+  line-height: 0.95;
   letter-spacing: -0.02em;
+}
+
+/* Section headings — 75px / 83px at 1440. */
+.t-section {
+  font-weight: 700;
+  font-size: clamp(30px, 5.21vw, 75px);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Sub-section headings, e.g. "01 / Venture Capital" numerals — 49px. */
+.t-sub {
+  font-weight: 700;
+  font-size: clamp(26px, 3.4vw, 49px);
   line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+/* Metric numerals — 88px at 1440. */
+.t-stat {
+  font-weight: 700;
+  font-size: clamp(34px, 6.11vw, 88px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+/* Hero and section lede — 21px / 32px at 1440. */
+.t-lede {
+  font-size: clamp(16px, 1.46vw, 21px);
+  line-height: 1.55;
+}
+
+/* Long-form body copy — 17px / 27px at 1440. */
+.t-body {
+  font-size: clamp(14px, 1.18vw, 17px);
+  line-height: 1.6;
+}
+
+/* Row and card titles — 25px at 1440. */
+.t-title {
+  font-weight: 600;
+  font-size: clamp(18px, 1.74vw, 25px);
+  line-height: 1.3;
+}
+
+/* All-caps eyebrows and table headers — 10px at 1440. */
+.t-eyebrow {
+  font-weight: 700;
+  font-size: clamp(10px, 0.7vw, 10px);
+  line-height: 1.4;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Standard section rhythm — 168px of padding top and bottom at 1440. */
+.sect {
+  padding-block: clamp(56px, 11.67vw, 168px);
+}
+
+/* Button and nav labels — 13px at 1440. */
+.t-label {
+  font-weight: 700;
+  font-size: clamp(11px, 0.9vw, 13px);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }

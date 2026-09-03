@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { CtaBand } from "@/components/cta-band";
 import {
   Button,
   Container,
@@ -8,7 +7,6 @@ import {
   PageHero,
   Section,
   SectionTitle,
-  Stat,
 } from "@/components/ui";
 
 export const metadata: Metadata = {
@@ -18,12 +16,12 @@ export const metadata: Metadata = {
 };
 
 const STATS = [
-  { value: "$23B+", label: "Bilateral Trade" },
-  { value: "270M", label: "Muslim Consumers" },
-  { value: "$3.2T", label: "Combined GDP" },
-  { value: "60%", label: "Under 30 Pop." },
-  { value: "7.2%", label: "Saudi GDP Growth" },
-  { value: "5.0%", label: "Indo GDP Growth" },
+  ["$23B+", "Bilateral Trade"],
+  ["270M", "Muslim Consumers"],
+  ["$3.2T", "Combined GDP"],
+  ["60%", "Under 30 Pop."],
+  ["7.2%", "Saudi GDP Growth"],
+  ["5.0%", "Indo GDP Growth"],
 ];
 
 const BRIDGE = [
@@ -59,6 +57,21 @@ const PARTNERS = [
   ],
 ];
 
+const CASE_BLOCKS = [
+  {
+    label: "The Challenge",
+    body: "Regulatory sandboxes in Saudi Arabia require local backing, complex structural entity alignment, and highly precise capital compliance auditing to protect GCC allocators from compliance issues.",
+  },
+  {
+    label: "Our Solution",
+    body: "Moria Ventures structured a dual-SPV capital architecture between Jakarta and Riyadh. We partnered with local legal counsel in the GCC to clear CMA guidelines and secure pilot licenses via Fintech Saudi.",
+  },
+  {
+    label: "The Outcome",
+    body: "Successful regional pilot landing with full operational capability, unlocking access to 10M+ local users under Shariah compliant finance operations.",
+  },
+];
+
 const CAPABILITIES = [
   "Direct OJK and CMA Regulatory Integration",
   "Bilateral Banking Relationships (BSI, local GCC banks)",
@@ -70,7 +83,16 @@ export default function CorridorPage() {
   return (
     <>
       <PageHero
-        title="Indonesia–Saudi Corridor"
+        title={
+          <>
+            Indonesia–Saudi
+            <br />
+            Corridor
+          </>
+        }
+        padding="pb-[100px] pt-[110px] lg:pb-[119px] lg:pt-[110px]"
+        ledeGap="mt-[36px]"
+        ledeClassName="max-w-[640px] text-[21px] leading-[32px]"
         lede="Bridging Southeast Asia's largest economy with the Gulf's fastest-growing market."
         actionsInline
         actions={
@@ -85,26 +107,24 @@ export default function CorridorPage() {
         }
       />
 
-      <div className="grid md:grid-cols-2">
-        <ImageSlot
-          src="/assets/about/jakarta.png"
-          alt="Jakarta"
-          ratio="aspect-[16/9]"
-          className="rounded-none"
-        />
-        <ImageSlot
-          src="/assets/about/riyadh.png"
-          alt="Riyadh"
-          ratio="aspect-[16/9]"
-          className="rounded-none"
-        />
-      </div>
+      {/* Full-bleed pairing of the two capitals */}
+      <ImageSlot
+        src="/assets/corridor/hero-split.jpg"
+        alt="Jakarta and Riyadh at dusk"
+        ratio="aspect-[1440/321]"
+        rounded="rounded-none"
+      />
 
-      <Section className="border-b border-rule/60">
-        <Container className="py-12">
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-6">
-            {STATS.map((stat) => (
-              <Stat key={stat.label} {...stat} divider={false} />
+      <Section>
+        <Container className="pb-[70px] pt-[68px]">
+          <div className="grid grid-cols-2 gap-y-10 sm:grid-cols-3 lg:grid-cols-6">
+            {STATS.map(([value, label]) => (
+              <div key={label}>
+                <p className="text-[63px] font-bold leading-none text-indigo-brand">
+                  {value}
+                </p>
+                <p className="t-eyebrow mt-[15px] text-ink/70">{label}</p>
+              </div>
             ))}
           </div>
         </Container>
@@ -112,28 +132,36 @@ export default function CorridorPage() {
 
       {/* The opportunity */}
       <Section tone="cream">
-        <Container className="py-20">
-          <SectionTitle className="text-[26px] sm:text-[30px] lg:text-[32px]">
+        <Container className="pb-[145px] pt-[141px]">
+          <h2 className="text-[33px] font-bold leading-none text-indigo-brand">
             The Opportunity
-          </SectionTitle>
+          </h2>
 
-          <ImageSlot className="mt-12" label="Bilateral handshake" ratio="aspect-[1066/300]" />
+          <ImageSlot
+            className="mt-[82px]"
+            src="/assets/corridor/opportunity.jpg"
+            alt="A bilateral partnership meeting"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
 
-          <div className="mt-14 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)]">
+          <div className="mt-[73px] grid gap-14 lg:grid-cols-[minmax(0,470px)_minmax(0,1fr)] lg:gap-[80px]">
             <div>
-              <p className="display text-indigo-brand text-[44px]">$3.2T</p>
-              <p className="mt-2 text-[10px] font-bold uppercase tracking-[0.12em] text-ink/70">
+              <p className="text-[104px] font-bold leading-none text-indigo-brand">
+                $3.2T
+              </p>
+              <p className="t-eyebrow mt-[16px] text-ink/70">
                 Combined Corridor GDP Opportunity
               </p>
             </div>
-            <div className="space-y-5 lg:border-l lg:border-rule lg:pl-12">
-              <p className="text-[15px] font-semibold leading-relaxed text-ink">
+            <div className="space-y-6">
+              <p className="text-[19px] font-semibold leading-[26px] text-ink">
                 The corridor linking Indonesia and the Kingdom of Saudi Arabia
                 represents one of the most powerful, underserved
                 Shariah-compliant trade and investment pipelines in the global
                 economy.
               </p>
-              <p className="text-[13px] leading-relaxed text-ink-muted">
+              <p className="text-[16px] leading-[26px] text-ink-muted">
                 Driven by Saudi Arabia&apos;s ambitious Vision 2030 and
                 Indonesia&apos;s projection as a top-five global economy by
                 2030, this corridor connects high-growth technological
@@ -141,7 +169,7 @@ export default function CorridorPage() {
                 in the GCC. Moria Ventures serves as the primary conduit
                 ensuring compliant flow.
               </p>
-              <p className="text-[13px] leading-relaxed text-ink-muted">
+              <p className="text-[16px] leading-[26px] text-ink-muted">
                 Through strategic alignment with sovereign entities, national
                 banks, and regulatory bodies across both regions, we facilitate
                 seamless market expansions, trade clearing, and capital
@@ -154,17 +182,25 @@ export default function CorridorPage() {
 
       {/* How we bridge */}
       <Section tone="cream" className="border-t border-rule/60">
-        <Container className="py-20">
+        <Container className="pb-[147px] pt-[149px]">
           <SectionTitle>How We Bridge</SectionTitle>
-          <ImageSlot className="mt-12" label="Cross-border deal room" ratio="aspect-[1066/300]" />
-          <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <ImageSlot
+            className="mt-[72px]"
+            src="/assets/corridor/how-we-bridge.jpg"
+            alt="A cross-border deal room"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
+          <div className="mt-[66px] grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-[57px]">
             {BRIDGE.map((item) => (
               <div key={item.n}>
-                <p className="display text-indigo-brand text-[30px]">{item.n}</p>
-                <h3 className="mt-4 text-[15px] font-semibold text-ink">
+                <p className="text-[51px] font-bold leading-none text-indigo-brand">
+                  {item.n}
+                </p>
+                <h3 className="mt-[37px] text-[19px] font-semibold text-ink">
                   {item.title}
                 </h3>
-                <p className="mt-3 text-[12px] leading-relaxed text-ink-muted">
+                <p className="mt-[16px] text-[14px] leading-[21px] text-ink-muted">
                   {item.body}
                 </p>
               </div>
@@ -175,20 +211,26 @@ export default function CorridorPage() {
 
       {/* Partners */}
       <section className="bg-gold">
-        <Container className="py-20">
+        <Container className="pb-[140px] pt-[150px]">
           <SectionTitle>Our Partners</SectionTitle>
-          <ImageSlot className="mt-12" label="Partner integration briefing" ratio="aspect-[1066/300]" />
-          <ul className="mt-12">
+          <ImageSlot
+            className="mt-[68px]"
+            src="/assets/corridor/partners.jpg"
+            alt="A partner integration briefing"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
+          <ul className="mt-[70px]">
             {PARTNERS.map(([name, body]) => (
               <li
                 key={name}
-                className="grid gap-2 border-t border-indigo-brand/25 py-5 last:border-b sm:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)_auto] sm:items-center sm:gap-10"
+                className="grid gap-2 border-t border-indigo-brand/25 py-[22px] last:border-b sm:grid-cols-[minmax(0,420px)_minmax(0,1fr)_auto] sm:items-center sm:gap-10"
               >
-                <p className="text-[15px] font-semibold text-indigo-brand">
+                <p className="text-[19px] font-semibold text-indigo-brand">
                   {name}
                 </p>
-                <p className="text-[12px] text-indigo-brand/85">{body}</p>
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-indigo-brand/70 sm:text-right">
+                <p className="text-[15px] text-indigo-brand/85">{body}</p>
+                <p className="t-eyebrow text-indigo-brand/70 sm:text-right">
                   Active Cooperation
                 </p>
               </li>
@@ -197,50 +239,59 @@ export default function CorridorPage() {
         </Container>
       </section>
 
-      {/* Case study */}
+      {/* Corridor in action */}
       <Section>
-        <Container className="py-20">
+        <Container className="pb-[145px] pt-[142px]">
           <Eyebrow>Corridor in Action</Eyebrow>
-          <SectionTitle className="mt-6">
+          <SectionTitle className="mt-[62px]">
             Scaling Shariah Fintech Across Regions
           </SectionTitle>
 
-          <ImageSlot className="mt-12" label="NusaQu product" ratio="aspect-[1066/300]" />
+          <ImageSlot
+            className="mt-[72px] lg:ml-[170px]"
+            src="/assets/corridor/nusaqu.jpg"
+            alt="The NusaQu product in use"
+            ratio="aspect-[1110/319]"
+            rounded="rounded-lg"
+          />
 
-          <div className="mt-14 grid gap-12 lg:grid-cols-2">
+          <div className="mt-[62px] grid gap-14 lg:grid-cols-[minmax(0,550px)_minmax(0,1fr)] lg:gap-[80px]">
             <div>
-              <h3 className="display text-indigo-brand text-[26px]">
+              <h3 className="text-[32px] font-bold leading-none text-indigo-brand">
                 NusaQu Shariah Tech
               </h3>
-              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink-muted">
+              <p className="mt-[46px] max-w-[500px] text-[16px] leading-[26px] text-ink-muted">
                 NusaQu, a pioneering Indonesian Shariah infrastructure platform,
                 needed to secure Gulf institutional allocation to launch its
                 regulatory pilot within Saudi Arabia.
               </p>
-              <div className="mt-8 flex gap-12">
-                <Stat value="$4.5M" label="Capital Deployed" divider={false} />
-                <Stat value="90 Days" label="CMA Sandbox Clearance" divider={false} />
+              <div className="mt-[51px] flex gap-[100px]">
+                <div>
+                  <p className="text-[52px] font-bold leading-none text-indigo-brand">
+                    $4.5M
+                  </p>
+                  <p className="t-eyebrow mt-[14px] text-ink/70">
+                    Capital Deployed
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[52px] font-bold leading-none text-indigo-brand">
+                    90 Days
+                  </p>
+                  <p className="t-eyebrow mt-[14px] text-ink/70">
+                    CMA Sandbox Clearance
+                  </p>
+                </div>
               </div>
             </div>
 
-            <div className="space-y-8 lg:border-l lg:border-rule lg:pl-12">
-              {[
-                {
-                  label: "The Challenge",
-                  body: "Regulatory sandboxes in Saudi Arabia require local backing, complex structural entity alignment, and highly precise capital compliance auditing to protect GCC allocators from compliance issues.",
-                },
-                {
-                  label: "Our Solution",
-                  body: "Moria Ventures structured a dual-SPV capital architecture between Jakarta and Riyadh. We partnered with local legal counsel in the GCC to clear CMA guidelines and secure pilot licenses via Fintech Saudi.",
-                },
-                {
-                  label: "The Outcome",
-                  body: "Successful regional pilot landing with full operational capability, unlocking access to 10M+ local users under Shariah compliant finance operations.",
-                },
-              ].map((block) => (
+            <div className="space-y-[30px]">
+              {CASE_BLOCKS.map((block) => (
                 <div key={block.label}>
-                  <Eyebrow>{block.label}</Eyebrow>
-                  <p className="mt-2 text-[13px] leading-relaxed text-ink-muted">
+                  <h4 className="text-[19px] font-semibold text-indigo-brand">
+                    {block.label}
+                  </h4>
+                  <p className="mt-[10px] text-[14px] leading-[21px] text-ink-muted">
                     {block.body}
                   </p>
                 </div>
@@ -252,26 +303,29 @@ export default function CorridorPage() {
 
       {/* Dual entity */}
       <Section>
-        <Container className="pb-20">
-          <ImageSlot label="Dual-entity offices" ratio="aspect-[1066/300]" />
-          <h2 className="display mt-12 text-indigo-brand text-[24px] sm:text-[30px]">
+        <Container className="pb-[140px] pt-[141px]">
+          <ImageSlot
+            src="/assets/corridor/dual-entity.jpg"
+            alt="The Jakarta and Riyadh desks"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
+          <h2 className="mt-[65px] text-[33px] font-bold leading-none text-indigo-brand">
             Dual-Entity Advantage at Every Transaction
           </h2>
-          <p className="mt-4 max-w-4xl text-[13px] leading-relaxed text-ink-muted">
+          <p className="mt-[28px] max-w-[1250px] text-[16px] leading-[26px] text-ink-muted">
             We maintain dedicated investment and operational task forces in both
             Jakarta and Riyadh, giving our LPs and portfolio companies
             on-the-ground access in both corridors.
           </p>
-          <ul className="mt-10">
+          <ul className="mt-[55px]">
             {CAPABILITIES.map((item) => (
               <li
                 key={item}
-                className="flex items-center justify-between gap-6 border-t border-rule py-5 last:border-b"
+                className="flex items-center justify-between gap-6 border-t border-rule py-[18px] last:border-b"
               >
-                <span className="text-[14px] font-semibold text-ink">{item}</span>
-                <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-indigo-brand">
-                  Capability
-                </span>
+                <span className="text-[17px] font-semibold text-ink">{item}</span>
+                <span className="t-eyebrow text-indigo-brand">Capability</span>
               </li>
             ))}
           </ul>
@@ -280,68 +334,93 @@ export default function CorridorPage() {
 
       {/* QRIS */}
       <Section tone="cream">
-        <Container className="py-20">
-          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-gold-deep">
-            Proof of Execution
-          </p>
-          <SectionTitle className="mt-4">
+        <Container className="pb-[130px] pt-[177px]">
+          <SectionTitle className="text-[30px] leading-[1.05] lg:text-[60px]">
             QRIS Cross-Border Payment Initiative
           </SectionTitle>
-          <p className="mt-6 max-w-4xl text-[13px] leading-relaxed text-ink-muted">
+          <p className="mt-[30px] max-w-[1260px] text-[16px] leading-[26px] text-ink-muted">
             Moria Fund Global is actively facilitating the integration of Bank
             Indonesia&apos;s national QR payment standard (QRIS) into Saudi
             Arabia&apos;s payment ecosystem, enabling real-time cross-border
             merchant settlements.
           </p>
 
-          <ImageSlot className="mt-12" label="QRIS merchant settlement" ratio="aspect-[1066/300]" />
+          <ImageSlot
+            className="mt-[70px]"
+            src="/assets/corridor/qris.jpg"
+            alt="A QRIS merchant settlement terminal"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
 
-          <Eyebrow className="mt-12">The Infrastructure Bridge</Eyebrow>
-          <p className="mt-3 max-w-4xl text-[13px] leading-relaxed text-ink-muted">
+          <Eyebrow className="mt-[66px] text-ink/70">
+            The Infrastructure Bridge
+          </Eyebrow>
+          <p className="mt-[22px] max-w-[1220px] text-[16px] leading-[26px] text-ink-muted">
             QRIS links Indonesian merchants to GCC consumers, creating a
             seamless cross-border settlement layer that reduces friction,
             improves liquidity, and expands regional commerce.
           </p>
 
-          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:w-2/3">
-            <Stat value="$3.4B+" label="Annual Bilateral Trade" divider={false} />
-            <Stat value="$120M" label="Pipeline Target Allocation" divider={false} />
+          <div className="mt-[59px] grid gap-10 sm:grid-cols-2 lg:w-2/3">
+            <div>
+              <p className="text-[104px] font-bold leading-none text-indigo-brand">
+                $3.4B+
+              </p>
+              <p className="t-eyebrow mt-[17px] text-ink/70">
+                Annual Bilateral Trade
+              </p>
+            </div>
+            <div>
+              <p className="text-[104px] font-bold leading-none text-indigo-brand">
+                $120M
+              </p>
+              <p className="t-eyebrow mt-[17px] text-ink/70">
+                Pipeline Target Allocation
+              </p>
+            </div>
           </div>
         </Container>
       </Section>
 
       {/* Explore */}
       <Section>
-        <Container className="py-20">
+        <Container className="pb-[139px] pt-[149px]">
           <SectionTitle>Explore the Corridor</SectionTitle>
-          <ImageSlot className="mt-12" label="Corridor trade map" ratio="aspect-[1066/300]" />
+          <ImageSlot
+            className="mt-[72px]"
+            src="/assets/corridor/trade-map.jpg"
+            alt="A corridor trade map"
+            ratio="aspect-[1280/319]"
+            rounded="rounded-lg"
+          />
 
-          <div className="mt-14 grid gap-10 md:grid-cols-2">
+          <div className="mt-[82px] grid gap-14 md:grid-cols-2 md:gap-[57px]">
             <div>
-              <h3 className="text-[19px] font-semibold text-indigo-brand">
+              <h3 className="text-[24px] font-semibold text-indigo-brand">
                 For Investors
               </h3>
-              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink-muted">
+              <p className="mt-[26px] max-w-[600px] text-[16px] leading-[26px] text-ink-muted">
                 Access curated high-growth Shariah-compliant opportunities
                 spanning fintech, sustainable supply chains, and consumer
                 portals across the high-yield SEA-GCC corridor.
               </p>
-              <div className="mt-8">
+              <div className="mt-[34px]">
                 <Button href="/for-limited-partners" tone="gold">
                   Request LP Presentation
                 </Button>
               </div>
             </div>
-            <div className="md:border-l md:border-rule md:pl-12">
-              <h3 className="text-[19px] font-semibold text-indigo-brand">
+            <div>
+              <h3 className="text-[24px] font-semibold text-indigo-brand">
                 For Businesses
               </h3>
-              <p className="mt-5 max-w-md text-[13px] leading-relaxed text-ink-muted">
+              <p className="mt-[26px] max-w-[600px] text-[16px] leading-[26px] text-ink-muted">
                 Scale your Shariah tech stack internationally. Leverage our
                 regulatory licenses, bank networks, and capital backing to
                 launch successfully into Riyadh and the wider Gulf region.
               </p>
-              <div className="mt-8">
+              <div className="mt-[34px]">
                 <Button href="/for-businesses" tone="outline">
                   Apply for Corridor Access
                 </Button>
@@ -350,8 +429,6 @@ export default function CorridorPage() {
           </div>
         </Container>
       </Section>
-
-      <CtaBand />
     </>
   );
 }
