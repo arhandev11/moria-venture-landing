@@ -60,11 +60,13 @@ export function Section({
   id,
 }: {
   children: ReactNode;
-  tone?: "shell" | "cream" | "gold" | "indigo";
+  tone?: "shell" | "cream" | "gold" | "indigo" | "none";
   className?: string;
   id?: string;
 }) {
   const tones = {
+    /** For sections stacked over a shared backdrop, which paints the colour instead. */
+    none: "",
     shell: "bg-shell",
     cream: "bg-cream",
     gold: "bg-gold text-indigo-brand",

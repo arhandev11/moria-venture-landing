@@ -126,80 +126,89 @@ const INSIGHTS = [
 export default function HomePage() {
   return (
     <>
-      {/* Hero */}
-      <Section className="relative overflow-hidden">
-        <AnimatedSupergraphic className="absolute right-0 top-[80px] h-[560px] w-[297px] opacity-40 sm:opacity-100 lg:top-[110px] lg:h-[940px] lg:w-[499px]" />
-        <Container className="relative pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]">
-          <Image
-            src="/assets/brand/wordmark-hero.svg"
-            alt="Moria Ventures"
-            width={388}
-            height={59}
-            priority
-            className="h-10 w-auto lg:h-[57px]"
-          />
-          {/* Line breaks are set to match the deck exactly. */}
-          <h1 className="t-hero mt-[60px] uppercase text-indigo-brand">
-            Shariah-Compliant
-            <br />
-            Capital. Connecting
-            <br />
-            Indonesia and the Gulf
-          </h1>
-          <p className="t-lede mt-14 max-w-[640px] text-ink-muted">
-            <span className="font-semibold text-indigo-brand">
-              PT Moria Global Ventures
-            </span>{" "}
-            operates at the intersection of high-growth Southeast Asian
-            innovation and Middle Eastern capital reserves, unlocking
-            institutional Shariah venture access.
-          </p>
-          <div className="mt-12 flex flex-wrap gap-4">
-            <Button href="/for-limited-partners" tone="indigo">
-              I&apos;m an Investor
-            </Button>
-            <Button href="/for-businesses" tone="outline">
-              I&apos;m a Business
-            </Button>
-          </div>
-        </Container>
-      </Section>
+      {/*
+        Hero, metrics and the two engines share one backdrop: the deck runs a
+        single supergraphic down the right of all three rather than one per
+        section, so it is anchored here and the sections above it stay
+        transparent. The metrics band frosts its own backdrop so the mark reads
+        softly through the numbers.
+      */}
+      <div className="relative overflow-hidden bg-shell">
+        <AnimatedSupergraphic className="absolute right-0 top-0 h-[900px] w-[478px] opacity-50 sm:opacity-100 lg:h-[1700px] lg:w-[903px]" />
 
-      {/* Headline metrics */}
-      <Section className="border-y border-rule/60">
-        <Container className="pb-[68px] pt-[75px]">
-          <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
-            {STATS.map((stat) => (
-              <Stat key={stat.label} {...stat} />
-            ))}
-          </div>
-        </Container>
-      </Section>
+        {/* Hero */}
+        <Section tone="none" className="relative">
+          <Container className="pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]">
+            <Image
+              src="/assets/brand/wordmark-hero.svg"
+              alt="Moria Ventures"
+              width={388}
+              height={59}
+              priority
+              className="h-10 w-auto lg:h-[57px]"
+            />
+            {/* Line breaks are set to match the deck exactly. */}
+            <h1 className="t-hero mt-[60px] uppercase text-indigo-brand">
+              Shariah-Compliant
+              <br />
+              Capital. Connecting
+              <br />
+              Indonesia and the Gulf
+            </h1>
+            <p className="t-lede mt-14 max-w-[640px] text-ink-muted">
+              <span className="font-semibold text-indigo-brand">
+                PT Moria Global Ventures
+              </span>{" "}
+              operates at the intersection of high-growth Southeast Asian
+              innovation and Middle Eastern capital reserves, unlocking
+              institutional Shariah venture access.
+            </p>
+            <div className="mt-12 flex flex-wrap gap-4">
+              <Button href="/for-limited-partners" tone="indigo">
+                I&apos;m an Investor
+              </Button>
+              <Button href="/for-businesses" tone="outline">
+                I&apos;m a Business
+              </Button>
+            </div>
+          </Container>
+        </Section>
 
-      {/* Two engines */}
-      <Section className="relative overflow-hidden">
-        <AnimatedSupergraphic className="absolute -left-[70px] top-24 h-[660px] w-[350px] opacity-80" />
-        <Container className="relative pb-[100px] pt-[98px]">
-          <div className="grid gap-16 lg:grid-cols-2 lg:gap-[88px]">
-            {ENGINES.map((engine) => (
-              <div key={engine.code}>
-                <p className="t-sub text-indigo-brand">{engine.code}</p>
-                <h2 className="mt-7 text-[19px] font-semibold text-ink">
-                  {engine.name}
-                </h2>
-                <p className="mt-7 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
-                  {engine.body}
-                </p>
-              </div>
-            ))}
-          </div>
-          <p className="t-display mt-20 text-right text-indigo-brand">
-            Two Engines
-            <br />
-            One Mission
-          </p>
-        </Container>
-      </Section>
+        {/* Headline metrics */}
+        <section className="relative border-y border-rule/60 bg-shell/55 backdrop-blur-[10px]">
+          <Container className="pb-[68px] pt-[75px]">
+            <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+              {STATS.map((stat) => (
+                <Stat key={stat.label} {...stat} />
+              ))}
+            </div>
+          </Container>
+        </section>
+
+        {/* Two engines */}
+        <Section tone="none" className="relative">
+          <Container className="pb-[100px] pt-[98px]">
+            <div className="grid gap-16 lg:grid-cols-2 lg:gap-[88px]">
+              {ENGINES.map((engine) => (
+                <div key={engine.code}>
+                  <p className="t-sub text-indigo-brand">{engine.code}</p>
+                  <h2 className="mt-7 text-[19px] font-semibold text-ink">
+                    {engine.name}
+                  </h2>
+                  <p className="mt-7 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
+                    {engine.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+            <p className="t-display mt-20 text-right text-indigo-brand">
+              Two Engines
+              <br />
+              One Mission
+            </p>
+          </Container>
+        </Section>
+      </div>
 
       {/* Value proposition */}
       <Section tone="cream">

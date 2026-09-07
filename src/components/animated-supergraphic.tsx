@@ -29,10 +29,17 @@ export function AnimatedSupergraphic({
   src = "/assets/homepage/dates.lottie.json",
   baseSrc = "/assets/brand/supergraphic-tall.svg",
   speed = 0.45,
+  outlineOpacity = 0.35,
 }: {
   className?: string;
   src?: string;
   baseSrc?: string;
+  /**
+   * How strongly the traced outline reads over the filled mark. The deck keeps
+   * it barely there, so the motion registers without the gold hairlines
+   * competing with the headline they sit behind.
+   */
+  outlineOpacity?: number;
   /** Playback rate; the export runs ~2.3s a pass, which is too brisk for ambient motion. */
   speed?: number;
 }) {
@@ -84,7 +91,7 @@ export function AnimatedSupergraphic({
         className="h-full w-full object-contain"
       />
       {play ? (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ opacity: outlineOpacity }}>
           <Lottie
             src={src}
             autoplay
