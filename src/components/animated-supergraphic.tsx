@@ -1,35 +1,37 @@
 "use client";
 
-import { Lottie, type LottieHandle } from "lottie-react";
+import {
+  Lottie,
+  LottieInteractions,
+  lottieScrollScrub,
+} from "lottie-react";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 /**
- * The line-work supergraphic, animated.
+ * The line-work supergraphic, drawn by scrolling.
  *
  * The deck ships this mark as a flat SVG and as a Lottie export
- * (`dates.lottie.json`, 19 shape layers over 137 frames) — the same artwork
- * either way. The JSON is ~1.4MB because its base layer is an inlined PNG, so
- * it only loads once the element is near the viewport, and never when the
- * visitor has asked for reduced motion.
+ * (`dates.lottie.json`, 19 shape layers over 137 frames). The JSON is ~1.4MB
+ * because its base layer is an inlined PNG, so it only loads once the element is
+ * near the viewport, and never when the visitor has asked for reduced motion.
+ *
+ * Playback is not on a clock: the playhead is tied to how far the mark has
+ * travelled through the viewport, so scrolling down traces the outline on and
+ * scrolling back up unwinds it, and it holds still whenever the reader does.
  *
  * The export draws only the gold outline, so the filled SVG sits underneath it
- * permanently and the animation traces over the top. Both fill the same box and
- * both preserve the artwork's aspect ratio, so the mark is always shown whole
- * and the two stay registered. Give the box the artwork's own proportion
- * (344 x 648) to avoid letterboxing.
- *
- * Playback ping-pongs: it draws through to the last frame, then back to the
- * first, and keeps alternating. The turn goes through the imperative handle
- * rather than through state — re-rendering on every boundary restarts the
- * animation, which reads as a stutter.
+ * permanently and the trace runs over the top. Both fill the same box and both
+ * preserve the artwork's aspect ratio, so the mark is always shown whole and the
+ * two stay registered. Give the box the artwork's own proportion (344 x 648) to
+ * avoid letterboxing.
  */
 export function AnimatedSupergraphic({
   className = "",
   src = "/assets/homepage/dates.lottie.json",
   baseSrc = "/assets/brand/supergraphic-tall.svg",
-  speed = 0.45,
   outlineOpacity = 0.35,
+  range = [0.3, 0.95] as const,
 }: {
   className?: string;
   src?: string;
@@ -40,13 +42,17 @@ export function AnimatedSupergraphic({
    * competing with the headline they sit behind.
    */
   outlineOpacity?: number;
-  /** Playback rate; the export runs ~2.3s a pass, which is too brisk for ambient motion. */
-  speed?: number;
+  /**
+   * The stretch of the mark's trip through the viewport that the frames map
+   * onto, as fractions of it. Starting late matters for the mark at the top of
+   * the homepage, which is already part-way through its trip when the page
+   * loads: without it the trace would arrive mostly complete and finish within
+   * the first few hundred pixels of scroll.
+   */
+  range?: readonly [number, number];
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
-  const lottieRef = useRef<LottieHandle>(null);
-  const directionRef = useRef<"forward" | "reverse">("forward");
-  const [play, setPlay] = useState(false);
+  const [load, setLoad] = useState(false);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -57,7 +63,7 @@ export function AnimatedSupergraphic({
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         observer.disconnect();
-        setPlay(true);
+        setLoad(true);
       },
       { rootMargin: "300px" },
     );
@@ -65,24 +71,11 @@ export function AnimatedSupergraphic({
     return () => observer.disconnect();
   }, []);
 
-  // Ping-pong has to hang off `complete` with looping switched off. With `loop`
-  // on, the engine wraps to the far end by itself and only then does the
-  // handler run, which leaves the playhead already at the end of the new
-  // direction — so it completes again immediately and the two fight, one frame
-  // at a time. Letting it stop, then turning it round and playing on from where
-  // it stopped, is the whole trick.
-  const onComplete = useCallback(() => {
-    directionRef.current =
-      directionRef.current === "forward" ? "reverse" : "forward";
-    lottieRef.current?.setDirection(directionRef.current);
-    lottieRef.current?.play();
-  }, []);
-
-  const subscriptions = useMemo(() => ({ complete: onComplete }), [onComplete]);
+  const interactions = useMemo(() => [lottieScrollScrub({ range })], [range]);
 
   return (
     <div ref={hostRef} aria-hidden className={`pointer-events-none ${className}`}>
-      {/* The filled mark: the Lottie only draws the gold outline over it. */}
+      {/* The filled mark: the Lottie only traces the gold outline over it. */}
       <Image
         src={baseSrc}
         alt=""
@@ -90,17 +83,11 @@ export function AnimatedSupergraphic({
         height={648}
         className="h-full w-full object-contain"
       />
-      {play ? (
+      {load ? (
         <div className="absolute inset-0" style={{ opacity: outlineOpacity }}>
-          <Lottie
-            src={src}
-            autoplay
-            loop={false}
-            speed={speed}
-            lottieRef={lottieRef}
-            subscriptions={subscriptions}
-            className="h-full w-full"
-          />
+          <LottieInteractions interactions={interactions}>
+            <Lottie src={src} autoplay={false} loop={false} className="h-full w-full" />
+          </LottieInteractions>
         </div>
       ) : null}
     </div>
