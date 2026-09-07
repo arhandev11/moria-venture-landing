@@ -273,9 +273,11 @@ export default function HomePage() {
           {/*
             The mark runs behind this table, so the panel frosts its own
             backdrop rather than sitting on the page colour: the line work stays
-            legible through it without competing with the rows.
+            legible through it without competing with the rows. The shadow is
+            what stops the frosted edge reading as a cut through the artwork —
+            it puts the panel above the mark rather than into it.
           */}
-          <div className="mt-[90px] overflow-x-auto bg-white/40 px-6 py-2 backdrop-blur-[10px] lg:ml-auto lg:w-[81%]">
+          <div className="mt-[90px] overflow-x-auto bg-white/40 px-6 py-2 shadow-[0_30px_80px_-30px_rgba(56,49,137,0.22)] backdrop-blur-[10px] lg:ml-auto lg:w-[81%]">
             <table className="w-full min-w-[700px] text-left">
               <thead>
                 <tr className="t-eyebrow border-b-2 border-rule text-ink/60">
