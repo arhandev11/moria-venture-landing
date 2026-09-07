@@ -270,7 +270,12 @@ export default function HomePage() {
         <AnimatedSupergraphic className="absolute bottom-10 -left-[90px] h-[940px] w-[499px] opacity-80" />
         <Container className="relative sect">
           <SectionTitle className="text-right">Portfolio</SectionTitle>
-          <div className="mt-[90px] overflow-x-auto lg:ml-auto lg:w-[73.5%]">
+          {/*
+            The mark runs behind this table, so the panel frosts its own
+            backdrop rather than sitting on the page colour: the line work stays
+            legible through it without competing with the rows.
+          */}
+          <div className="mt-[90px] overflow-x-auto bg-white/40 px-6 py-2 backdrop-blur-[10px] lg:ml-auto lg:w-[81%]">
             <table className="w-full min-w-[700px] text-left">
               <thead>
                 <tr className="t-eyebrow border-b-2 border-rule text-ink/60">
