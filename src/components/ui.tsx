@@ -46,6 +46,7 @@ export function Container({
 }) {
   return (
     <div
+      data-reveal-group
       className={`mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-20 ${className}`}
     >
       {children}
@@ -283,7 +284,10 @@ export function ImageSlot({
 }) {
   if (src) {
     return (
-      <div className={`relative overflow-hidden ${rounded} ${ratio} ${className}`}>
+      <div
+        data-reveal
+        className={`relative overflow-hidden ${rounded} ${ratio} ${className}`}
+      >
         <Image
           src={src}
           alt={alt}
