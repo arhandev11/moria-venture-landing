@@ -16,6 +16,9 @@ import { useEffect } from "react";
  * the page still reads normally. Only opacity and transform are touched, so
  * nothing here can move the layout the deck was measured against.
  */
+/** Delay between steps within one section. Deliberately unhurried. */
+const STAGGER_MS = 150;
+
 export function ScrollReveal() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -71,7 +74,7 @@ export function ScrollReveal() {
           window.setTimeout(() => {
             el.dataset.revealIn = "";
             delete el.dataset.revealPending;
-          }, step * 90);
+          }, step * STAGGER_MS);
         }
       },
       { rootMargin: "0px 0px -12% 0px", threshold: 0.01 },
