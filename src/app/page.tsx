@@ -188,24 +188,27 @@ export default function HomePage() {
         {/* Two engines */}
         <Section tone="none" className="relative">
           <Container className="pb-[100px] pt-[98px]">
-            <div className="grid gap-16 lg:grid-cols-2 lg:gap-[88px]">
-              {ENGINES.map((engine) => (
-                <div key={engine.code}>
-                  <p className="t-sub text-indigo-brand">{engine.code}</p>
-                  <h2 className="mt-7 text-[19px] font-semibold text-ink">
-                    {engine.name}
-                  </h2>
-                  <p className="mt-7 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
-                    {engine.body}
-                  </p>
-                </div>
-              ))}
+            <div className="grid gap-16 lg:grid-cols-[minmax(0,660px)_minmax(0,1fr)] lg:gap-[80px]">
+              {/* Both engines stack down the left, with the pair line beside them. */}
+              <div className="space-y-[100px]">
+                {ENGINES.map((engine) => (
+                  <div key={engine.code}>
+                    <p className="t-sub text-indigo-brand">{engine.code}</p>
+                    <h2 className="mt-7 text-[19px] font-semibold text-ink">
+                      {engine.name}
+                    </h2>
+                    <p className="mt-7 text-[16px] leading-[26px] text-ink-muted">
+                      {engine.body}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="self-end text-[36px] font-bold leading-[1.06] tracking-[-0.02em] text-indigo-brand sm:text-[52px] lg:text-right lg:text-[72px]">
+                Two Engines
+                <br />
+                One Mission
+              </p>
             </div>
-            <p className="t-display mt-20 text-right text-indigo-brand">
-              Two Engines
-              <br />
-              One Mission
-            </p>
           </Container>
         </Section>
       </div>
