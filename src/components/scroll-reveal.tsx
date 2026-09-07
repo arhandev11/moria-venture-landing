@@ -17,7 +17,7 @@ import { useEffect } from "react";
  * nothing here can move the layout the deck was measured against.
  */
 /** Delay between steps within one section. Deliberately unhurried. */
-const STAGGER_MS = 150;
+const STAGGER_MS = 440;
 
 export function ScrollReveal() {
   useEffect(() => {
