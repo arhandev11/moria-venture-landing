@@ -138,7 +138,10 @@ export default function HomePage() {
 
         {/* Hero */}
         <Section tone="none" className="relative">
-          <Container className="pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]">
+          <Container
+            data-hero-reveal
+            className="pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]"
+          >
             <Image
               src="/assets/brand/wordmark-hero.svg"
               alt="Moria Ventures"
@@ -148,14 +151,14 @@ export default function HomePage() {
               className="h-10 w-auto lg:h-[57px]"
             />
             {/* Line breaks are set to match the deck exactly. */}
-            <h1 className="t-hero mt-[60px] uppercase text-indigo-brand">
+            <h1 data-reveal-lines className="t-hero mt-[60px] uppercase text-indigo-brand">
               Shariah-Compliant
               <br />
               Capital. Connecting
               <br />
               Indonesia and the Gulf
             </h1>
-            <p className="t-lede mt-14 max-w-[640px] text-ink-muted">
+            <p data-reveal-lines className="t-lede mt-14 max-w-[640px] text-ink-muted">
               <span className="font-semibold text-indigo-brand">
                 PT Moria Global Ventures
               </span>{" "}

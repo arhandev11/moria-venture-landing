@@ -40,13 +40,15 @@ export function Button({
 export function Container({
   children,
   className = "",
+  ...rest
 }: {
   children: ReactNode;
   className?: string;
-}) {
+} & ComponentProps<"div">) {
   return (
     <div
       data-reveal-group
+      {...rest}
       className={`mx-auto w-full max-w-[1440px] px-6 md:px-10 lg:px-20 ${className}`}
     >
       {children}
@@ -155,8 +157,10 @@ export function PageHero({
   return (
     <Section className="relative overflow-hidden">
       <AnimatedSupergraphic className={markClassName} />
-      <Container className={`relative ${padding}`}>
-        <h1 className="t-hero uppercase text-indigo-brand">{title}</h1>
+      <Container data-hero-reveal className={`relative ${padding}`}>
+        <h1 data-reveal-lines className="t-hero uppercase text-indigo-brand">
+          {title}
+        </h1>
         <div
           className={`${ledeGap} ${
             actionsInline
@@ -164,7 +168,9 @@ export function PageHero({
               : ""
           }`}
         >
-          <p className={`${ledeClassName} text-ink-muted`}>{lede}</p>
+          <p data-reveal-lines className={`${ledeClassName} text-ink-muted`}>
+            {lede}
+          </p>
           {actions ? (
             <div className={`flex flex-wrap gap-4 ${actionsInline ? "" : "mt-[55px]"}`}>
               {actions}

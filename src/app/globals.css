@@ -139,3 +139,30 @@ body {
     transition: none;
   }
 }
+
+/*
+ * Hero reveal. Slower and further-travelling than the section reveal, and each
+ * step carries its own delay so the pieces arrive in order rather than together.
+ * Applied by HeroReveal at runtime, so the markup ships visible.
+ */
+[data-hero-pending] {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+[data-hero-in] {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 1.4s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms),
+    transform 1.4s cubic-bezier(0.16, 1, 0.3, 1) var(--reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-hero-pending],
+  [data-hero-in] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

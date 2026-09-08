@@ -47,16 +47,22 @@ export function ScrollReveal() {
       }
     };
 
+    // The hero runs its own, slower sequence; see HeroReveal.
+    const ownedByHero = (el: Element) => !!el.closest("[data-hero-reveal]");
+
     document
       .querySelectorAll<HTMLElement>("main [data-reveal-group]")
       .forEach((group) => {
+        if (ownedByHero(group)) return;
         for (const child of group.children) {
           if (child instanceof HTMLElement) collect(child);
         }
       });
     document
       .querySelectorAll<HTMLElement>("main [data-reveal]")
-      .forEach((el) => targets.push(el));
+      .forEach((el) => {
+        if (!ownedByHero(el)) targets.push(el);
+      });
 
     if (!targets.length) return;
 
