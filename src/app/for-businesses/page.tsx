@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
-import { Field, SubmitButton } from "@/components/form";
 import {
   Button,
   Container,
@@ -13,56 +13,56 @@ import {
 export const metadata: Metadata = {
   title: "For Businesses",
   description:
-    "We back founders building category-defining companies across Indonesia and the Gulf.",
+    "Equity for founders scaling toward exit, and short-cycle project financing for businesses that need working capital fast — structured around your business.",
 };
 
 const CRITERIA = [
   {
-    term: "Stage Focus",
-    body: "Series A - B active expansion rounds, with highly validated product-market fit.",
+    term: "Category-Leading Business Models",
+    body: "We back companies solving real structural inefficiencies — not incremental improvements. If the business model doesn't have a clear path to category leadership in its market, it's not a fit.",
   },
   {
-    term: "Ticket Size",
-    body: "$500,000 to $2,000,000 initial allocation, with dry powder reserved for follow-on participation.",
+    term: "SME-Focused",
+    body: "We back small and medium enterprises with real operational traction — businesses solving structural inefficiencies in their market, not early-stage ideas still searching for a model.",
   },
   {
-    term: "Core Sectors",
-    body: "Fintech · Logistics · Agritech · SaaS · Halal Economy ecosystems utilizing strong structural advantages.",
+    term: "Islamic Finance-Compliant Structure",
+    body: "Every deal must be structurable on asset-backed, interest-free terms. If the underlying business model can't be structured this way, it's outside our mandate regardless of return potential.",
   },
   {
-    term: "Market Footprint",
-    body: "Indonesia or GCC-centric operations, or clear readiness to bridge trade flows between both hubs.",
+    term: "Founder-Market Fit",
+    body: "We invest in founders as much as businesses — leadership capable of executing through governance, scale, and the operational discipline institutional capital requires.",
   },
   {
-    term: "Structuring",
-    body: "Strict Shariah-Compliant architecture, Murabaha Trade lines, or compliant convertible equity instruments.",
+    term: "Sector Focus",
+    body: "Priority sectors include agriculture and commodities, property, food & beverage (F&B), and FMCG — where structural inefficiencies are largest, and our operational experience adds the most value beyond capital.",
   },
 ];
 
 const VALUE_ADDS = [
   {
-    term: "Strategic Advisory",
-    body: "Corporate structural design optimized for cross-border bilateral deployment loops.",
+    term: "Governance & Institutional Readiness",
+    body: "We build the governance, financial reporting, and due diligence infrastructure companies need to qualify for institutional capital — not just advice, actual structure.",
   },
   {
-    term: "GCC Market Entry",
-    body: "Fast-tracked operational licensing, localization, and regulatory sandboxing inside Saudi Arabia.",
+    term: "Cross-Border Market Access",
+    body: "Direct introductions to Gulf sovereign allocators, strategic corporate partners, and GCC commercial networks — access most Indonesian businesses can't build on their own.",
   },
   {
-    term: "Shariah Structuring",
-    body: "Global Shariah board audit governance, removing compliance frictions for GCC allocators.",
+    term: "Islamic Finance-Compliant Deal Structuring",
+    body: "Every transaction structured on asset-backed, interest-free terms from the outset — not bolted on later. Compliance is built into the deal architecture itself.",
   },
   {
-    term: "Follow-on Capital",
-    body: "Direct priority exposure pipeline into Gulf Sovereign and institutional investor frameworks.",
+    term: "Operational Build-Out",
+    body: "Hands-on support across product, branding, legal structuring, and operations — we work inside the business, not just advise it from outside.",
   },
   {
-    term: "LP Network Access",
-    body: "Direct joint-venture business matchmaking with powerful industrial groups in GCC and ASEAN.",
+    term: "Ongoing Portfolio Management",
+    body: "Support doesn't end at the term sheet. Continued advisory, board-level guidance, and follow-on funding support through the company's growth.",
   },
   {
-    term: "Operational Support",
-    body: "Local corporate clearance, OJK/BI/CMA regulatory liaison management, and regional team scaling.",
+    term: "Repeatable Investment Discipline",
+    body: "Every deal runs through the same structured process from opportunity sourcing through exit — so value creation isn't dependent on any single deal or person.",
   },
 ];
 
@@ -70,7 +70,7 @@ const PROCESS = [
   {
     n: "01",
     title: "Initial Screening",
-    body: "Staged evaluation of Shariah structural alignment, core unit-economics, and regional bridge viability.",
+    body: "Staged evaluation of Islamic Principle structural alignment, core unit-economics, and regional bridge viability.",
   },
   {
     n: "02",
@@ -94,32 +94,17 @@ const PROCESS = [
   },
 ];
 
-const BACKED = [
-  ["NusaQu", "Shariah Fintech Infrastructure", "Active UAE / ID Corridors"],
-  ["PT Dhuha", "Halal Logistics & Distribution", "Project Finance Engine Partner"],
-  ["PT SIF Cocoa", "Sustainable Food Supply Chain", "GCC Sovereign Export Route"],
-];
-
-const FAQ = [
+// Display sizes measured off the 1440 render; the PNGs ship at 2x.
+const LOGOS = [
+  { src: "/assets/logos/dhuha.svg", alt: "Dhuha", w: 108, h: 127 },
+  { src: "/assets/logos/emma-tour.png", alt: "EMMA Tour & Travel", w: 135, h: 91 },
+  { src: "/assets/logos/nusaqu-mono.png", alt: "nusaQu", w: 196, h: 60 },
+  { src: "/assets/logos/beliayam-mono.png", alt: "beliayam.com", w: 241, h: 60 },
   {
-    q: "Does my business need to be Shariah-compliant already?",
-    a: "No. While we only invest in Shariah-aligned projects, we partner with companies to implement the right structures and governance frameworks.",
-  },
-  {
-    q: "What ticket sizes do you invest?",
-    a: "$100K-$500K for equity, $250K-$2M for project finance depending on transaction scope and structure.",
-  },
-  {
-    q: "Do you invest outside Indonesia?",
-    a: "Our primary markets are Indonesia and the GCC. We consider cross-border plays that bridge these two regions.",
-  },
-  {
-    q: "How long does the process take?",
-    a: "Initial screening takes 2 weeks. Full due diligence and IC presentation typically complete within 6-8 weeks.",
-  },
-  {
-    q: "What makes Moria different from other VCs?",
-    a: "We combine venture capital with project finance, enabling both long-horizon growth equity and short-cycle yield - plus deep GCC market access.",
+    src: "/assets/logos/kubah-global-bisnis.png",
+    alt: "Kubah Global Bisnis",
+    w: 292,
+    h: 41,
   },
 ];
 
@@ -127,11 +112,18 @@ export default function ForBusinessesPage() {
   return (
     <>
       <PageHero
-        title="For Businesses"
-        padding="pb-[100px] pt-[110px] lg:pb-[159px] lg:pt-[130px]"
-        ledeGap="mt-[50px]"
-        ledeClassName="max-w-[690px] text-[17px] leading-[29px]"
-        lede="We back founders building category-defining companies across Indonesia and the Gulf. Leverage our unique Shariah capital corridor to expand globally."
+        title={
+          <>
+            Two Ways We Back
+            <br />
+            Business Owners
+          </>
+        }
+        padding="pb-[100px] pt-[110px] lg:pb-[159px] lg:pt-[113px]"
+        ledeGap="mt-[53px]"
+        // The shared hero sets 55px above the buttons; the deck sits them closer.
+        ledeClassName="max-w-[580px] text-[17.5px] leading-[29px] lg:-mb-[13px]"
+        lede="Whether you're building for the long run or need capital to move now, we structure it around your business, not the other way around. Equity for founders scaling toward exit. Short-cycle project financing for businesses that need working capital fast."
         actions={
           <>
             <Button href="#submit-pitch" tone="gold">
@@ -146,25 +138,25 @@ export default function ForBusinessesPage() {
 
       {/* Investment criteria */}
       <Section tone="cream">
-        <Container className="pb-[160px] pt-[169px]">
+        <Container className="pb-[160px] pt-[157px]">
           <SectionTitle>Investment Criteria</SectionTitle>
-          <div className="mt-[110px] grid gap-14 lg:grid-cols-[minmax(0,480px)_minmax(0,1fr)] lg:gap-[73px]">
+          <div className="mt-[83px] grid items-start gap-14 lg:grid-cols-[472px_minmax(0,1fr)] lg:gap-[80px]">
             <ImageSlot
-              src="/assets/for-businesses/founder-meeting.jpg"
-              alt="A founder meeting in progress"
-              ratio="aspect-[480/620]"
+              src="/assets/for-businesses/criteria.webp"
+              alt="Founders reviewing deal documents across a desk"
+              ratio="aspect-[944/1316]"
               rounded="rounded-lg"
             />
             <dl>
               {CRITERIA.map((item) => (
                 <div
                   key={item.term}
-                  className="grid gap-2 border-t border-rule py-[26px] last:border-b sm:grid-cols-[minmax(0,320px)_minmax(0,1fr)] sm:gap-8"
+                  className="grid gap-2 border-t border-hairline pb-[33px] pt-[30px] last:border-b sm:grid-cols-[minmax(0,352px)_minmax(0,1fr)] sm:gap-[12px]"
                 >
-                  <dt className="text-[19px] font-semibold text-indigo-brand">
+                  <dt className="text-[20px] font-semibold leading-[20px] text-indigo-brand">
                     {item.term}
                   </dt>
-                  <dd className="text-[15px] leading-[24px] text-ink-muted">
+                  <dd className="text-[16px] leading-[26px] text-ink">
                     {item.body}
                   </dd>
                 </div>
@@ -175,23 +167,23 @@ export default function ForBusinessesPage() {
       </Section>
 
       {/* Beyond capital */}
-      <Section>
-        <Container className="pb-[190px] pt-[169px]">
+      <Section className="border-t border-hairline">
+        <Container className="pb-[160px] pt-[157px]">
           <SectionTitle>Beyond Capital</SectionTitle>
           <ImageSlot
-            className="mt-[88px]"
-            src="/assets/for-businesses/strategy-room.jpg"
-            alt="A strategy session"
-            ratio="aspect-[1280/319]"
+            className="mt-[84px]"
+            src="/assets/for-businesses/how-we-help.webp"
+            alt="The team in a working session around a proposal"
+            ratio="aspect-[2560/640]"
             rounded="rounded-lg"
           />
 
-          <div className="mt-[83px] grid gap-10 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)] lg:gap-10">
+          <div className="mt-[80px] grid gap-10 lg:grid-cols-[minmax(0,419px)_minmax(0,1fr)] lg:gap-10">
             <div>
-              <p className="text-[84px] font-bold leading-none text-indigo-brand">
+              <p className="-mt-[6px] text-[76px] font-bold leading-none text-indigo-brand">
                 06
               </p>
-              <p className="t-eyebrow mt-[28px] text-ink/70">
+              <p className="mt-[16px] text-[13px] font-bold uppercase text-ink">
                 Structural Value Additions
               </p>
             </div>
@@ -199,12 +191,12 @@ export default function ForBusinessesPage() {
               {VALUE_ADDS.map((item) => (
                 <div
                   key={item.term}
-                  className="grid gap-2 border-t border-rule py-[22px] last:border-b sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)] sm:gap-8"
+                  className="grid items-center gap-2 border-t border-hairline py-[23px] last:border-b sm:grid-cols-[minmax(0,320px)_minmax(0,1fr)] sm:gap-[20px]"
                 >
-                  <dt className="text-[19px] font-semibold text-indigo-brand">
+                  <dt className="text-[20px] font-semibold leading-[20px] text-indigo-brand">
                     {item.term}
                   </dt>
-                  <dd className="text-[15px] leading-[24px] text-ink-muted">
+                  <dd className="text-[14px] leading-[21px] text-ink">
                     {item.body}
                   </dd>
                 </div>
@@ -215,29 +207,29 @@ export default function ForBusinessesPage() {
       </Section>
 
       {/* Process */}
-      <Section tone="cream">
-        <Container className="pb-[205px] pt-[170px]">
+      <Section tone="cream" className="border-t border-hairline">
+        <Container className="pb-[160px] pt-[157px]">
           <SectionTitle>Our Process</SectionTitle>
           <ImageSlot
-            className="mt-[87px]"
-            src="/assets/for-businesses/deal-desk.jpg"
-            alt="The deal desk"
-            ratio="aspect-[1280/319]"
+            className="mt-[83px]"
+            src="/assets/for-businesses/process.webp"
+            alt="A desk set out with a laptop and a project milestones calendar"
+            ratio="aspect-[2560/640]"
             rounded="rounded-lg"
           />
           <div className="mt-[80px]">
             {PROCESS.map((step) => (
               <div
                 key={step.n}
-                className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-[60px] border-t border-rule py-[30px] last:border-b sm:grid-cols-[80px_minmax(0,300px)_minmax(0,1fr)] sm:gap-x-10"
+                className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-[60px] gap-y-2 border-t-[2px] border-indigo-brand py-[39px] last:border-b-[2px] sm:grid-cols-[120px_minmax(0,350px)_minmax(0,660px)] sm:gap-x-0"
               >
-                <span className="text-[41px] font-bold leading-none text-indigo-brand">
+                <span className="text-[44px] font-bold leading-none text-indigo-brand">
                   {step.n}
                 </span>
-                <h3 className="text-[19px] font-semibold text-indigo-brand">
+                <h3 className="text-[25px] font-semibold text-indigo-brand">
                   {step.title}
                 </h3>
-                <p className="text-[15px] leading-[24px] text-ink-muted">
+                <p className="col-span-2 text-[16px] leading-[26px] text-ink sm:col-span-1">
                   {step.body}
                 </p>
               </div>
@@ -247,108 +239,50 @@ export default function ForBusinessesPage() {
       </Section>
 
       {/* Companies backed */}
-      <section className="bg-gold">
-        <Container className="pb-[148px] pt-[129px]">
-          <SectionTitle>Companies We&apos;ve Backed</SectionTitle>
+      <Section>
+        <Container className="pb-[120px] pt-[117px]">
+          <SectionTitle className="lg:text-right">
+            Companies We&apos;ve Backed
+          </SectionTitle>
           <ImageSlot
-            className="mt-[72px]"
-            src="/assets/for-businesses/site-visit.jpg"
-            alt="A portfolio site visit"
-            ratio="aspect-[1280/319]"
+            className="mt-[68px]"
+            src="/assets/for-businesses/portfolio.webp"
+            alt="The team on site at a portfolio property development"
+            ratio="aspect-[2560/640]"
             rounded="rounded-lg"
           />
-          <ul className="mt-[90px]">
-            {BACKED.map(([name, sector, note]) => (
-              <li
-                key={name}
-                className="grid items-center gap-3 border-t border-indigo-brand/25 py-[26px] last:border-b sm:grid-cols-3 sm:gap-10"
-              >
-                <p className="text-[21px] font-semibold text-indigo-brand">
-                  {name}
-                </p>
-                <p className="t-eyebrow text-indigo-brand/80 sm:text-center">
-                  {sector}
-                </p>
-                <p className="text-[17px] font-semibold text-indigo-brand sm:text-right">
-                  {note}
-                </p>
+          <ul className="mt-[64px] flex flex-wrap items-center justify-center gap-x-12 gap-y-10 lg:justify-between lg:gap-x-0">
+            {LOGOS.map((logo) => (
+              <li key={logo.src}>
+                <Image
+                  src={logo.src}
+                  alt={logo.alt}
+                  width={logo.w}
+                  height={logo.h}
+                  className="h-auto max-w-full"
+                  style={{ width: logo.w }}
+                />
               </li>
             ))}
           </ul>
         </Container>
-      </section>
+      </Section>
 
       {/* Submit pitch */}
-      <Section id="submit-pitch">
-        <Container className="pb-[160px] pt-[161px]">
-          <ImageSlot
-            src="/assets/for-businesses/editorial-desk.jpg"
-            alt="An editorial desk"
-            ratio="aspect-[1250/239]"
-            rounded="rounded-lg"
-          />
-          <SectionTitle className="mt-[89px]">Submit Your Pitch</SectionTitle>
-          <p className="mt-[43px] max-w-[700px] text-[16px] leading-[26px] text-ink-muted">
+      <Section tone="gold" id="submit-pitch">
+        <Container className="pb-[160px] pt-[157px]">
+          <SectionTitle>Submit Your Pitch</SectionTitle>
+          <p className="mt-[17px] max-w-[700px] text-[15.5px] leading-[24px] text-ink">
             Fill out the institutional entry form below. Our cross-border
             evaluation committee processes requests weekly.
           </p>
-
-          <form className="mt-[76px] max-w-[800px]">
-            <div className="grid gap-x-10 gap-y-[33px] sm:grid-cols-2">
-              <Field label="Company Name" placeholder="e.g. PT Tech Nusantara" />
-              <Field label="Founder / Contact Name" placeholder="e.g. Faris Kuddah" />
-              <Field
-                label="Corporate Email"
-                type="email"
-                placeholder="founder@company.com"
-              />
-              <Field
-                label="Primary Market Sector"
-                placeholder="Fintech, Agritech, SaaS, etc."
-              />
-            </div>
-            <Field
-              className="mt-[33px]"
-              label="Funding Stage & SP Total"
-              placeholder="Pre-Series A, Series A, or specific Project Finance scale"
-            />
-            <Field
-              className="mt-[33px]"
-              label="Elevator Pitch"
-              rows={4}
-              placeholder="Describe your business, growth goals, and compliance alignment."
-            />
-            <SubmitButton className="mt-[43px]">Submit</SubmitButton>
-          </form>
-
+          {/* Taller than the shared Button and white-on-indigo, per the deck. */}
           <Link
-            href="#"
-            className="mt-[42px] inline-block text-[13px] font-semibold text-indigo-brand underline"
+            href="/contact"
+            className="t-label mt-[18px] inline-flex h-[50px] w-[195px] items-center justify-center bg-indigo-brand text-white transition-colors hover:bg-indigo-brand/90"
           >
-            Download Investment Thesis (PDF)
+            Contact Us
           </Link>
-        </Container>
-      </Section>
-
-      {/* FAQ */}
-      <Section tone="cream">
-        <Container className="pb-[197px] pt-[169px]">
-          <SectionTitle>Frequently Asked Questions</SectionTitle>
-          <dl className="mt-[110px]">
-            {FAQ.map((item) => (
-              <div
-                key={item.q}
-                className="grid gap-2 border-t border-rule py-[30px] last:border-b sm:grid-cols-[411px_minmax(0,1fr)] sm:gap-0"
-              >
-                <dt className="text-[19px] font-semibold text-indigo-brand">
-                  {item.q}
-                </dt>
-                <dd className="text-[15px] leading-[24px] text-ink-muted">
-                  {item.a}
-                </dd>
-              </div>
-            ))}
-          </dl>
         </Container>
       </Section>
     </>
