@@ -1,15 +1,8 @@
 import Image from "next/image";
-import Link from "next/link";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { CtaBand } from "@/components/cta-band";
-import {
-  Button,
-  Container,
-  DefRow,
-  Section,
-  SectionTitle,
-  Stat,
-} from "@/components/ui";
+import { LogoMarquee } from "@/components/logo-marquee";
+import { Button, Container, Section, SectionTitle } from "@/components/ui";
 
 const STATS = [
   { value: "$25M+", label: "Deployed Capital" },
@@ -20,21 +13,26 @@ const STATS = [
 
 const ENGINES = [
   {
-    code: "VC",
     name: "Venture Capital",
-    body: "Equity-based investments targeting high-growth technological pioneers in Southeast Asia. We commit to a 3-7 year horizon, actively stewarding portfolio expansion into Middle Eastern and North African hubs. Key target sectors include Fintech, Logistics, Agritech, and Halal-compliance tech ecosystems.",
+    icon: "/assets/homepage/icon-venture-capital.svg",
+    body: "Backing tomorrow's technology leaders in Southeast Asia through equity investment, with a 3–7 year horizon and hands-on support as portfolio companies scale into the Middle East and North Africa. We focus on Fintech, Logistics, Agritech, and Halal-tech, sectors where the region's next wave of growth is being built.",
   },
   {
-    code: "PF",
-    name: "Project Finance",
-    body: "Structured, low-volatility liquidity injections utilizing Murabaha, Istisna'a, and Musharakah architecture. We manage PO financing and supply chain trade liquidity with tight 30-180 day maturity cycles, mitigating cross-border currency and operational risks via institutional escrow.",
+    name: "Short-Cycle Yield",
+    icon: "/assets/homepage/icon-short-cycle-yield.svg",
+    body: "Structured, low-volatility liquidity injections using Murabaha, Istisna'a, and Musharakah structures. We manage PO financing and supply chain trade with tight 30–180 day maturity cycles, mitigating cross-border currency and operational risks via institutional escrow.",
+  },
+  {
+    name: "Venture Builder",
+    icon: "/assets/homepage/icon-venture-builder.svg",
+    body: "Hands-on venture building that turns early-stage ideas into investment-ready companies. We work alongside founders on product, structure, and commercial strategy — de-risking the business before capital moves. Focus sectors: Fintech, AI, Islamic-tech, F&B, and Healthtech.",
   },
 ];
 
 const VALUE_PROPS = [
   {
-    term: "Shariah-First",
-    body: "Every deployment operates under strict compliance models audited by globally recognized Shariah scholars. We eliminate riba, Gharar, and maysir without sacrificing yielding capabilities.",
+    term: "Islamic-Principles",
+    body: "Every deployment operates under strict compliance models audited by globally recognized Islamic scholars. We eliminate riba, Gharar, and maysir without sacrificing yielding capabilities.",
   },
   {
     term: "Dual-Market Access",
@@ -42,19 +40,15 @@ const VALUE_PROPS = [
   },
   {
     term: "Beyond Capital",
-    body: "Our partners hold deep regulatory, institutional, and commercial relationships across both jurisdictions, facilitating joint ventures, licensing, and national-level sovereign wealth support.",
+    body: "Our partners bring deep regulatory, institutional, and commercial relationships across both jurisdictions, enabling joint ventures, licensing pathways, and engagement with sovereign-level institutional capital.",
   },
   {
     term: "Proven Returns",
-    body: "A mathematical framework targeting consistent risk-adjusted returns through the dual-engine allocation strategy, combining volatile VC high-upsides with short-term predictable project yields.",
+    body: "A disciplined return framework targeting consistent risk-adjusted performance through our dual-engine allocation — pairing high-upside venture equity with predictable short-cycle project yields.",
   },
 ];
 
 const ECOSYSTEM = [
-  {
-    name: "BSI (Bank Syariah Indonesia)",
-    body: "Consolidated national Shariah framework interface for retail and trade clearance.",
-  },
   {
     name: "KNEKS",
     body: "Indonesian National Committee for Islamic Economy and Finance alignment.",
@@ -69,69 +63,25 @@ const ECOSYSTEM = [
   },
 ];
 
-const PORTFOLIO = [
-  ["HerMoves", "Femtech & Wellness Log", "Indonesia", "Seed"],
-  ["NusaQu", "Shariah Fintech Infrastructure", "Saudi Arabia / ID", "Pre-Series A"],
-  ["PT Dhuha", "Halal Logistics & Distribution", "Indonesia", "Project Finance"],
-  ["PT SIF Cocoa", "Sustainable Food Supply Chain", "Indonesia / GCC", "Series A"],
-  ["BeliAyam", "Agritech Marketplace Platform", "Indonesia", "Seed"],
-  ["Moria Fund Global", "Strategic GCC Sovereign Liquidity", "Saudi Arabia / UAE", "Macro Deployment"],
-];
-
-const LEADERSHIP = [
-  {
-    name: "Husni",
-    role: "CEO & Managing Partner",
-    photo: "/assets/team/husni.png",
-    body: "Over 18 years driving bilateral investment flow between Jakarta and GCC markets. Architect of Moria's sovereign-access pipeline structure.",
-  },
-  {
-    name: "Musab Mazen Bin Nosair",
-    role: "Co-Founder / CEO Moria Fund",
-    photo: "/assets/team/musab.png",
-    body: "Veteran Saudi investment strategist overseeing GCC sovereign allocator alignments and Murabaha structured project portfolios.",
-  },
-  {
-    name: "Faris Achmad Kuddah",
-    role: "COO",
-    photo: "/assets/team/faris.png",
-    body: "Specialist in cross-border execution logistics, regulatory operations under OJK/BI frameworks, and enterprise scaling.",
-  },
-  {
-    name: "Sandi S. Wibawa",
-    role: "Head of Finance",
-    photo: "/assets/team/sandi.png",
-    body: "Oversees strict Shariah compliance auditing, capital call calculations, and treasury functions in active multi-currency setups.",
-  },
-];
-
-const INSIGHTS = [
-  {
-    kicker: "Report — Feb 2025",
-    title: "Fintech Saudi Summit: Positioning Indonesian Agritech for GCC Launch",
-    body: "Analyzing cross-border regulatory setups and capital structures required to seed Southeast Asian platform technology into Riyadh.",
-  },
-  {
-    kicker: "Thesis — Jan 2025",
-    title: "The Mechanics of Shariah VC: Unlocking Non-Dilutive Murabaha Liquidity",
-    body: "How Moria's dual-engine framework balances traditional venture risk with short-cycle commodity-backed liquidity lines.",
-  },
-  {
-    kicker: "White Paper — Dec 2024",
-    title: "Indonesia-GCC Trade Corridors: A Macroeconomic Vision of Halal Ecosystems",
-    body: "Mapping capital reserves against high-growth consumer trends in Jakarta and the broader ASEAN Islamic landscape.",
-  },
+// Colour versions on purpose: the homepage strip is the one place the
+// portfolio shows in full brand colour.
+const PORTFOLIO_LOGOS = [
+  { src: "/assets/logos/moria-fund.svg", alt: "Moria Fund", width: 217, height: 43 },
+  { src: "/assets/logos/nusaqu.svg", alt: "NusaQu", width: 100, height: 30 },
+  { src: "/assets/logos/dhuha.svg", alt: "Dhuha", width: 51, height: 60 },
+  { src: "/assets/logos/beliayam.png", alt: "BeliAyam", width: 139, height: 35 },
+  { src: "/assets/logos/hermoves.png", alt: "HerMoves", width: 171, height: 40 },
 ];
 
 export default function HomePage() {
   return (
     <>
       {/*
-        Hero, metrics and the two engines share one backdrop: the deck runs a
-        single supergraphic down the right of all three rather than one per
-        section, so it is anchored here and the sections above it stay
-        transparent. The metrics band frosts its own backdrop so the mark reads
-        softly through the numbers.
+        Hero, the founder's quote and the metrics share one backdrop: the deck
+        runs a single supergraphic down the right of all three rather than one
+        per block, so it is anchored here and the blocks above it stay
+        transparent. The quote card and the metrics band frost their own
+        backdrop so the mark reads softly through them.
       */}
       <div className="relative overflow-hidden bg-shell">
         <AnimatedSupergraphic className="absolute right-0 top-0 h-[900px] w-[478px] opacity-50 sm:opacity-100 lg:h-[1700px] lg:w-[903px]" />
@@ -140,7 +90,7 @@ export default function HomePage() {
         <Section tone="none" className="relative">
           <Container
             data-hero-reveal
-            className="pb-[140px] pt-[110px] lg:pb-[234px] lg:pt-[146px]"
+            className="pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px]"
           >
             <Image
               src="/assets/brand/wordmark-hero.svg"
@@ -151,95 +101,158 @@ export default function HomePage() {
               className="h-10 w-auto lg:h-[57px]"
             />
             {/* Line breaks are set to match the deck exactly. */}
-            <h1 data-reveal-lines className="t-hero mt-[60px] uppercase text-indigo-brand">
-              Shariah-Compliant
+            <h1 data-reveal-lines className="t-hero mt-10 uppercase text-indigo-brand lg:mt-[41px]">
+              Compliant Capital.
               <br />
-              Capital. Connecting
+              Connecting the Gulf
               <br />
-              Indonesia and the Gulf
+              and Indonesia
             </h1>
-            <p data-reveal-lines className="t-lede mt-14 max-w-[640px] text-ink-muted">
+            <p data-reveal-lines className="t-lede mt-10 max-w-[640px] text-ink lg:mt-[52px]">
               <span className="font-semibold text-indigo-brand">
-                PT Moria Global Ventures
+                PT Moria Ventures Capital
               </span>{" "}
-              operates at the intersection of high-growth Southeast Asian
-              innovation and Middle Eastern capital reserves, unlocking
-              institutional Shariah venture access.
+              is an Islamic principles investment firm backing technology driven
+              companies across Indonesia and the Gulf, connecting global
+              investors with regional expertise and long term commitment to
+              founders.
             </p>
             <div className="mt-12 flex flex-wrap gap-4">
               <Button href="/for-limited-partners" tone="indigo">
                 I&apos;m an Investor
               </Button>
               <Button href="/for-businesses" tone="outline">
-                I&apos;m a Business
+                I&apos;m a Founder
               </Button>
             </div>
           </Container>
         </Section>
 
+        {/* Founder's quote */}
+        <Container className="relative pb-[52px]">
+          <figure className="mx-auto max-w-[868px] rounded-[24px] border border-white/90 bg-white/40 px-6 pb-[36px] pt-[34px] text-center backdrop-blur-[10px] sm:px-10">
+            <blockquote className="mx-auto max-w-[730px] text-[18px] leading-[1.6] text-ink lg:text-[22px] lg:leading-[37.5px]">
+              &ldquo;We didn&apos;t want to build a VC that just avoids haram. We
+              wanted to build one where everything we touch, every company,
+              every deal, every structure, is genuinely built the right
+              way.&rdquo;
+            </blockquote>
+            <figcaption className="mt-[39px] text-[15px] text-indigo-brand">
+              Husni Muhammad B, Managing Partner, Moria Ventures
+            </figcaption>
+            <Image
+              src="/assets/brand/logo-coin.svg"
+              alt=""
+              aria-hidden
+              width={59}
+              height={59}
+              className="mx-auto mt-[34px] size-[58px]"
+            />
+          </figure>
+        </Container>
+
         {/* Headline metrics */}
-        <section className="relative border-y border-rule/60 bg-shell/55 backdrop-blur-[10px]">
-          <Container className="pb-[68px] pt-[75px]">
-            <div className="grid grid-cols-2 gap-y-12 lg:grid-cols-4">
+        <section className="relative border-y border-hairline bg-shell/55 backdrop-blur-[10px]">
+          <Container className="py-[64px] lg:pb-[76px] lg:pt-[75px]">
+            <dl className="mx-auto grid max-w-[1200px] grid-cols-2 gap-y-12 lg:grid-cols-4">
               {STATS.map((stat) => (
-                <Stat key={stat.label} {...stat} />
+                <div
+                  key={stat.label}
+                  className="flex flex-col-reverse items-center text-center lg:border-l lg:border-[#d8dce0] lg:first:border-l-0"
+                >
+                  <dt className="mt-[23px] text-[11px] font-bold uppercase leading-none tracking-[0.02em] text-ink">
+                    {stat.label}
+                  </dt>
+                  <dd className="text-[44px] font-bold leading-none tracking-[-0.02em] text-indigo-brand lg:text-[67px]">{stat.value}</dd>
+                </div>
               ))}
-            </div>
+            </dl>
           </Container>
         </section>
-
-        {/* Two engines */}
-        <Section tone="none" className="relative">
-          <Container className="pb-[100px] pt-[98px]">
-            <div className="grid gap-16 lg:grid-cols-[minmax(0,660px)_minmax(0,1fr)] lg:gap-[80px]">
-              {/* Both engines stack down the left, with the pair line beside them. */}
-              <div className="space-y-[100px]">
-                {ENGINES.map((engine) => (
-                  <div key={engine.code}>
-                    <p className="t-sub text-indigo-brand">{engine.code}</p>
-                    <h2 className="mt-7 text-[19px] font-semibold text-ink">
-                      {engine.name}
-                    </h2>
-                    <p className="mt-7 text-[16px] leading-[26px] text-ink-muted">
-                      {engine.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <p className="self-end text-[36px] font-bold leading-[1.06] tracking-[-0.02em] text-indigo-brand sm:text-[52px] lg:text-right lg:text-[72px]">
-                Two Engines
-                <br />
-                One Mission
-              </p>
-            </div>
-          </Container>
-        </Section>
       </div>
 
-      {/* Value proposition */}
+      {/* Investment engines */}
       <Section tone="cream">
-        <Container className="sect">
-          <SectionTitle className="text-right">Value Proposition</SectionTitle>
-          <dl className="mt-[86px] lg:ml-auto lg:w-[74.6%]">
-            {VALUE_PROPS.map((item) => (
-              <DefRow key={item.term} term={item.term} termClassName="text-ink">
-                {item.body}
-              </DefRow>
+        <Container className="py-14 lg:pb-[96px] lg:pt-[91px]">
+          <SectionTitle className="text-center">Investment Engines</SectionTitle>
+          <div className="mx-auto mt-10 grid max-w-[1236px] lg:mt-[76px] gap-6 lg:grid-cols-3">
+            {ENGINES.map((engine) => (
+              <article
+                key={engine.name}
+                className="rounded-xl bg-white px-8 pb-[30px] pt-[31px]"
+              >
+                <Image
+                  src={engine.icon}
+                  alt=""
+                  aria-hidden
+                  width={60}
+                  height={100}
+                  className="h-[100px] w-[60px]"
+                />
+                <h3 className="mt-[26px] text-[22px] font-semibold leading-[1.3] text-ink">
+                  {engine.name}
+                </h3>
+                <p className="mt-[30px] text-[16px] leading-[26px] text-ink">
+                  {engine.body}
+                </p>
+              </article>
             ))}
-          </dl>
+          </div>
+        </Container>
+      </Section>
+
+      {/* Value proposition */}
+      <Section className="border-t border-hairline">
+        <Container className="py-14 lg:pb-[95px] lg:pt-[88px]">
+          <SectionTitle className="text-center">Value Proposition</SectionTitle>
+          <div className="mt-10 flex flex-col gap-12 lg:mt-[83px] lg:flex-row lg:items-stretch lg:justify-between">
+            <div className="relative aspect-[458/852] w-[240px] shrink-0 self-center lg:ml-3 lg:self-auto lg:w-[303px]">
+              {/* The corners are rounded in the image itself. */}
+              <Image
+                src="/assets/homepage/value-proposition.webp"
+                alt="Jakarta skyline at dusk"
+                fill
+                sizes="303px"
+                className="object-cover"
+              />
+            </div>
+            <dl className="lg:w-[886px]">
+              {VALUE_PROPS.map((item) => (
+                <div
+                  key={item.term}
+                  className="grid gap-3 border-t-[1.5px] border-[#b78d37]/70 pb-[34px] pt-[28px] last:border-b-[1.5px] sm:grid-cols-[302px_minmax(0,520px)] sm:gap-0"
+                >
+                  <dt className="text-[22px] font-semibold leading-[26px] text-indigo-brand">
+                    {item.term}
+                  </dt>
+                  <dd className="text-[16px] leading-[26px] text-indigo-brand">
+                    {item.body}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
         </Container>
       </Section>
 
       {/* Corridor */}
-      <Section tone="cream" className="border-t border-rule/60">
-        <Container className="sect">
+      <Section tone="cream" className="relative overflow-hidden border-t border-hairline">
+        <Image
+          src="/assets/homepage/world-map.svg"
+          alt=""
+          aria-hidden
+          width={767}
+          height={382}
+          className="pointer-events-none absolute right-0 top-0 w-[60%] max-w-[767px] select-none lg:w-[767px]"
+        />
+        <Container className="relative py-16 lg:pb-[158px] lg:pt-[155px]">
           <SectionTitle>Indonesia — Saudi Arabia</SectionTitle>
-          <div className="mt-[82px] grid gap-16 lg:grid-cols-2 lg:gap-[57px]">
+          <div className="mt-10 grid gap-16 lg:mt-[78px] lg:grid-cols-2 lg:gap-[57px]">
             <div>
-              <h3 className="text-[19px] font-semibold text-ink">
+              <h3 className="text-[20px] font-bold lg:text-[24px] leading-[1.2] text-ink">
                 A Trillion-Dollar Economic Corridor
               </h3>
-              <p className="mt-10 max-w-[620px] text-[16px] leading-[26px] text-ink-muted">
+              <p className="mt-[30px] max-w-[608px] text-[16px] leading-[26px] text-ink">
                 As the world&apos;s largest Muslim-majority nation, Indonesia
                 holds massive untapped consumer markets and highly active
                 digital-native sectors. Saudi Arabia, driving Vision 2030,
@@ -249,15 +262,17 @@ export default function HomePage() {
                 Middle Eastern mandates with Southeast Asian growth engines.
               </p>
             </div>
-            <div>
-              <p className="t-eyebrow text-ink/60">Strategic Eco-System Links</p>
-              <ul className="mt-6 space-y-[14px]">
+            <div className="lg:pt-[3px]">
+              <p className="text-[10px] font-bold uppercase leading-[1.4] tracking-[0.04em] text-ink">
+                Strategic Eco-System Links
+              </p>
+              <ul className="mt-5 space-y-[20px]">
                 {ECOSYSTEM.map((item) => (
                   <li key={item.name}>
-                    <p className="text-[17px] font-semibold text-ink">
+                    <p className="text-[17px] font-bold leading-[22px] text-ink">
                       {item.name}
                     </p>
-                    <p className="mt-1 text-[13px] leading-[19px] text-ink-muted">
+                    <p className="mt-[3px] text-[14px] leading-[20px] text-ink">
                       {item.body}
                     </p>
                   </li>
@@ -268,117 +283,15 @@ export default function HomePage() {
         </Container>
       </Section>
 
-      {/* Portfolio table */}
-      <Section className="relative overflow-hidden">
-        <AnimatedSupergraphic className="absolute bottom-10 -left-[90px] h-[940px] w-[499px] opacity-80" />
-        <Container className="relative sect">
-          <SectionTitle className="text-right">Portfolio</SectionTitle>
-          {/*
-            The mark runs behind this table, so the panel frosts its own
-            backdrop rather than sitting on the page colour: the line work stays
-            legible through it without competing with the rows. The shadow is
-            what stops the frosted edge reading as a cut through the artwork —
-            it puts the panel above the mark rather than into it.
-          */}
-          <div className="mt-[90px] overflow-x-auto bg-white/40 px-6 py-2 shadow-[0_30px_80px_-30px_rgba(56,49,137,0.22)] backdrop-blur-[10px] lg:ml-auto lg:w-[81%]">
-            <table className="w-full min-w-[700px] text-left">
-              <thead>
-                <tr className="t-eyebrow border-b-2 border-rule text-ink/60">
-                  <th className="pb-4 font-bold">Company</th>
-                  <th className="pb-4 font-bold">Sector</th>
-                  <th className="pb-4 font-bold">Country</th>
-                  <th className="pb-4 font-bold">Stage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {PORTFOLIO.map(([company, sector, country, stage]) => (
-                  <tr key={company} className="border-b border-rule/70">
-                    <td className="t-title py-[19px] text-indigo-brand">
-                      {company}
-                    </td>
-                    <td className="t-body py-[19px] text-ink-muted">{sector}</td>
-                    <td className="t-body py-[19px] text-ink-muted">{country}</td>
-                    <td className="t-eyebrow py-[19px] text-indigo-brand">
-                      {stage}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+      {/* Portfolio */}
+      <Section className="border-b border-hairline py-14 lg:pb-[133px] lg:pt-[76px]">
+        <Container>
+          <SectionTitle className="text-center">Portfolio</SectionTitle>
         </Container>
+        <LogoMarquee logos={PORTFOLIO_LOGOS} className="mt-10 lg:mt-[90px]" />
       </Section>
 
-      {/* Leadership */}
-      <Section>
-        <Container className="sect">
-          <SectionTitle>Leadership</SectionTitle>
-          <div className="mt-20 grid gap-x-[58px] gap-y-14 sm:grid-cols-2 lg:grid-cols-4">
-            {LEADERSHIP.map((person) => (
-              <article key={person.name}>
-                <div className="relative aspect-[9/10] overflow-hidden rounded-lg bg-cream">
-                  <Image
-                    src={person.photo}
-                    alt={person.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                    className="object-cover object-top"
-                  />
-                </div>
-                <h3 className="mt-5 text-[22px] font-semibold leading-tight text-indigo-brand">
-                  {person.name}
-                </h3>
-                <p className="mt-2 text-[14px] font-semibold text-ink">
-                  {person.role}
-                </p>
-                <p className="mt-4 text-[13px] leading-[20px] text-ink-muted">
-                  {person.body}
-                </p>
-              </article>
-            ))}
-          </div>
-        </Container>
-      </Section>
-
-      {/* Insights */}
-      <Section tone="cream">
-        <Container className="sect">
-          <SectionTitle className="text-right">Insights</SectionTitle>
-          <ul className="mt-16 lg:ml-[124px]">
-            {INSIGHTS.map((item) => (
-              <li
-                key={item.title}
-                className="grid gap-3 border-t border-rule py-7 last:border-b sm:grid-cols-[302px_minmax(0,1fr)] sm:gap-0"
-              >
-                <p className="t-eyebrow text-ink/60">{item.kicker}</p>
-                <div>
-                  <Link
-                    href="#"
-                    className="text-[23px] font-semibold leading-tight text-indigo-brand hover:underline"
-                  >
-                    {item.title}
-                  </Link>
-                  <p className="mt-2 text-[13px] leading-[19px] text-ink-muted">
-                    {item.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </Section>
-
-      <CtaBand
-        title={
-          <>
-            Ready to invest in the future
-            <br />
-            of Shariah-compliant
-            <br />
-            innovation?
-          </>
-        }
-      />
+      <CtaBand />
     </>
   );
 }
