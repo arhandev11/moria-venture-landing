@@ -49,7 +49,7 @@ const BRIDGE = [
 
 const PARTNERS = [
   ["Fintech Saudi", "Saudi CMA and Central Bank sandbox integration node."],
-  ["Bank Syariah Indonesia (BSI)", "Retail and trade Shariah banking framework."],
+  ["Bank Syariah Indonesia (BSI)", "Retail and trade Islamic banking framework."],
   ["Saudi CMA (Licensed Alignments)", "Regulated fund flows and compliance frameworks."],
   [
     "Embassy of the Republic of Indonesia",
@@ -68,7 +68,7 @@ const CASE_BLOCKS = [
   },
   {
     label: "The Outcome",
-    body: "Successful regional pilot landing with full operational capability, unlocking access to 10M+ local users under Shariah compliant finance operations.",
+    body: "Successful regional pilot landing with full operational capability, unlocking access to 10M+ local users under Islamic Principle-compliant finance operations.",
   },
 ];
 
@@ -76,7 +76,7 @@ const CAPABILITIES = [
   "Direct OJK and CMA Regulatory Integration",
   "Bilateral Banking Relationships (BSI, local GCC banks)",
   "In-Country Due Diligence Teams",
-  "Cross-Border Legal and Shariah Structuring",
+  "Cross-Border Legal and Islamic Finance Structuring",
 ];
 
 export default function CorridorPage() {
@@ -158,7 +158,7 @@ export default function CorridorPage() {
               <p className="text-[19px] font-semibold leading-[26px] text-ink">
                 The corridor linking Indonesia and the Kingdom of Saudi Arabia
                 represents one of the most powerful, underserved
-                Shariah-compliant trade and investment pipelines in the global
+                Islamic Principle-compliant trade and investment pipelines in the global
                 economy.
               </p>
               <p className="text-[16px] leading-[26px] text-ink-muted">
@@ -173,7 +173,7 @@ export default function CorridorPage() {
                 Through strategic alignment with sovereign entities, national
                 banks, and regulatory bodies across both regions, we facilitate
                 seamless market expansions, trade clearing, and capital
-                allocations that respect Shariah compliance at every milestone.
+                allocations that respect Islamic Principle compliance at every milestone.
               </p>
             </div>
           </div>
@@ -244,7 +244,7 @@ export default function CorridorPage() {
         <Container className="pb-[145px] pt-[142px]">
           <Eyebrow>Corridor in Action</Eyebrow>
           <SectionTitle className="mt-[62px]">
-            Scaling Shariah Fintech Across Regions
+            Scaling Islamic Fintech Across Regions
           </SectionTitle>
 
           <ImageSlot
@@ -258,14 +258,14 @@ export default function CorridorPage() {
           <div className="mt-[62px] grid gap-14 lg:grid-cols-[minmax(0,550px)_minmax(0,1fr)] lg:gap-[80px]">
             <div>
               <h3 className="text-[32px] font-bold leading-none text-indigo-brand">
-                NusaQu Shariah Tech
+                NusaQu Islamic Tech
               </h3>
               <p className="mt-[46px] max-w-[500px] text-[16px] leading-[26px] text-ink-muted">
-                NusaQu, a pioneering Indonesian Shariah infrastructure platform,
+                NusaQu, a pioneering Indonesian Islamic finance infrastructure platform,
                 needed to secure Gulf institutional allocation to launch its
                 regulatory pilot within Saudi Arabia.
               </p>
-              <div className="mt-[51px] flex gap-[100px]">
+              <div className="mt-[51px] flex gap-12 sm:gap-[100px]">
                 <div>
                   <p className="text-[52px] font-bold leading-none text-indigo-brand">
                     $4.5M
@@ -401,7 +401,7 @@ export default function CorridorPage() {
                 For Investors
               </h3>
               <p className="mt-[26px] max-w-[600px] text-[16px] leading-[26px] text-ink-muted">
-                Access curated high-growth Shariah-compliant opportunities
+                Access curated high-growth Islamic Principle-compliant opportunities
                 spanning fintech, sustainable supply chains, and consumer
                 portals across the high-yield SEA-GCC corridor.
               </p>
@@ -416,7 +416,7 @@ export default function CorridorPage() {
                 For Businesses
               </h3>
               <p className="mt-[26px] max-w-[600px] text-[16px] leading-[26px] text-ink-muted">
-                Scale your Shariah tech stack internationally. Leverage our
+                Scale your Islamic finance tech stack internationally. Leverage our
                 regulatory licenses, bank networks, and capital backing to
                 launch successfully into Riyadh and the wider Gulf region.
               </p>

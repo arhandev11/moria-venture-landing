@@ -4,14 +4,14 @@ import { Button, Container, Supergraphic } from "@/components/ui";
 export function CtaBand({
   title = (
     <>
-      Ready to invest in the future of
-      <br className="hidden sm:block" />
-      Shariah-compliant innovation?
+      Ready to invest in the future
+      <br className="hidden sm:block" /> of Islamic Principle
+      <br className="hidden sm:block" /> compliant innovation?
     </>
   ),
-  primary = { label: "Request Data Room", href: "/contact" },
-  secondary = { label: "Apply for Funding", href: "/for-businesses" },
-  padding = "pb-[140px] pt-[168px]",
+  primary = { label: "I'm an Investor", href: "/for-limited-partners" },
+  secondary = { label: "I'm a Founder", href: "/for-businesses" },
+  padding = "pb-[158px] pt-[156px]",
 }: {
   title?: React.ReactNode;
   primary?: { label: string; href: string };
@@ -27,7 +27,7 @@ export function CtaBand({
       />
       <Container className={`relative ${padding}`}>
         <h2 className="t-section max-w-[1120px] text-indigo-brand">{title}</h2>
-        <div className="mt-[62px] flex flex-wrap gap-4">
+        <div className="mt-[54px] flex flex-wrap gap-4">
           <Button href={primary.href} tone="indigo">
             {primary.label}
           </Button>

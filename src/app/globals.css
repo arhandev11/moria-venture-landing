@@ -10,6 +10,8 @@
   --color-ink: #201f22;
   --color-ink-muted: #4a4a52;
   --color-rule: #d9d6cd;
+  /* The revised deck draws section and list hairlines in a cool grey. */
+  --color-hairline: #c2c8cf;
 
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 }

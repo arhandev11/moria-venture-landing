@@ -29,7 +29,7 @@ const COLUMNS = [
 ];
 
 const LEGAL = [
-  "Shariah Board Certification",
+  "Islamic Principle Board Certification",
   "Privacy Policy",
   "Terms of Service",
 ];
@@ -48,7 +48,7 @@ export function SiteFooter() {
               className="h-[38px] w-auto"
             />
             <p className="mt-5 max-w-[380px] text-[13px] leading-[21px] text-white/80">
-              PT Moria Global Ventures bridging Southeast Asia and the Gulf
+              PT Moria Ventures Capital bridging Southeast Asia and the Gulf
               Cooperation Council.
             </p>
           </div>
@@ -74,9 +74,9 @@ export function SiteFooter() {
           ))}
         </div>
 
-        <div className="mt-[72px] flex flex-col gap-4 border-t border-white/20 pt-7 text-[13px] text-white/70 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-[67px] flex flex-col gap-4 border-t border-white/20 pt-7 text-[13px] text-white/70 sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © 2026 PT Moria Global Ventures. All rights reserved. Registered
+            © 2026 PT Moria Ventures Capital. All rights reserved. Registered
             under OJK and Saudi CMA.
           </p>
           <ul className="flex flex-wrap gap-8">

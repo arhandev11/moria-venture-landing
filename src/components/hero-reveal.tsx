@@ -97,22 +97,30 @@ export function HeroReveal() {
     const staged: { el: HTMLElement; delay: number }[] = [];
     let cursor = 0;
 
-    for (const child of hero.children) {
-      if (!(child instanceof HTMLElement)) continue;
+    const stage = (parent: Element) => {
+      for (const child of parent.children) {
+        if (!(child instanceof HTMLElement)) continue;
 
-      if (child.hasAttribute("data-reveal-lines")) {
-        const lines = groupByLine(wrapWords(child));
-        for (const line of lines) {
-          for (const word of line) staged.push({ el: word, delay: cursor });
-          cursor += LINE_MS;
+        if (child.hasAttribute("data-reveal-lines")) {
+          const lines = groupByLine(wrapWords(child));
+          for (const line of lines) {
+            for (const word of line) staged.push({ el: word, delay: cursor });
+            cursor += LINE_MS;
+          }
+          // A block of copy earns a fuller beat before whatever follows it.
+          cursor += ELEMENT_MS - LINE_MS;
+        } else if (child.querySelector("[data-reveal-lines]")) {
+          // A wrapper around line-revealed copy (PageHero groups its lede with
+          // the actions) would otherwise fade in as one slab and swallow the
+          // lines inside it, so step into it instead.
+          stage(child);
+        } else {
+          staged.push({ el: child, delay: cursor });
+          cursor += ELEMENT_MS;
         }
-        // A block of copy earns a fuller beat before whatever follows it.
-        cursor += ELEMENT_MS - LINE_MS;
-      } else {
-        staged.push({ el: child, delay: cursor });
-        cursor += ELEMENT_MS;
       }
-    }
+    };
+    stage(hero);
 
     if (!staged.length) return;
 

@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: "%s — Moria Ventures",
   },
   description:
-    "PT Moria Global Ventures — Shariah-compliant capital connecting Indonesia and the Gulf through venture capital, project finance, and venture building.",
+    "PT Moria Ventures Capital — Islamic Principle-compliant capital connecting Indonesia and the Gulf through venture capital, project finance, and venture building.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -168,7 +168,7 @@ export function PageHero({
               : ""
           }`}
         >
-          <p data-reveal-lines className={`${ledeClassName} text-ink-muted`}>
+          <p data-reveal-lines className={`${ledeClassName} text-ink`}>
             {lede}
           </p>
           {actions ? (
@@ -185,24 +185,31 @@ export function PageHero({
 /** Sticky in-page section switcher used on About and What We Do. */
 export function AnchorNav({
   items,
+  dividers = true,
 }: {
   items: { label: string; href: string }[];
+  /** About separates its labels with hairlines; What We Do spaces them instead. */
+  dividers?: boolean;
 }) {
   return (
     <div className="border-y border-rule/60 bg-cream">
       <Container>
-        <ul className="flex flex-wrap items-center gap-x-8 gap-y-2 py-6">
+        <ul
+          className={`flex flex-wrap items-center gap-y-2 py-[22px] ${
+            dividers ? "gap-x-8" : "gap-x-12"
+          }`}
+        >
           {items.map((item, i) => (
             <li key={item.href} className="flex items-center gap-8">
               <a
                 href={item.href}
-                className={`t-eyebrow ${
-                  i === 0 ? "text-indigo-brand" : "text-ink/70 hover:text-indigo-brand"
+                className={`text-[13px] font-bold uppercase leading-[19px] tracking-[0.02em] ${
+                  i === 0 ? "text-indigo-brand" : "text-ink hover:text-indigo-brand"
                 }`}
               >
                 {item.label}
               </a>
-              {i < items.length - 1 ? (
+              {dividers && i < items.length - 1 ? (
                 <span aria-hidden className="h-4 w-px bg-rule" />
               ) : null}
             </li>
