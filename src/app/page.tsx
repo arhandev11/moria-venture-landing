@@ -82,8 +82,12 @@ export default function HomePage() {
         per block, so it is anchored here and the blocks above it stay
         transparent. The quote card and the metrics band frost their own
         backdrop so the mark reads softly through them.
+
+        The crop is a clip, not a hidden overflow: hidden makes this box a
+        scroll container, and the mark's scroll scrub then follows this box,
+        which never scrolls, instead of the page.
       */}
-      <div className="relative overflow-hidden bg-shell">
+      <div className="relative overflow-clip bg-shell">
         <AnimatedSupergraphic className="absolute right-0 top-0 h-[900px] w-[478px] opacity-50 sm:opacity-100 lg:h-[1700px] lg:w-[903px]" />
 
         {/* Hero */}

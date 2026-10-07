@@ -207,7 +207,7 @@ export default function AboutPage() {
       <Section
         tone="cream"
         id="islamic-principle-compliance"
-        className="relative overflow-hidden"
+        className="relative overflow-clip"
       >
         {/* Only the lower sweep of the mark shows: it starts above the band
             and is cropped by it, on the right beside the title block. */}

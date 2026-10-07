@@ -134,6 +134,10 @@ export function Supergraphic({
  * Page hero shared by the inner pages. The deck sizes this band differently per
  * page, so the padding, the gap under the headline and the lede's own size are
  * all passed in.
+ *
+ * The band crops the mark with a clip rather than a hidden overflow: hidden
+ * makes the band a scroll container, and the mark's scroll scrub then follows
+ * the band, which never scrolls, instead of the page.
  */
 export function PageHero({
   title,
@@ -155,7 +159,7 @@ export function PageHero({
   markClassName?: string;
 }) {
   return (
-    <Section className="relative overflow-hidden">
+    <Section className="relative overflow-clip">
       <AnimatedSupergraphic className={markClassName} />
       <Container data-hero-reveal className={`relative ${padding}`}>
         <h1 data-reveal-lines className="t-hero uppercase text-indigo-brand">
