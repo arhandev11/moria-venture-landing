@@ -7,3 +7,6 @@ export type FormState = {
   /** The submitted text, so inputs can be refilled after React resets the form. */
   values?: Record<string, string>;
 } | null;
+
+/** What one-shot admin actions (toggle, delete, reorder) hand back to the caller. */
+export type ActionResult = { ok: boolean; message?: string };

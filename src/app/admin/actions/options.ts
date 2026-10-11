@@ -1,12 +1,12 @@
 "use server";
 
-import { and, asc, eq, max } from "drizzle-orm";
+import { and, eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { formOptions, OPTION_KINDS, type OptionKind } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/dal";
-import { checked, id, isDuplicate, reorder, text } from "../_lib/form";
-import type { FormState } from "../_lib/state";
+import { checked, id, idList, isDuplicate, text } from "../_lib/form";
+import type { ActionResult, FormState } from "../_lib/state";
 
 const LABEL_MAX = 120;
 
@@ -15,9 +15,12 @@ function refresh() {
   revalidatePath("/admin/options");
 }
 
+function asKind(kind: unknown): OptionKind | null {
+  return typeof kind === "string" && (OPTION_KINDS as readonly string[]).includes(kind) ? (kind as OptionKind) : null;
+}
+
 function kindOf(fd: FormData): OptionKind | null {
-  const kind = text(fd, "kind");
-  return (OPTION_KINDS as readonly string[]).includes(kind) ? (kind as OptionKind) : null;
+  return asKind(text(fd, "kind"));
 }
 
 function checkLabel(label: string) {
@@ -43,7 +46,7 @@ export async function addOption(_prev: FormState, fd: FormData): Promise<FormSta
     throw err;
   }
   refresh();
-  return { ok: true };
+  return { ok: true, message: `Added “${label}”.` };
 }
 
 export async function renameOption(_prev: FormState, fd: FormData): Promise<FormState> {
@@ -63,46 +66,51 @@ export async function renameOption(_prev: FormState, fd: FormData): Promise<Form
   return { ok: true, message: "Saved." };
 }
 
-export async function toggleOption(fd: FormData) {
+export async function toggleOption(fd: FormData): Promise<ActionResult> {
   await requireAdmin();
   const optionId = id(fd);
-  if (!optionId) return;
+  if (!optionId) return { ok: false, message: "Unknown option." };
   await getDb().update(formOptions).set({ active: checked(fd, "active") }).where(eq(formOptions.id, optionId));
   refresh();
+  return { ok: true };
 }
 
-export async function moveOption(fd: FormData) {
+/**
+ * Saves a whole new order for one list (regions or ticket sizes) at once.
+ * The ids must be exactly that list's options, so a stale tab cannot drop,
+ * duplicate or smuggle in a row from the other list.
+ */
+export async function reorderOptions(kind: unknown, ids: unknown): Promise<ActionResult> {
   await requireAdmin();
-  const optionId = id(fd);
-  const kind = kindOf(fd);
-  const direction = text(fd, "direction") === "up" ? "up" : "down";
-  if (!optionId || !kind) return;
-  await getDb().transaction(async (tx) => {
-    const rows = await tx
-      .select({ id: formOptions.id })
-      .from(formOptions)
-      .where(eq(formOptions.kind, kind))
-      .orderBy(asc(formOptions.sortOrder), asc(formOptions.id));
-    const next = reorder(rows, optionId, direction);
-    if (!next) return;
-    for (const row of next) {
+  const list = asKind(kind);
+  const order = idList(ids);
+  if (!list || !order) return { ok: false, message: "That order could not be read." };
+  return getDb().transaction(async (tx) => {
+    const rows = await tx.select({ id: formOptions.id }).from(formOptions).where(eq(formOptions.kind, list));
+    const known = new Set(rows.map((r) => r.id));
+    if (order.length !== known.size || !order.every((x) => known.has(x))) {
+      return { ok: false, message: "The list changed in the meantime. Reload and try again." };
+    }
+    for (const [i, optionId] of order.entries()) {
       await tx
         .update(formOptions)
-        .set({ sortOrder: row.sortOrder })
-        .where(and(eq(formOptions.id, row.id), eq(formOptions.kind, kind)));
+        .set({ sortOrder: (i + 1) * 10 })
+        .where(and(eq(formOptions.id, optionId), eq(formOptions.kind, list)));
     }
+    refresh();
+    return { ok: true };
   });
-  refresh();
 }
 
 /**
  * Past requests keep the label they were sent with, so deleting an option
  * never rewrites the inbox; deactivating it is the gentler choice.
  */
-export async function deleteOption(fd: FormData) {
+export async function deleteOption(fd: FormData): Promise<ActionResult> {
   await requireAdmin();
   const optionId = id(fd);
-  if (!optionId) return;
+  if (!optionId) return { ok: false, message: "Unknown option." };
   await getDb().delete(formOptions).where(eq(formOptions.id, optionId));
   refresh();
+  return { ok: true, message: "Option deleted." };
 }

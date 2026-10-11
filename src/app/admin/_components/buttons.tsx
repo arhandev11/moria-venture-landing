@@ -2,20 +2,22 @@
 
 import type { ReactNode } from "react";
 import { useFormStatus } from "react-dom";
-import { BTN } from "./ui";
+import { btn } from "./ui";
 
 /** A submit button that goes quiet while its form's action is in flight. */
 export function SubmitButton({
   children,
   pendingLabel,
   tone = "primary",
+  size = "md",
   className = "",
   confirm,
   ...rest
 }: {
   children: ReactNode;
   pendingLabel?: ReactNode;
-  tone?: keyof typeof BTN;
+  tone?: Parameters<typeof btn>[0];
+  size?: Parameters<typeof btn>[1];
   className?: string;
   /** Asks first, for deletes and other changes that cannot be undone. */
   confirm?: string;
@@ -32,7 +34,7 @@ export function SubmitButton({
       onClick={(e) => {
         if (confirm && !window.confirm(confirm)) e.preventDefault();
       }}
-      className={`${BTN[tone]} ${className}`}
+      className={`${btn(tone, size)} ${className}`}
     >
       {pending && pendingLabel ? pendingLabel : children}
     </button>

@@ -33,12 +33,10 @@ export function isDuplicate(err: unknown): boolean {
   return false;
 }
 
-/** Swaps an item with its neighbour and renumbers the list in steps of ten. */
-export function reorder<T extends { id: number }>(rows: T[], targetId: number, direction: "up" | "down") {
-  const list = [...rows];
-  const i = list.findIndex((row) => row.id === targetId);
-  const j = direction === "up" ? i - 1 : i + 1;
-  if (i < 0 || j < 0 || j >= list.length) return null;
-  [list[i], list[j]] = [list[j], list[i]];
-  return list.map((row, index) => ({ id: row.id, sortOrder: (index + 1) * 10 }));
+/** A list of distinct positive row ids, as a reorder sends it, or null. */
+export function idList(value: unknown): number[] | null {
+  if (!Array.isArray(value) || value.length > 1000) return null;
+  const ids = value.map(Number);
+  if (!ids.every((n) => Number.isSafeInteger(n) && n > 0)) return null;
+  return new Set(ids).size === ids.length ? ids : null;
 }

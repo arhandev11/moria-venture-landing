@@ -8,7 +8,7 @@ import { requireAdmin } from "@/lib/auth/dal";
 import { hashPassword, passwordProblem, verifyPassword } from "@/lib/auth/password";
 import { deleteOtherSessions } from "@/lib/auth/session";
 import { id, isDuplicate, text } from "../_lib/form";
-import type { FormState } from "../_lib/state";
+import type { ActionResult, FormState } from "../_lib/state";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -43,15 +43,16 @@ export async function addAdmin(_prev: FormState, fd: FormData): Promise<FormStat
 }
 
 /** Removes another admin. Their sessions go with them (cascade). */
-export async function removeAdmin(fd: FormData) {
+export async function removeAdmin(fd: FormData): Promise<ActionResult> {
   const me = await requireAdmin();
   const userId = id(fd);
-  if (!userId || userId === me.id) return;
+  if (!userId || userId === me.id) return { ok: false, message: "You cannot remove yourself." };
   const db = getDb();
   const [{ n }] = await db.select({ n: count() }).from(adminUsers);
-  if (n <= 1) return;
+  if (n <= 1) return { ok: false, message: "There must be at least one admin." };
   await db.delete(adminUsers).where(eq(adminUsers.id, userId));
   revalidatePath("/admin/users");
+  return { ok: true, message: "Admin removed." };
 }
 
 /** Changes the signed-in admin's password and signs out their other sessions. */

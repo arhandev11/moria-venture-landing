@@ -1,14 +1,13 @@
 "use server";
 
-import { asc, eq, max } from "drizzle-orm";
+import { eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { smes } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/dal";
 import { deleteSmeImage, saveSmeImage } from "@/lib/uploads";
-import { checked, id, isDuplicate, reorder, text, whole } from "../_lib/form";
-import type { FormState } from "../_lib/state";
+import { checked, id, idList, isDuplicate, text, whole } from "../_lib/form";
+import type { ActionResult, FormState } from "../_lib/state";
 
 const TEXT_FIELDS = {
   name: 120,
@@ -123,41 +122,52 @@ export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState
   if (current?.imageFile && current.imageFile !== imageFile) await deleteSmeImage(current.imageFile);
 
   refresh();
-  redirect("/admin/smes");
+  return { ok: true, message: smeId ? `Saved ${values.name}.` : `Added ${values.name}.` };
 }
 
-export async function deleteSme(fd: FormData) {
+export async function deleteSme(fd: FormData): Promise<ActionResult> {
   await requireAdmin();
   const smeId = id(fd);
-  if (!smeId) return;
+  if (!smeId) return { ok: false, message: "Unknown SME." };
   const db = getDb();
-  const [row] = await db.select({ imageFile: smes.imageFile }).from(smes).where(eq(smes.id, smeId)).limit(1);
-  if (!row) return;
+  const [row] = await db.select({ name: smes.name, imageFile: smes.imageFile }).from(smes).where(eq(smes.id, smeId)).limit(1);
+  if (!row) return { ok: false, message: "That SME no longer exists." };
   await db.delete(smes).where(eq(smes.id, smeId));
   await deleteSmeImage(row.imageFile);
   refresh();
-  redirect("/admin/smes");
+  return { ok: true, message: `Deleted ${row.name}.` };
 }
 
-export async function toggleSmePublished(fd: FormData) {
+export async function toggleSmePublished(fd: FormData): Promise<ActionResult> {
   await requireAdmin();
   const smeId = id(fd);
-  if (!smeId) return;
-  await getDb().update(smes).set({ published: checked(fd, "published") }).where(eq(smes.id, smeId));
+  if (!smeId) return { ok: false, message: "Unknown SME." };
+  const published = checked(fd, "published");
+  await getDb().update(smes).set({ published }).where(eq(smes.id, smeId));
   refresh();
+  return { ok: true };
 }
 
-export async function moveSme(fd: FormData) {
+/**
+ * Saves a whole new order at once, as the list's drag and drop and keyboard
+ * moves produce it. The ids must be exactly the SMEs that exist, so a stale
+ * tab cannot drop or duplicate a row.
+ */
+export async function reorderSmes(ids: unknown): Promise<ActionResult> {
   await requireAdmin();
-  const smeId = id(fd);
-  const direction = text(fd, "direction") === "up" ? "up" : "down";
-  if (!smeId) return;
+  const order = idList(ids);
+  if (!order) return { ok: false, message: "That order could not be read." };
   const db = getDb();
-  await db.transaction(async (tx) => {
-    const rows = await tx.select({ id: smes.id }).from(smes).orderBy(asc(smes.sortOrder), asc(smes.id));
-    const next = reorder(rows, smeId, direction);
-    if (!next) return;
-    for (const row of next) await tx.update(smes).set({ sortOrder: row.sortOrder }).where(eq(smes.id, row.id));
+  return db.transaction(async (tx) => {
+    const rows = await tx.select({ id: smes.id }).from(smes);
+    const known = new Set(rows.map((r) => r.id));
+    if (order.length !== known.size || !order.every((x) => known.has(x))) {
+      return { ok: false, message: "The list changed in the meantime. Reload and try again." };
+    }
+    for (const [i, smeId] of order.entries()) {
+      await tx.update(smes).set({ sortOrder: (i + 1) * 10 }).where(eq(smes.id, smeId));
+    }
+    refresh();
+    return { ok: true };
   });
-  refresh();
 }
