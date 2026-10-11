@@ -16,10 +16,6 @@ import { EMPTY_SME, SmeForm, type SmeFormValues, type SmeSuggestions } from "./s
 
 export type SmeListItem = SmeFormValues & { id: number };
 
-function initials(name: string) {
-  return name.split(" ").slice(0, 2).map((w) => w[0]).join("");
-}
-
 /** "IDR 15B", "USD 200K", or null when not disclosed. */
 function short(amount: string, currency: string) {
   const money = toMoney(amount ? Number(amount) : null, currency);
@@ -152,8 +148,9 @@ export function SmeTable({
                             // eslint-disable-next-line @next/next/no-img-element -- a 36px thumbnail of an upload
                             <img src={sme.imageUrl} alt="" className="size-9 shrink-0 rounded-md object-cover max-sm:hidden" />
                           ) : (
-                            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-indigo-brand/[0.08] max-sm:hidden text-[12px] font-bold text-indigo-brand">
-                              {initials(sme.name)}
+                            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-indigo-brand/[0.08] max-sm:hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element -- the brand coin stands in until an image is uploaded */}
+                              <img src="/assets/brand/logo-coin.svg" alt="" className="size-6" />
                             </span>
                           )}
                           <div className="min-w-0">

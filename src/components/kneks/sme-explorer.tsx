@@ -280,7 +280,7 @@ function SmeCard({
       </svg>
 
       <div className="p-[23px]">
-        <SmeTile name={sme.name} image={sme.image} tint={tint} className="h-[140px]" />
+        <SmeTile image={sme.image} tint={tint} className="h-[140px]" />
         <h3 className="mt-[23px] text-[20px] font-bold leading-[26px] text-kneks-ink">
           {sme.name}
         </h3>

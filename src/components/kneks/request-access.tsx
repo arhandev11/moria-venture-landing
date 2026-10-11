@@ -347,7 +347,7 @@ function SmePicker({
                       : "border-kneks-line bg-white hover:border-kneks-pine"
                 }`}
               >
-                <SmeTile name={sme.name} image={sme.image} tint={TINTS[i % TINTS.length]} className="size-8 shrink-0 rounded-md" monogram="text-[12px]" />
+                <SmeTile image={sme.image} tint={TINTS[i % TINTS.length]} className="size-8 shrink-0 rounded-md" mark="size-5" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-semibold leading-[19px] text-kneks-ink">{sme.name}</span>
                   <span className="block truncate text-[12px] leading-[17px] text-kneks-muted">

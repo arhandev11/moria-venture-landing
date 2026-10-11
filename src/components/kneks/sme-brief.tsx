@@ -8,33 +8,24 @@ import { format } from "@/i18n/format";
 import { formatMoney } from "@/lib/money";
 import { LEGAL_FORM_LABELS } from "@/lib/sme-fields";
 
-/** The monogram on a tile: the first letters of the first two words. */
-function initials(name: string) {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((word) => word[0])
-    .join("");
-}
-
 /**
  * The deck's placeholder art: a pastel tint, the pine outline circles and
- * diamonds, and the SME's initials. The card and the brief share it so an
- * opened brief reads as the same company at a larger size. An SME with an
- * uploaded image shows that instead, cropped to the same box.
+ * diamonds, and the Moria coin until the SME has an image of its own. The
+ * card and the brief share it so an opened brief reads as the same company at
+ * a larger size. An SME with an uploaded image shows that instead, cropped to
+ * the same box.
  */
 export function SmeTile({
-  name,
   image,
   tint,
   className = "",
-  monogram = "text-[39px]",
+  mark = "size-14",
 }: {
-  name: string;
   image?: string | null;
   tint: string;
   className?: string;
-  monogram?: string;
+  /** Size of the Moria coin shown when the SME has no image yet. */
+  mark?: string;
 }) {
   if (image) {
     return (
@@ -53,8 +44,10 @@ export function SmeTile({
         <circle cx="196" cy="35" r="17.5" strokeDasharray="3 3" />
         <path d="M18.5 94.5l18.5 18.5-18.5 18.5L0 113z" />
       </svg>
-      <span className={`absolute inset-0 flex items-center justify-center font-normal tracking-[-0.01em] text-kneks-pine ${monogram}`}>
-        {initials(name)}
+      {/* No image yet: the Moria coin stands in, on the SME's tint. */}
+      <span className="absolute inset-0 flex items-center justify-center">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/assets/brand/logo-coin.svg" alt="" aria-hidden className={`drop-shadow-sm ${mark}`} />
       </span>
     </div>
   );
@@ -105,7 +98,7 @@ export function SmeBrief({
     >
       {sme ? (
         <div className="relative p-[23px] sm:p-[27px]">
-          <SmeTile name={sme.name} image={sme.image} tint={tint} className="h-[150px] sm:h-[170px]" monogram="text-[48px]" />
+          <SmeTile image={sme.image} tint={tint} className="h-[150px] sm:h-[170px]" mark="size-16" />
           <button
             type="button"
             onClick={close}
