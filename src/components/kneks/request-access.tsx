@@ -1,9 +1,40 @@
 "use client";
 
-import { useActionState, useEffect, useRef, type ReactNode } from "react";
+import { useActionState, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
+import { SmeTile } from "@/components/kneks/sme-brief";
+import { TINTS } from "@/components/kneks/sme-explorer";
 import { submitInvestorRequest } from "@/lib/actions/investor-request";
-import { HONEYPOT_FIELD, REQUEST_LIMITS } from "@/lib/investor-request";
+import { HONEYPOT_FIELD, REQUEST_LIMITS, type InvestorRequestResult } from "@/lib/investor-request";
+
+/** What the form's SME picker needs of each published SME. */
+export type SmeOption = {
+  name: string;
+  sector: string;
+  city: string;
+  image: string | null;
+  funded: boolean;
+};
+
+/** Same words as the server's check, so the two never read differently. */
+const PICK_ERROR = "Choose at least one SME you're interested in.";
+
+/**
+ * The shortlist half of a rejected result, read loosely: the action reports
+ * `fieldErrors.shortlist` and echoes `values.shortlist`, and the shared types
+ * are owned on the server side.
+ */
+function shortlistResult(result: InvestorRequestResult | null) {
+  if (!result || result.ok) return { error: undefined, sent: undefined };
+  const error = (result.fieldErrors as Partial<Record<string, string>>).shortlist;
+  const raw = (result.values as Record<string, unknown>).shortlist;
+  const sent = Array.isArray(raw)
+    ? raw.filter((name): name is string => typeof name === "string")
+    : typeof raw === "string"
+      ? raw.split(",").map((name) => name.trim()).filter(Boolean)
+      : undefined;
+  return { error, sent };
+}
 
 const FIELD =
   "w-full rounded-md border border-kneks-line bg-white px-[13px] text-[15px] text-kneks-ink outline-none transition-colors placeholder:text-kneks-muted focus:border-kneks-pine aria-[invalid=true]:border-[#b3261e]";
@@ -38,7 +69,7 @@ export function ShortlistCard() {
         <p className="mt-[10px] text-[16px] leading-[26px] text-kneks-muted">None yet.</p>
       )}
       <p className="mt-[14px] text-[13px] leading-[18px] text-kneks-muted">
-        Star an SME to include it with your access request.
+        Star an SME, or pick it in the form, to include it with your request.
       </p>
     </div>
   );
@@ -50,12 +81,39 @@ export function ShortlistCard() {
  * hidden field. Field errors come back inline, and a sent request swaps the
  * form for a confirmation.
  */
-export function RequestAccessForm({ regions, tickets }: { regions: string[]; tickets: string[] }) {
-  const { names } = useShortlist();
-  const [state, action, pending] = useActionState(submitInvestorRequest, null);
+export function RequestAccessForm({
+  regions,
+  tickets,
+  smes,
+}: {
+  regions: string[];
+  tickets: string[];
+  smes: SmeOption[];
+}) {
+  const { names, replace } = useShortlist();
+  // A rejected request puts the shortlist back to what was sent. It lives in
+  // the shared shortlist rather than the form, so the form's remount below
+  // would not lose it anyway; this covers the server trimming it.
+  const [state, action, pending] = useActionState(
+    async (previous: InvestorRequestResult | null, formData: FormData) => {
+      const result = await submitInvestorRequest(previous, formData);
+      const { sent } = shortlistResult(result);
+      if (sent) replace(sent.filter((name) => smes.some((sme) => sme.name === name)));
+      return result;
+    },
+    null,
+  );
   const failed = state && !state.ok ? state : null;
   const errors = failed?.fieldErrors ?? {};
   const values = failed?.values ?? {};
+  const picker = useRef<HTMLFieldSetElement>(null);
+  const [pickMissing, setPickMissing] = useState(false);
+  // Only shown while nothing is picked: choosing an SME answers it.
+  const pickError = names.length
+    ? undefined
+    : pickMissing
+      ? PICK_ERROR
+      : shortlistResult(state).error;
 
   if (state?.ok) return <RequestSent shortlist={names} />;
 
@@ -67,16 +125,17 @@ export function RequestAccessForm({ regions, tickets }: { regions: string[]; tic
       key={failed ? JSON.stringify(values) : "fresh"}
       action={action}
       noValidate
+      onSubmit={(e) => {
+        // The one check made before sending: with no SME picked the request
+        // has nothing to ask about. Preventing the submit also skips the action.
+        if (names.length) return;
+        e.preventDefault();
+        setPickMissing(true);
+        picker.current?.querySelector("input")?.focus();
+      }}
       className="relative grid gap-x-5 gap-y-[27px] sm:grid-cols-2"
     >
       <input type="hidden" name="shortlist" value={names.join(", ")} />
-      {/* Off-screen and skipped by keyboard and screen readers: only bots fill it. */}
-      <div aria-hidden className="absolute left-[-10000px] top-0 h-px w-px overflow-hidden">
-        <label>
-          Company website
-          <input name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
-        </label>
-      </div>
       <Field label="Name" error={errors.name}>
         <input
           name="name"
@@ -106,6 +165,7 @@ export function RequestAccessForm({ regions, tickets }: { regions: string[]; tic
       <Field label="Ticket size" error={errors.ticket}>
         <Select name="ticket" placeholder="Select ticket size" options={tickets} value={values.ticket} invalid={!!errors.ticket} />
       </Field>
+      <SmePicker ref={picker} smes={smes} error={pickError} onPick={() => setPickMissing(false)} />
       <Field label="Message" wide error={errors.message}>
         <textarea
           name="message"
@@ -119,6 +179,15 @@ export function RequestAccessForm({ regions, tickets }: { regions: string[]; tic
       </Field>
 
       <div className="-mt-[10px] sm:col-span-2">
+        {/* Off-screen and skipped by keyboard and screen readers: only bots fill
+            it. It sits inside this block rather than directly in the grid, where
+            the site's scroll reveal would pick it up and wait on it forever. */}
+        <div aria-hidden className="absolute left-[-10000px] top-0 h-px w-px overflow-hidden">
+          <label>
+            Company website
+            <input name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
+          </label>
+        </div>
         <p className="text-[13px] leading-[18px] text-kneks-muted">
           Your details are used only to coordinate investor access and introductions.
         </p>
@@ -170,6 +239,87 @@ function RequestSent({ shortlist }: { shortlist: string[] }) {
         </p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * The SMEs the request is about, as a checklist over the shared shortlist:
+ * ticking one here stars its card, and starring a card ticks it here. The
+ * checkboxes carry no name; the hidden shortlist field posts the selection.
+ */
+function SmePicker({
+  ref,
+  smes,
+  error,
+  onPick,
+}: {
+  ref: React.Ref<HTMLFieldSetElement>;
+  smes: SmeOption[];
+  error?: string;
+  onPick: () => void;
+}) {
+  const { names, toggle } = useShortlist();
+  const id = useId();
+  const errorId = `${id}-error`;
+
+  return (
+    <fieldset ref={ref} aria-describedby={error ? errorId : undefined} className="min-w-0 sm:col-span-2">
+      <legend className="sr-only">SMEs you&apos;re interested in</legend>
+      <div aria-hidden className="flex items-baseline justify-between gap-4">
+        <span className="text-[13px] font-semibold leading-[18px] text-kneks-ink">SMEs you&apos;re interested in</span>
+        <span className="text-[13px] leading-[18px] text-kneks-muted">
+          {names.length ? `${names.length} selected` : "Pick at least one"}
+        </span>
+      </div>
+      <ul className="mt-[7px] grid max-h-[250px] gap-2 overflow-y-auto sm:grid-cols-2">
+        {smes.map((sme, i) => {
+          const picked = names.includes(sme.name);
+          return (
+            <li key={sme.name}>
+              <label
+                className={`flex h-[50px] cursor-pointer items-center gap-3 rounded-md border px-[9px] transition-colors has-focus-visible:border-kneks-pine ${
+                  error
+                    ? "border-[#b3261e]"
+                    : picked
+                      ? "border-kneks-pine bg-kneks-mist"
+                      : "border-kneks-line bg-white hover:border-kneks-pine"
+                }`}
+              >
+                <SmeTile name={sme.name} image={sme.image} tint={TINTS[i % TINTS.length]} className="size-8 shrink-0 rounded-md" monogram="text-[12px]" />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[14px] font-semibold leading-[19px] text-kneks-ink">{sme.name}</span>
+                  <span className="block truncate text-[12px] leading-[17px] text-kneks-muted">
+                    {sme.sector} · {sme.city}
+                  </span>
+                </span>
+                {sme.funded ? (
+                  <span className="shrink-0 rounded-full border border-kneks-gold bg-kneks-sand px-2 py-[2px] text-[11px] font-semibold leading-[15px] text-kneks-earth">
+                    Funded
+                  </span>
+                ) : null}
+                <input
+                  type="checkbox"
+                  checked={picked}
+                  onChange={() => {
+                    toggle(sme.name);
+                    onPick();
+                  }}
+                  aria-invalid={!!error}
+                  aria-describedby={error ? errorId : undefined}
+                  className="size-[18px] shrink-0 cursor-pointer accent-kneks-pine"
+                />
+                <span className="sr-only">, {sme.sector}, {sme.city}{sme.funded ? ", funded" : ""}</span>
+              </label>
+            </li>
+          );
+        })}
+      </ul>
+      {error ? (
+        <p id={errorId} role="alert" className="mt-[6px] text-[13px] leading-[18px] text-[#b3261e]">
+          {error}
+        </p>
+      ) : null}
+    </fieldset>
   );
 }
 

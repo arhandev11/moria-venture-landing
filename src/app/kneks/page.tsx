@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
-import { HubMap, type Hub } from "@/components/kneks/hub-map";
+import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
+import { HubMapBackdrop, HubMapProvider, HubPicker, type Hub } from "@/components/kneks/hub-map";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { RequestAccessForm, ShortlistCard } from "@/components/kneks/request-access";
 import { ShortlistProvider } from "@/components/kneks/shortlist";
 import { SmeExplorer } from "@/components/kneks/sme-explorer";
-import { getFormOptions, getPublishedSmes, pipelineStats } from "@/lib/kneks-data";
+import { getFormOptions, getPublishedSmes } from "@/lib/kneks-data";
 
 export const metadata: Metadata = {
   title: "KNEKS × Moria",
@@ -105,92 +106,76 @@ function Check() {
 
 export default async function KneksPage() {
   const [smes, options] = await Promise.all([getPublishedSmes(), getFormOptions()]);
-  const counts = pipelineStats(smes);
-  const stats = [
-    { value: String(counts.smes), label: "SMEs in pipeline" },
-    { value: String(counts.funded), label: "Funded graduates" },
-    { value: counts.raisedK.toLocaleString("en"), label: "Raised (USD K)" },
-    { value: String(counts.sectors), label: "Sectors" },
-  ];
 
   return (
     <ShortlistProvider>
-      {/* Hero */}
-      <section className={`${BAND} text-white`}>
-        <Wrap
-          data-hero-reveal
-          className="grid gap-12 pb-[61px] pt-[48px] lg:grid-cols-[minmax(0,1fr)_420px] lg:gap-10 lg:pt-[66px]"
-        >
-          <div>
-            <div className="flex items-center gap-[22px]">
-              <Image
-                src="/assets/brand/logo-wordmark.svg"
-                alt="Moria Ventures"
-                width={323}
-                height={49}
-                priority
-                className="h-[28px] w-auto"
-              />
-              <span aria-hidden className="text-[13px] text-white/90">×</span>
-              <KneksLogo />
-            </div>
-            <h1
-              data-reveal-lines
-              className="mt-[23px] max-w-[640px] text-[40px] font-bold leading-[1.12] tracking-[-0.01em] lg:text-[58px] lg:leading-[65px]"
+      {/*
+        Hero, on the site's own light ground like every other page's. The band
+        crops the mark with a clip rather than a hidden overflow: hidden makes
+        the band a scroll container, and the mark's scroll scrub would then
+        follow the band, which never scrolls, instead of the page.
+      */}
+      <section className="relative overflow-clip bg-shell">
+        {/* 468 x 881 at 1440, hung off the right edge and above the band as the deck crops it. */}
+        <AnimatedSupergraphic
+          className="absolute -right-[96px] -top-[96px] h-[480px] w-[255px] lg:-right-[84px] lg:-top-[198px] lg:h-[881px] lg:w-[468px]"
+        />
+        <Wrap data-hero-reveal className="relative pb-[60px] pt-[40px] lg:pb-[61px] lg:pt-[66px]">
+          <div className="flex items-center">
+            <Image
+              src="/assets/brand/logo-wordmark.svg"
+              alt="Moria Ventures"
+              width={323}
+              height={49}
+              priority
+              className="h-[30px] w-auto min-w-0"
+            />
+            <span aria-hidden className="ml-2 mr-[22px] text-[13px] text-ink">×</span>
+            <KneksLogo plate={false} />
+          </div>
+          <h1 data-reveal-lines className="t-hero mt-6 uppercase text-indigo-brand lg:mt-[22px]">
+            Indonesian SMEs,
+            <br className="hidden sm:block" /> ready for
+            <br className="hidden sm:block" /> global capital.
+          </h1>
+          <p data-reveal-lines className="mt-[29px] max-w-[505px] text-[16px] leading-[26px] text-ink lg:text-[18px] lg:leading-[29px]">
+            Moria Ventures works with KNEKS to put Islamic Principle-compliant
+            SMEs in front of investors and VCs from MENA and Southeast Asia.
+          </p>
+          <div className="mt-[26px] flex flex-wrap gap-3">
+            <a
+              href="#smes"
+              className="flex h-[50px] items-center gap-2 bg-gold px-5 text-[14px] font-semibold text-kneks-earth transition-colors hover:bg-gold-deep"
             >
-              Indonesian SMEs, ready for global capital.
-            </h1>
-            <p data-reveal-lines className="mt-[30px] max-w-[625px] text-[16px] leading-[26px] text-white/85">
-              Moria Ventures works with KNEKS to put Islamic Principle-compliant
-              SMEs in front of investors and VCs from MENA and Southeast Asia.
-            </p>
-            <div className="mt-[25px] flex flex-wrap gap-[13px]">
-              <a
-                href="#smes"
-                className="flex h-11 items-center gap-[10px] rounded-md bg-gold px-5 text-[14px] font-semibold text-kneks-ink transition-colors hover:bg-gold-deep"
-              >
-                Meet the SMEs
-                <svg viewBox="0 0 16 16" aria-hidden className="size-[15px]" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                  <path d="M8 2.5v11M3.5 9L8 13.5 12.5 9" />
-                </svg>
-              </a>
-              <a
-                href="#request-access"
-                className="flex h-11 items-center rounded-md border border-white/90 px-5 text-[14px] font-semibold transition-colors hover:bg-white/10"
-              >
-                Become an investor partner
-              </a>
-            </div>
-            <p className="mt-[25px] text-[13px] leading-[18px] text-white/90">
-              Islamic Principle-aligned businesses. Cross-border opportunity.
-            </p>
+              Meet the SMEs
+              <svg viewBox="0 0 16 16" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <path d="M8 2.5v11M3.5 9L8 13.5 12.5 9" />
+              </svg>
+            </a>
+            <a
+              href="#request-access"
+              className="flex h-[50px] items-center border-2 border-indigo-brand px-6 text-[14px] font-semibold uppercase text-indigo-brand transition-colors hover:bg-indigo-brand hover:text-gold"
+            >
+              Become an investor partner
+            </a>
           </div>
-
-          <div className="lg:pt-[37px]">
-            <dl className="grid grid-cols-2 gap-4">
-              {stats.map((stat) => (
-                <div key={stat.label} className="flex h-[132px] flex-col-reverse justify-end rounded-xl bg-white px-5 pt-[23px]">
-                  <dt className="mt-[10px] text-[13px] leading-[18px] text-kneks-pine">{stat.label}</dt>
-                  <dd className="text-[44px] font-bold leading-none tracking-[-0.01em] text-kneks-gold">{stat.value}</dd>
-                </div>
-              ))}
-            </dl>
-            <p className="mt-[19px] text-[13px] leading-[18px] text-white/85">Sample figures.</p>
-          </div>
+          <p className="mt-[25px] text-[13px] leading-[18px] text-kneks-muted">
+            Islamic Principle-aligned businesses. Cross-border opportunity.
+          </p>
         </Wrap>
       </section>
 
-      {/* What KNEKS does, and how the program runs */}
-      <section id="about-kneks" className="scroll-mt-[68px] bg-kneks-mist">
-        <Wrap className="grid gap-12 pt-[60px] lg:grid-cols-[minmax(0,1fr)_562px] lg:gap-10">
+      {/* What KNEKS does */}
+      <section id="about-kneks" className={`scroll-mt-[68px] ${BAND} text-white`}>
+        <Wrap className="grid gap-12 pb-[61px] pt-[60px] lg:grid-cols-[minmax(0,1fr)_562px] lg:gap-10">
           <div>
-            <p className="text-[12px] font-bold uppercase leading-[16px] tracking-[0.02em] text-kneks-pine">
+            <p className="text-[12px] font-bold uppercase leading-[16px] tracking-[0.02em]">
               The institutional foundation
             </p>
-            <h2 className="mt-[19px] text-[32px] font-bold leading-[1.1] tracking-[-0.01em] text-kneks-ink lg:text-[40px] lg:leading-[44px]">
+            <h2 className="mt-[19px] text-[32px] font-bold leading-[1.1] tracking-[-0.01em] lg:text-[40px] lg:leading-[44px]">
               What KNEKS does
             </h2>
-            <div className="mt-[21px] max-w-[490px] space-y-[26px] text-[16px] leading-[26px] text-kneks-muted">
+            <div className="mt-[21px] max-w-[490px] space-y-[26px] text-[16px] leading-[26px]">
               <p>
                 KNEKS leads Indonesia&apos;s push to grow its Islamic economy and
                 Islamic finance, bringing government, industry and financial
@@ -218,8 +203,11 @@ export default async function KneksPage() {
             </ul>
           </div>
         </Wrap>
+      </section>
 
-        <Wrap className="pb-[60px] pt-[96px] lg:pt-[119px]">
+      {/* How the program runs */}
+      <section className="bg-kneks-mist">
+        <Wrap className="pb-[60px] pt-[58px]">
           <h2 className={`${H2} text-kneks-ink`}>How the program works</h2>
           <ol className="mt-[28px] grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
             {STEPS.map((step, i) => {
@@ -320,23 +308,18 @@ export default async function KneksPage() {
         id="investor-regions"
         className="relative scroll-mt-[68px] overflow-clip bg-kneks-mist pb-10 lg:h-[882px] lg:pb-0"
       >
-        <Image
-          src="/assets/kneks/map.svg"
-          alt=""
-          aria-hidden
-          width={1440}
-          height={882}
-          className="pointer-events-none absolute left-1/2 top-0 h-[882px] w-[1440px] max-w-none -translate-x-1/2 select-none"
-        />
-        <Wrap className="pt-16 lg:pt-[142px]">
-          <h2 className="relative text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-kneks-earth lg:text-[56px] lg:leading-[64px]">
-            Open to international investors
-          </h2>
-          <p className="relative mt-[18px] text-[18px] font-semibold leading-[26px] text-kneks-earth lg:text-[22px] lg:leading-[30px]">
-            Tap a hub to see who we are looking for there.
-          </p>
-          <HubMap hubs={HUBS} />
-        </Wrap>
+        <HubMapProvider hubs={HUBS}>
+          <HubMapBackdrop />
+          <Wrap className="pt-16 lg:pt-[142px]">
+            <h2 className="relative text-[36px] font-bold leading-[1.1] tracking-[-0.02em] text-kneks-earth lg:text-[56px] lg:leading-[64px]">
+              Open to international investors
+            </h2>
+            <p className="relative mt-[18px] text-[18px] font-semibold leading-[26px] text-kneks-earth lg:text-[22px] lg:leading-[30px]">
+              Tap a hub to see who we are looking for there.
+            </p>
+            <HubPicker />
+          </Wrap>
+        </HubMapProvider>
       </section>
 
       {/* Access request */}
@@ -358,7 +341,17 @@ export default async function KneksPage() {
               <ShortlistCard />
             </div>
           </div>
-          <RequestAccessForm regions={options.regions} tickets={options.tickets} />
+          <RequestAccessForm
+            regions={options.regions}
+            tickets={options.tickets}
+            smes={smes.map((sme) => ({
+              name: sme.name,
+              sector: sme.sector,
+              city: sme.city,
+              image: sme.image,
+              funded: sme.status === "funded",
+            }))}
+          />
         </Wrap>
       </section>
     </ShortlistProvider>

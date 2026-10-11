@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
-import { FooterSlot } from "@/components/footer-slot";
-import { KneksFooter } from "@/components/kneks/kneks-footer";
 import { PublicOnly } from "@/components/public-chrome";
 import { SiteFooter } from "@/components/site-footer";
 import { HeroReveal } from "@/components/hero-reveal";
@@ -34,7 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </PublicOnly>
         <main className="flex-1">{children}</main>
         <PublicOnly>
-          <FooterSlot site={<SiteFooter />} kneks={<KneksFooter />} />
+          <SiteFooter />
           <HeroReveal />
           <ScrollReveal />
         </PublicOnly>

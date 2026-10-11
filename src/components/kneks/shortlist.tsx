@@ -5,14 +5,16 @@ import { createContext, useContext, useState, type ReactNode } from "react";
 type Shortlist = {
   names: string[];
   toggle: (name: string) => void;
+  /** Sets the whole list at once, e.g. back to what a rejected request sent. */
+  replace: (names: string[]) => void;
 };
 
 const ShortlistContext = createContext<Shortlist | null>(null);
 
 /**
- * The SMEs an investor has starred. The stars sit on the pipeline cards and the
- * list they build sits beside the access form further down, so the two share
- * this rather than either owning it.
+ * The SMEs an investor has starred. The stars sit on the pipeline cards, the
+ * list they build sits beside the access form, and the form's SME picker is a
+ * third view of it, so all three share this rather than any one owning it.
  */
 export function ShortlistProvider({ children }: { children: ReactNode }) {
   const [names, setNames] = useState<string[]>([]);
@@ -24,7 +26,7 @@ export function ShortlistProvider({ children }: { children: ReactNode }) {
     );
 
   return (
-    <ShortlistContext.Provider value={{ names, toggle }}>
+    <ShortlistContext.Provider value={{ names, toggle, replace: setNames }}>
       {children}
     </ShortlistContext.Provider>
   );

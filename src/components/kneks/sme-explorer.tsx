@@ -32,7 +32,7 @@ export type Sme = {
 );
 
 /** Tile tints, cycled through the cards in the order the deck draws them. */
-const TINTS = ["#e0eae3", "#eee5d1", "#dde9df", "#dde8e8"];
+export const TINTS = ["#e0eae3", "#eee5d1", "#dde9df", "#dde8e8"];
 
 /** One card and the gap after it: what an arrow press moves by. */
 const STEP = 300;
