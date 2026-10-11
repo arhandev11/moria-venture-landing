@@ -88,6 +88,7 @@ export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState
   for (const key of ["name", "sector", "brief"]) {
     if (!values[key]) errors[key] = "Required.";
   }
+  if (values.city && !values.province && !errors.city) errors.city = "Choose the province first.";
   const orNull = (key: (typeof TEXT_FIELDS)[number]) => values[key] || null;
 
   const status = values.status === "funded" ? "funded" : "program";

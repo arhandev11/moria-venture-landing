@@ -9,6 +9,7 @@ import { Combobox } from "../../_components/combobox";
 import { ExternalIcon } from "../../_components/icons";
 import { ModalBody, ModalFooter } from "../../_components/modal";
 import { btn, FormMessage, INPUT } from "../../_components/ui";
+import { citiesOf } from "./indonesia-regions";
 
 export type SmeFormValues = {
   id?: number;
@@ -48,7 +49,7 @@ export type SmeFormValues = {
   imageUrl: string | null;
 };
 
-export type SmeSuggestions = { sectors: string[]; stages: string[]; cities: string[]; provinces: string[]; readiness: string[] };
+export type SmeSuggestions = { sectors: string[]; stages: string[]; provinces: string[]; readiness: string[] };
 
 export const EMPTY_SME: SmeFormValues = {
   name: "",
@@ -151,7 +152,7 @@ export function SmeForm({
   const area = (key: TextKey, rows: number, required = false) => (
     <textarea name={key} required={required} rows={rows} maxLength={L[key as keyof typeof L]} defaultValue={v(key)} aria-invalid={!!err(key)} className={INPUT} />
   );
-  const combo = (key: "sector" | "city" | "province" | "stage" | "readiness", label: string, options: readonly string[], creatable = true, required = false) => (
+  const combo = (key: "sector" | "stage" | "readiness", label: string, options: readonly string[], creatable = true, required = false) => (
     <Combobox
       name={key}
       label={label}
@@ -180,12 +181,14 @@ export function SmeForm({
         <Field label="Product category" adminOnly error={err("productCategory")} hint="As the curation source wrote it.">
           {line("productCategory")}
         </Field>
-        <Field label="City" error={err("city")}>
-          {combo("city", "City", suggestions.cities)}
-        </Field>
-        <Field label="Province" error={err("province")}>
-          {combo("province", "Province", suggestions.provinces)}
-        </Field>
+        <PlaceFields
+          provinces={suggestions.provinces}
+          province={v("province")}
+          city={v("city")}
+          provinceError={err("province")}
+          cityError={err("city")}
+          onDirty={onDirty}
+        />
         <Field label="Readiness" error={err("readiness")} hint="What the SME is ready for. Shown as the pill when there is no stage.">
           {combo("readiness", "Readiness", suggestions.readiness)}
         </Field>
@@ -391,6 +394,84 @@ function Field({
         <span className="mt-1.5 block text-[12px] leading-[18px] text-ink-muted">{hint}</span>
       ) : null}
     </label>
+  );
+}
+
+/**
+ * Province first, then the city: the city list is that province's cities and
+ * regencies, and stays shut until a province is picked. A city not in the list
+ * can still be typed in. Changing the province drops a city that is not in the
+ * new one's list. A saved city the list does not know keeps showing as is.
+ */
+function PlaceFields({
+  provinces,
+  province: initialProvince,
+  city: initialCity,
+  provinceError,
+  cityError,
+  onDirty,
+}: {
+  provinces: readonly string[];
+  province: string;
+  city: string;
+  provinceError?: string;
+  cityError?: string;
+  onDirty?: () => void;
+}) {
+  const [province, setProvince] = useState(initialProvince);
+  const [city, setCity] = useState(initialCity);
+  // Bumped to remount the city box when the province clears it.
+  const [cityKey, setCityKey] = useState(0);
+  const cities = citiesOf(province);
+
+  return (
+    <>
+      <Field label="Province" error={provinceError}>
+        <Combobox
+          name="province"
+          label="Province"
+          options={provinces}
+          creatable
+          maxLength={L.province}
+          placeholder="Choose a province"
+          defaultValue={province}
+          invalid={!!provinceError}
+          onValueChange={(next) => {
+            setProvince(next);
+            if (city && !citiesOf(next).includes(city)) {
+              setCity("");
+              setCityKey((k) => k + 1);
+            }
+            onDirty?.();
+          }}
+        />
+      </Field>
+      <Field
+        label="City"
+        error={cityError}
+        hint={province ? "A city or regency in this province. Type one in if it is missing." : "Choose a province first."}
+      >
+        {province || city ? (
+          <Combobox
+            key={cityKey}
+            name="city"
+            label="City"
+            options={cities}
+            creatable
+            maxLength={L.city}
+            placeholder={province ? "Choose a city" : "Choose a province first"}
+            defaultValue={city}
+            invalid={!!cityError}
+            onValueChange={(next) => {
+              setCity(next);
+              onDirty?.();
+            }}
+          />
+        ) : (
+          <input disabled placeholder="Choose a province first" aria-label="City" className={`${INPUT} cursor-not-allowed bg-shell`} />
+        )}
+      </Field>
+    </>
   );
 }
 
