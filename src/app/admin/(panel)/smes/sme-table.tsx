@@ -142,9 +142,9 @@ export function SmeTable({
                         <div className="flex items-center gap-3">
                           {sme.imageUrl ? (
                             // eslint-disable-next-line @next/next/no-img-element -- a 36px thumbnail of an upload
-                            <img src={sme.imageUrl} alt="" className="size-9 shrink-0 rounded-md object-cover" />
+                            <img src={sme.imageUrl} alt="" className="size-9 shrink-0 rounded-md object-cover max-sm:hidden" />
                           ) : (
-                            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-indigo-brand/[0.08] text-[12px] font-bold text-indigo-brand">
+                            <span aria-hidden className="flex size-9 shrink-0 items-center justify-center rounded-md bg-indigo-brand/[0.08] max-sm:hidden text-[12px] font-bold text-indigo-brand">
                               {initials(sme.name)}
                             </span>
                           )}
