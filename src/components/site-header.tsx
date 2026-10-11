@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Container } from "@/components/ui";
 
@@ -12,8 +13,13 @@ const PORTFOLIO_MENU = [
   { label: "Indonesia–Saudi Corridor", href: "/corridor" },
 ];
 
+const PARTNERS_MENU = [{ label: "KNEKS", href: "/kneks" }];
+
+type MenuItem = { label: string; href: string };
+
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
     <header className="sticky top-0 z-50 border-b border-rule/60 bg-shell/95 backdrop-blur">
@@ -31,32 +37,11 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">
-            <TopLink href="/about">About</TopLink>
-            <TopLink href="/what-we-do">What We Do</TopLink>
-            <div className="group relative">
-              <button
-                type="button"
-                className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-[0.1em] text-ink hover:text-indigo-brand"
-              >
-                Portfolio
-                <svg viewBox="0 0 10 6" className="h-1.5 w-2.5 fill-current">
-                  <path d="M0 0h10L5 6z" />
-                </svg>
-              </button>
-              <ul className="invisible absolute left-0 top-full w-64 border border-rule bg-shell py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100">
-                {PORTFOLIO_MENU.map((item) => (
-                  <li key={item.href}>
-                    <Link
-                      href={item.href}
-                      className="block px-4 py-2 text-[13px] text-ink hover:bg-cream hover:text-indigo-brand"
-                    >
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <TopLink href="/contact">Contact Us</TopLink>
+            <TopLink href="/about" pathname={pathname}>About</TopLink>
+            <TopLink href="/what-we-do" pathname={pathname}>What We Do</TopLink>
+            <DropdownMenu label="Portfolio" items={PORTFOLIO_MENU} pathname={pathname} />
+            <DropdownMenu label="Partners" items={PARTNERS_MENU} pathname={pathname} />
+            <TopLink href="/contact" pathname={pathname}>Contact Us</TopLink>
           </nav>
 
           <button
@@ -85,13 +70,15 @@ export function SiteHeader() {
                 { label: "About", href: "/about" },
                 { label: "What We Do", href: "/what-we-do" },
                 ...PORTFOLIO_MENU,
+                ...PARTNERS_MENU,
                 { label: "Contact Us", href: "/contact" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="block py-3 text-[12px] font-bold uppercase tracking-[0.1em] text-ink"
+                    aria-current={pathname === item.href ? "page" : undefined}
+                    className={`block py-3 text-[12px] font-bold uppercase tracking-[0.1em] ${pathname === item.href ? "text-indigo-brand" : "text-ink"}`}
                   >
                     {item.label}
                   </Link>
@@ -105,13 +92,65 @@ export function SiteHeader() {
   );
 }
 
-function TopLink({ href, children }: { href: string; children: string }) {
+/** The page you are on reads in indigo and underlined, as the deck draws it. */
+const ACTIVE = "text-indigo-brand underline decoration-1 underline-offset-[5px]";
+const TOP = "text-[11px] font-bold uppercase tracking-[0.1em]";
+
+function TopLink({
+  href,
+  pathname,
+  children,
+}: {
+  href: string;
+  pathname: string;
+  children: string;
+}) {
+  const active = pathname === href;
   return (
     <Link
       href={href}
-      className="text-[11px] font-bold uppercase tracking-[0.1em] text-ink hover:text-indigo-brand"
+      aria-current={active ? "page" : undefined}
+      className={`${TOP} ${active ? ACTIVE : "text-ink hover:text-indigo-brand"}`}
     >
       {children}
     </Link>
+  );
+}
+
+function DropdownMenu({
+  label,
+  items,
+  pathname,
+}: {
+  label: string;
+  items: MenuItem[];
+  pathname: string;
+}) {
+  const active = items.some((item) => item.href === pathname);
+  return (
+    <div className="group relative">
+      <button
+        type="button"
+        className={`flex items-center gap-1 ${TOP} ${active ? ACTIVE : "text-ink hover:text-indigo-brand"}`}
+      >
+        {label}
+        <svg viewBox="0 0 10 6" className="h-1.5 w-2.5 fill-current">
+          <path d="M0 0h10L5 6z" />
+        </svg>
+      </button>
+      <ul className="invisible absolute left-0 top-full w-64 border border-rule bg-shell py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+        {items.map((item) => (
+          <li key={item.href}>
+            <Link
+              href={item.href}
+              aria-current={item.href === pathname ? "page" : undefined}
+              className={`block px-4 py-2 text-[13px] hover:bg-cream hover:text-indigo-brand ${item.href === pathname ? "text-indigo-brand" : "text-ink"}`}
+            >
+              {item.label}
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
