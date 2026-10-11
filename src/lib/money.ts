@@ -46,7 +46,7 @@ export function formatMoney(money: Money, numberLocale: string, style: "short" |
     currency: money.currency,
     currencyDisplay: indonesian ? "symbol" : "code",
     ...(style === "short"
-      ? { notation: "compact", maximumFractionDigits: 1 }
+      ? { notation: "compact", minimumFractionDigits: 0, maximumFractionDigits: 1 }
       : { maximumFractionDigits: 0 }),
   })
     .format(money.amount)

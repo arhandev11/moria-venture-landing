@@ -8,8 +8,8 @@ import type { Dictionary } from "@/i18n/types";
 import type { pipelineStats } from "@/lib/kneks-data";
 import { formatMoney, type Money } from "@/lib/money";
 
-/** Length of the count-up, as in the deck's prototype. */
-const COUNT_MS = 900;
+/** Length of the count-up: quicker than the prototype's 900ms, so no one waits on it. */
+const COUNT_MS = 600;
 
 /**
  * Counts `value` up from zero once it comes into view, like the deck's

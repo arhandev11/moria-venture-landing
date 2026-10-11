@@ -16,8 +16,8 @@ import { useEffect } from "react";
  * the page still reads normally. Only opacity and transform are touched, so
  * nothing here can move the layout the deck was measured against.
  */
-/** Delay between steps within one section. Deliberately unhurried. */
-const STAGGER_MS = 440;
+/** Delay between steps within one section. Kept short so no one waits on the copy. */
+const STAGGER_MS = 140;
 
 export function ScrollReveal() {
   useEffect(() => {
@@ -47,7 +47,7 @@ export function ScrollReveal() {
       }
     };
 
-    // The hero runs its own, slower sequence; see HeroReveal.
+    // The hero runs its own staged sequence; see HeroReveal.
     const ownedByHero = (el: Element) => !!el.closest("[data-hero-reveal]");
 
     document

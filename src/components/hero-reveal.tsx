@@ -3,9 +3,9 @@
 import { useEffect } from "react";
 
 /** Between one element of the hero and the next. */
-const ELEMENT_MS = 260;
+const ELEMENT_MS = 110;
 /** Between one line of a headline or paragraph and the next. */
-const LINE_MS = 180;
+const LINE_MS = 80;
 
 /**
  * Brings the hero in one piece at a time, on load.
