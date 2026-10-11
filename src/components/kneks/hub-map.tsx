@@ -8,20 +8,19 @@ export type Hub = {
   x: number;
   y: number;
   blurb: string;
+  /** The program's home base: where every route ends, drawn as the big marker. */
+  home?: boolean;
 };
 
-/** Where every route ends: the program's home base. */
-const HOME = { x: 745, y: 685 };
-
 /** A gentle sag on each route, so they read as flight paths, not rulers. */
-function route(hub: Hub) {
-  const mx = (hub.x + HOME.x) / 2;
-  const my = (hub.y + HOME.y) / 2;
-  const dx = HOME.x - hub.x;
-  const dy = HOME.y - hub.y;
+function route(hub: Hub, home: Hub) {
+  const mx = (hub.x + home.x) / 2;
+  const my = (hub.y + home.y) / 2;
+  const dx = home.x - hub.x;
+  const dy = home.y - hub.y;
   const length = Math.hypot(dx, dy) || 1;
   const sag = Math.min(40, length * 0.06);
-  return `M${hub.x} ${hub.y} Q${mx - (dy / length) * sag} ${my + (dx / length) * sag} ${HOME.x} ${HOME.y}`;
+  return `M${hub.x} ${hub.y} Q${mx - (dy / length) * sag} ${my + (dx / length) * sag} ${home.x} ${home.y}`;
 }
 
 /**
@@ -33,15 +32,17 @@ function route(hub: Hub) {
 export function HubMap({ hubs }: { hubs: Hub[] }) {
   const [selected, setSelected] = useState(hubs[0].name);
   const current = hubs.find((hub) => hub.name === selected) ?? hubs[0];
+  const home = hubs.find((hub) => hub.home);
+  const away = hubs.filter((hub) => !hub.home);
 
   return (
     <>
       <div className="pointer-events-none absolute left-1/2 top-0 hidden h-[882px] w-[1440px] -translate-x-1/2 lg:block">
         <svg viewBox="0 0 1440 882" aria-hidden className="absolute inset-0 size-full" fill="none">
-          {hubs.map((hub) => (
+          {home && away.map((hub) => (
             <path
               key={hub.name}
-              d={route(hub)}
+              d={route(hub, home)}
               stroke="#b8892b"
               strokeWidth={1.4}
               strokeDasharray="4 4"
@@ -50,7 +51,7 @@ export function HubMap({ hubs }: { hubs: Hub[] }) {
           ))}
         </svg>
 
-        {hubs.map((hub) => {
+        {away.map((hub) => {
           const active = hub.name === selected;
           return (
             <button
@@ -76,18 +77,30 @@ export function HubMap({ hubs }: { hubs: Hub[] }) {
           );
         })}
 
-        <div
-          className="absolute flex -translate-x-1/2 flex-col items-center"
-          style={{ left: HOME.x, top: HOME.y - 56 }}
-        >
-          <span className="text-[12px] font-bold leading-[19px] text-kneks-ink">Jakarta</span>
-          <span className="text-[12px] leading-[19px] text-kneks-muted">Home base</span>
-          <span className="mt-[1px] flex size-[34px] items-center justify-center rounded-full border-2 border-kneks-gold bg-kneks-pine">
-            <svg viewBox="0 0 16 16" aria-hidden className="size-[11px]" fill="none" stroke="white" strokeWidth={1.4}>
-              <path d="M2 14h12M3.5 14V7h9v7M2.5 7L8 3l5.5 4M6 10h4" />
-            </svg>
-          </span>
-        </div>
+        {home ? (
+          <button
+            type="button"
+            onClick={() => setSelected(home.name)}
+            aria-pressed={home.name === selected}
+            aria-label={`${home.name}, home base: see what we do there`}
+            className="group pointer-events-auto absolute flex -translate-x-1/2 flex-col items-center"
+            style={{ left: home.x, top: home.y - 56 }}
+          >
+            <span className="text-[12px] font-bold leading-[19px] text-kneks-ink">{home.name}</span>
+            <span className="text-[12px] leading-[19px] text-kneks-muted">Home base</span>
+            <span
+              className={`mt-[1px] flex size-[34px] items-center justify-center rounded-full border-2 border-kneks-gold bg-kneks-pine transition-shadow ${
+                home.name === selected
+                  ? "shadow-[0_0_0_4px_rgba(184,137,43,0.35)]"
+                  : "group-hover:shadow-[0_0_0_4px_rgba(11,61,58,0.15)]"
+              }`}
+            >
+              <svg viewBox="0 0 16 16" aria-hidden className="size-[11px]" fill="none" stroke="white" strokeWidth={1.4}>
+                <path d="M2 14h12M3.5 14V7h9v7M2.5 7L8 3l5.5 4M6 10h4" />
+              </svg>
+            </span>
+          </button>
+        ) : null}
       </div>
 
       <div className="relative mt-8 flex flex-wrap gap-2 lg:hidden">

@@ -2,16 +2,34 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
+import { SmeBrief, SmeTile } from "@/components/kneks/sme-brief";
 
 export type Sme = {
   name: string;
-  initials: string;
   sector: string;
   city: string;
   stage: string;
-  /** Share of the round investors have signalled interest in, 0–100. */
-  interest: number;
-};
+  /** One or two sentences for the brief. */
+  brief: string;
+  /** The round the SME is raising, in USD thousands. */
+  askK: number;
+  /** Traction, as the brief's one-line summary. */
+  metrics: string;
+  /** An uploaded photo for the tile; without one the tile draws the initials. */
+  image?: string | null;
+} & (
+  | {
+      status: "program";
+      /** Share of the ask investors have signalled interest in, 0–100. */
+      interest: number;
+    }
+  | {
+      status: "funded";
+      /** What the closed round raised, in USD thousands. */
+      raisedK: number;
+      investor: string;
+    }
+);
 
 /** Tile tints, cycled through the cards in the order the deck draws them. */
 const TINTS = ["#e0eae3", "#eee5d1", "#dde9df", "#dde8e8"];
@@ -24,6 +42,11 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
   const [sector, setSector] = useState("All");
   const scroller = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
+  const [briefOf, setBriefOf] = useState<Sme | null>(null);
+  /** The card button that opened the brief, so focus can go back to it. */
+  const opener = useRef<HTMLButtonElement | null>(null);
+
+  const tintOf = (sme: Sme) => TINTS[smes.indexOf(sme) % TINTS.length];
 
   const sectors = useMemo(
     () => ["All", ...new Set(smes.map((sme) => sme.sector))],
@@ -126,7 +149,15 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
       >
         {shown.length ? (
           shown.map((sme) => (
-            <SmeCard key={sme.name} sme={sme} tint={TINTS[smes.indexOf(sme) % TINTS.length]} />
+            <SmeCard
+              key={sme.name}
+              sme={sme}
+              tint={tintOf(sme)}
+              onOpen={(button) => {
+                opener.current = button;
+                setBriefOf(sme);
+              }}
+            />
           ))
         ) : (
           <p className="flex h-[391px] w-full items-center justify-center rounded-xl border border-dashed border-kneks-line text-[15px] text-kneks-muted">
@@ -142,32 +173,53 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
         </p>
         <p className="hidden sm:block">Scroll to explore →</p>
       </div>
+
+      <SmeBrief
+        sme={briefOf}
+        tint={briefOf ? tintOf(briefOf) : TINTS[0]}
+        onClose={() => {
+          setBriefOf(null);
+          opener.current?.focus();
+        }}
+      />
     </>
   );
 }
 
-function SmeCard({ sme, tint }: { sme: Sme; tint: string }) {
+/**
+ * A pipeline card. The whole card opens the brief through one stretched button
+ * laid over it, while the star stays its own control raised above that button:
+ * two siblings rather than a button inside a button.
+ */
+function SmeCard({
+  sme,
+  tint,
+  onOpen,
+}: {
+  sme: Sme;
+  tint: string;
+  onOpen: (button: HTMLButtonElement) => void;
+}) {
   const { names, toggle } = useShortlist();
   const starred = names.includes(sme.name);
+  const funded = sme.status === "funded";
+  const interest = funded ? 100 : sme.interest;
 
   return (
-    <article className="relative w-[280px] shrink-0 snap-start rounded-xl border border-kneks-line bg-white">
-      <svg viewBox="0 0 16 16" aria-hidden className="absolute right-[15px] top-[15px] size-4 stroke-kneks-muted" fill="none" strokeWidth={1.3}>
+    <article className="group relative w-[280px] shrink-0 snap-start rounded-xl border border-kneks-line bg-white transition-colors hover:border-kneks-pine">
+      <button
+        type="button"
+        onClick={(e) => onOpen(e.currentTarget)}
+        aria-label={`Open brief: ${sme.name}`}
+        aria-haspopup="dialog"
+        className="absolute inset-0 z-[1] rounded-xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-kneks-gold"
+      />
+      <svg viewBox="0 0 16 16" aria-hidden className="absolute right-[15px] top-[15px] size-4 stroke-kneks-muted transition-colors group-hover:stroke-kneks-pine" fill="none" strokeWidth={1.3}>
         <path d="M2 14L14 2M5 2h9v9" />
       </svg>
 
       <div className="p-[23px]">
-        <div className="relative h-[140px] overflow-hidden rounded-lg" style={{ backgroundColor: tint }}>
-          <svg viewBox="0 0 232 140" aria-hidden className="absolute inset-0 size-full" fill="none" stroke="#0b3d3a" strokeOpacity={0.14}>
-            <circle cx="172" cy="69" r="51.5" />
-            <path d="M167 23l46 46-46 46-46-46z" />
-            <circle cx="196" cy="35" r="17.5" strokeDasharray="3 3" />
-            <path d="M18.5 94.5l18.5 18.5-18.5 18.5L0 113z" />
-          </svg>
-          <span className="absolute inset-0 flex items-center justify-center text-[39px] font-normal tracking-[-0.01em] text-kneks-pine">
-            {sme.initials}
-          </span>
-        </div>
+        <SmeTile name={sme.name} image={sme.image} tint={tint} className="h-[140px]" />
         <h3 className="mt-[23px] text-[20px] font-bold leading-[26px] text-kneks-ink">
           {sme.name}
         </h3>
@@ -178,26 +230,32 @@ function SmeCard({ sme, tint }: { sme: Sme; tint: string }) {
           {sme.sector} · {sme.city}
         </p>
         <div className="mt-[6px] flex items-center justify-between">
-          <span className="rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
-            {sme.stage}
-          </span>
+          {funded ? (
+            <span className="rounded-full border border-kneks-gold bg-kneks-sand px-[9px] py-[4px] text-[13px] font-semibold leading-[17px] text-kneks-earth">
+              Funded
+            </span>
+          ) : (
+            <span className="rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
+              {sme.stage}
+            </span>
+          )}
           <button
             type="button"
             onClick={() => toggle(sme.name)}
             aria-pressed={starred}
             aria-label={starred ? `Remove ${sme.name} from shortlist` : `Add ${sme.name} to shortlist`}
-            className={`flex size-11 items-center justify-center rounded-full border-2 border-kneks-pine transition-colors ${
-              starred ? "bg-kneks-pine text-kneks-sand" : "text-kneks-pine hover:bg-kneks-mist"
+            className={`relative z-10 flex size-11 items-center justify-center rounded-full border-2 border-kneks-pine transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold ${
+              starred ? "bg-kneks-pine text-kneks-sand" : "bg-white text-kneks-pine hover:bg-kneks-mist"
             }`}
           >
             <StarIcon filled={starred} className="size-[22px]" />
           </button>
         </div>
         <div className="mt-[4px] h-[3px] rounded-full bg-[#e0e6e6]">
-          <div className="h-full rounded-full bg-kneks-gold" style={{ width: `${sme.interest}%` }} />
+          <div className="h-full rounded-full bg-kneks-gold" style={{ width: `${interest}%` }} />
         </div>
         <p className="mt-[12px] text-[13px] leading-[18px] text-kneks-muted">
-          Investor interest: {sme.interest}% of ask (sample)
+          {funded ? "Round closed" : `Investor interest: ${interest}% of ask (sample)`}
         </p>
       </div>
     </article>

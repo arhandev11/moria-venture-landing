@@ -5,7 +5,8 @@ import { HubMap, type Hub } from "@/components/kneks/hub-map";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { RequestAccessForm, ShortlistCard } from "@/components/kneks/request-access";
 import { ShortlistProvider } from "@/components/kneks/shortlist";
-import { SmeExplorer, type Sme } from "@/components/kneks/sme-explorer";
+import { SmeExplorer } from "@/components/kneks/sme-explorer";
+import { getFormOptions, getPublishedSmes, pipelineStats } from "@/lib/kneks-data";
 
 export const metadata: Metadata = {
   title: "KNEKS × Moria",
@@ -13,12 +14,13 @@ export const metadata: Metadata = {
     "Moria Ventures works with KNEKS to put Islamic Principle-compliant Indonesian SMEs in front of investors and VCs from MENA and Southeast Asia.",
 };
 
-const STATS = [
-  { value: "8", label: "SMEs in pipeline" },
-  { value: "2", label: "Funded graduates" },
-  { value: "800", label: "Raised (USD K)" },
-  { value: "7", label: "Sectors" },
-];
+/**
+ * SMEs and the access form's choices come from the database, managed in
+ * /admin. Admin edits call revalidatePath('/kneks'); the hourly revalidate is
+ * only a backstop, e.g. for a build that ran without the database and fell
+ * back to the seed content.
+ */
+export const revalidate = 3600;
 
 const SUPPORT = [
   "Business and Islamic Principle compliance coaching",
@@ -37,20 +39,8 @@ const STEPS = [
 /** Which of the steps above the cohort is in now, counting from one. */
 const CURRENT_STEP = 3;
 
-// Sample profiles. The deck shows the first five; the last three fill out the
-// eight SMEs and seven sectors its own counters claim.
-const SMES: Sme[] = [
-  { name: "Nusa Halal Foods", initials: "NH", sector: "Food", city: "Surabaya", stage: "Seed", interest: 60 },
-  { name: "Batik Kita", initials: "BK", sector: "Fashion", city: "Solo", stage: "Pre-seed", interest: 35 },
-  { name: "Tani Syariah", initials: "TS", sector: "Agritech", city: "Bandung", stage: "Seed", interest: 75 },
-  { name: "Wakaf Pay", initials: "WP", sector: "Fintech", city: "Jakarta", stage: "Series A", interest: 45 },
-  { name: "Kopi Barokah", initials: "KB", sector: "Food", city: "Aceh", stage: "Seed", interest: 50 },
-  { name: "Lintas Kargo", initials: "LK", sector: "Logistics", city: "Medan", stage: "Seed", interest: 55 },
-  { name: "Ngaji Pintar", initials: "NP", sector: "Edtech", city: "Yogyakarta", stage: "Pre-seed", interest: 30 },
-  { name: "Herbanesia", initials: "HB", sector: "Wellness", city: "Malang", stage: "Seed", interest: 40 },
-];
-
-// Positions are on the 1440 x 882 map artwork, measured from the deck.
+// Positions are on the 1440 x 882 map artwork, measured from the deck. Jakarta
+// is the home base every route runs to.
 const HUBS: Hub[] = [
   {
     name: "Riyadh",
@@ -64,21 +54,29 @@ const HUBS: Hub[] = [
     x: 305,
     y: 400,
     blurb:
-      "Dubai and the UAE: family offices and regional funds looking for Islamic Principle-compliant deal flow.",
+      "Dubai: regional VCs and cross-border platforms that co-invest in emerging markets.",
   },
   {
     name: "Kuala Lumpur",
     x: 693,
     y: 583,
     blurb:
-      "Kuala Lumpur: Islamic finance institutions and VCs following Indonesia's halal economy.",
+      "Kuala Lumpur: Islamic finance houses and strategic partners for regional expansion.",
   },
   {
     name: "Singapore",
     x: 717,
     y: 608,
     blurb:
-      "Singapore: regional VCs and angel networks backing Indonesian growth companies.",
+      "Singapore: VCs and corporates looking for vetted Indonesian SMEs to co-invest and partner.",
+  },
+  {
+    name: "Jakarta",
+    x: 745,
+    y: 685,
+    home: true,
+    blurb:
+      "Jakarta: home base. Deal screening, Islamic Principle review and local execution with KNEKS.",
   },
 ];
 
@@ -105,7 +103,16 @@ function Check() {
   );
 }
 
-export default function KneksPage() {
+export default async function KneksPage() {
+  const [smes, options] = await Promise.all([getPublishedSmes(), getFormOptions()]);
+  const counts = pipelineStats(smes);
+  const stats = [
+    { value: String(counts.smes), label: "SMEs in pipeline" },
+    { value: String(counts.funded), label: "Funded graduates" },
+    { value: counts.raisedK.toLocaleString("en"), label: "Raised (USD K)" },
+    { value: String(counts.sectors), label: "Sectors" },
+  ];
+
   return (
     <ShortlistProvider>
       {/* Hero */}
@@ -161,7 +168,7 @@ export default function KneksPage() {
 
           <div className="lg:pt-[37px]">
             <dl className="grid grid-cols-2 gap-4">
-              {STATS.map((stat) => (
+              {stats.map((stat) => (
                 <div key={stat.label} className="flex h-[132px] flex-col-reverse justify-end rounded-xl bg-white px-5 pt-[23px]">
                   <dt className="mt-[10px] text-[13px] leading-[18px] text-kneks-pine">{stat.label}</dt>
                   <dd className="text-[44px] font-bold leading-none tracking-[-0.01em] text-kneks-gold">{stat.value}</dd>
@@ -250,7 +257,7 @@ export default function KneksPage() {
       {/* SME pipeline */}
       <section id="smes" className="scroll-mt-[68px] bg-white">
         <Wrap className="pb-[61px] pt-[57px]">
-          <SmeExplorer smes={SMES} />
+          <SmeExplorer smes={smes} />
         </Wrap>
       </section>
 
@@ -351,7 +358,7 @@ export default function KneksPage() {
               <ShortlistCard />
             </div>
           </div>
-          <RequestAccessForm />
+          <RequestAccessForm regions={options.regions} tickets={options.tickets} />
         </Wrap>
       </section>
     </ShortlistProvider>

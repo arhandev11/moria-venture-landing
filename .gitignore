@@ -46,3 +46,7 @@ next-env.d.ts
 # playwright-mcp scratch output
 /.playwright-mcp/
 /Revisions.pdf
+!.env.example
+
+# uploaded files (SME images); lives outside public/, see UPLOAD_DIR
+/storage/
