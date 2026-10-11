@@ -6,21 +6,41 @@ import { getDb } from "@/db";
 import { smes } from "@/db/schema";
 import { authorizeAction, NOT_ALLOWED } from "@/lib/auth/dal";
 import { SME_EDITORS } from "@/lib/auth/roles";
+import { isSmeCurrency, parseWholeAmount, type SmeCurrency } from "@/lib/money";
 import { revalidateKneks } from "@/lib/revalidate-kneks";
+import { CURATION_STATUSES, isHttpUrl, LEGAL_FORMS, SME_TEXT_LIMITS, type SmeTextField } from "@/lib/sme-fields";
 import { deleteSmeImage, saveSmeImage } from "@/lib/uploads";
 import { checked, id, idList, isDuplicate, text, whole } from "../_lib/form";
 import type { ActionResult, FormState } from "../_lib/state";
 
-const TEXT_FIELDS = {
-  name: 120,
-  sector: 60,
-  city: 80,
-  stage: 40,
-  brief: 1000,
-  metrics: 255,
-  investor: 120,
-  quote: 500,
-} as const;
+/** Text fields the form posts, with their limits. `status` and the numbers are read separately. */
+const TEXT_FIELDS = [
+  "name",
+  "sector",
+  "city",
+  "province",
+  "stage",
+  "readiness",
+  "brief",
+  "metrics",
+  "investor",
+  "quote",
+  "supportingOrg",
+  "valuationTerms",
+  "useOfFunds",
+  "productCategory",
+  "ceoName",
+  "address",
+  "potentialInvestors",
+  "curationNotes",
+  "pitchDeckUrl",
+  "dataQualityNotes",
+] as const satisfies readonly SmeTextField[];
+
+/** Posted as typed and refilled on a rejected form, but checked by their own rules. */
+const OTHER_FIELDS = ["status", "askAmount", "askCurrency", "interestPct", "raisedAmount", "raisedCurrency", "legalForm", "curationStatus", "sortOrder"] as const;
+
+const BOTH_OR_NEITHER = "Enter both the amount and its currency, or neither.";
 
 /** Everything that shows SMEs: the public page and the admin list. */
 function refresh() {
@@ -29,41 +49,69 @@ function refresh() {
 }
 
 /**
+ * Reads an amount and its currency. Both are optional, but only together:
+ * one without the other is an error on whichever is missing.
+ */
+function money(values: Record<string, string>, errors: Record<string, string>, amountKey: string, currencyKey: string) {
+  const raw = values[amountKey];
+  const code = values[currencyKey];
+  if (!raw && !code) return { amount: null, currency: null };
+  const amount = raw ? parseWholeAmount(raw) : null;
+  if (raw && amount === null) errors[amountKey] = "Enter a whole amount above zero, like 15000000000 or 15,000,000,000.";
+  if (code && !isSmeCurrency(code)) errors[currencyKey] = "Pick a currency from the list.";
+  if (!raw) errors[amountKey] = BOTH_OR_NEITHER;
+  if (!code) errors[currencyKey] = BOTH_OR_NEITHER;
+  return amount !== null && isSmeCurrency(code) ? { amount, currency: code } : { amount: null, currency: null };
+}
+
+/**
  * Creates an SME, or updates one when the form carries an id. Fields are
  * checked first and the image saved only once they pass, so a rejected form
- * never leaves a stray file behind.
+ * never leaves a stray file behind. Only name, sector and brief are required;
+ * any other field left empty is stored as null. `source` and `sourceRef`
+ * belong to the import and are never written here.
  */
 export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState> {
   if (!(await authorizeAction(SME_EDITORS))) return { message: NOT_ALLOWED };
   const db = getDb();
   const smeId = id(fd);
 
-  const values = Object.fromEntries(
-    [...Object.keys(TEXT_FIELDS), "status", "askK", "interestPct", "raisedK", "sortOrder"].map((key) => [key, text(fd, key)]),
-  ) as Record<string, string>;
+  const values = Object.fromEntries([...TEXT_FIELDS, ...OTHER_FIELDS].map((key) => [key, text(fd, key)])) as Record<string, string>;
   values.published = checked(fd, "published") ? "on" : "";
+  values.askCurrencyInferred = checked(fd, "askCurrencyInferred") ? "on" : "";
   const errors: Record<string, string> = {};
 
-  for (const [key, limit] of Object.entries(TEXT_FIELDS)) {
-    if (values[key].length > limit) errors[key] = `Keep this under ${limit} characters.`;
+  for (const key of TEXT_FIELDS) {
+    const limit = SME_TEXT_LIMITS[key];
+    if (values[key].length > limit) errors[key] = `Keep this under ${limit.toLocaleString("en")} characters.`;
   }
-  for (const key of ["name", "sector", "city", "stage", "brief", "metrics"]) {
+  for (const key of ["name", "sector", "brief"]) {
     if (!values[key]) errors[key] = "Required.";
   }
+  const orNull = (key: (typeof TEXT_FIELDS)[number]) => values[key] || null;
 
   const status = values.status === "funded" ? "funded" : "program";
-  const askK = whole(fd, "askK");
-  if (askK === null || askK < 1 || askK > 10_000_000) errors.askK = "Enter the ask in USD thousands, e.g. 300.";
+  const ask = money(values, errors, "askAmount", "askCurrency");
 
   let interestPct: number | null = null;
-  let raisedK: number | null = null;
+  let raised: { amount: number | null; currency: SmeCurrency | null } = { amount: null, currency: null };
   if (status === "program") {
-    interestPct = whole(fd, "interestPct");
-    if (interestPct === null || interestPct < 0 || interestPct > 100) errors.interestPct = "Enter a whole number from 0 to 100.";
+    if (values.interestPct) {
+      interestPct = whole(fd, "interestPct");
+      if (interestPct === null || interestPct < 0 || interestPct > 100) errors.interestPct = "Enter a whole number from 0 to 100, or leave blank.";
+    }
   } else {
-    raisedK = whole(fd, "raisedK");
-    if (raisedK === null || raisedK < 0 || raisedK > 10_000_000) errors.raisedK = "Enter the amount raised in USD thousands.";
+    raised = money(values, errors, "raisedAmount", "raisedCurrency");
     if (!values.investor) errors.investor = "Required for a funded SME.";
+  }
+
+  const legalForm = values.legalForm ? LEGAL_FORMS.find((f) => f === values.legalForm) : null;
+  if (legalForm === undefined) errors.legalForm = "Pick a legal form from the list.";
+  const curationStatus = values.curationStatus ? CURATION_STATUSES.find((c) => c === values.curationStatus) : null;
+  if (curationStatus === undefined) errors.curationStatus = "Pick a curation status from the list.";
+
+  if (values.pitchDeckUrl && !errors.pitchDeckUrl && !isHttpUrl(values.pitchDeckUrl)) {
+    errors.pitchDeckUrl = "Enter a full link starting with https://.";
   }
 
   const sortOrder = values.sortOrder === "" ? null : whole(fd, "sortOrder");
@@ -90,19 +138,36 @@ export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState
   const row = {
     name: values.name,
     sector: values.sector,
-    city: values.city,
-    stage: values.stage,
+    city: orNull("city"),
+    province: orNull("province"),
+    stage: orNull("stage"),
+    readiness: orNull("readiness"),
     status,
     brief: values.brief,
-    askK: askK!,
-    metrics: values.metrics,
+    askAmount: ask.amount,
+    askCurrency: ask.currency,
+    askCurrencyInferred: ask.amount !== null && values.askCurrencyInferred === "on",
     interestPct,
-    raisedK,
+    metrics: orNull("metrics"),
+    raisedAmount: raised.amount,
+    raisedCurrency: raised.currency,
     investor: status === "funded" ? values.investor : null,
-    quote: values.quote || null,
+    quote: orNull("quote"),
+    legalForm: legalForm ?? null,
+    supportingOrg: orNull("supportingOrg"),
+    valuationTerms: orNull("valuationTerms"),
+    useOfFunds: orNull("useOfFunds"),
     imageFile,
+    curationStatus: curationStatus ?? null,
+    productCategory: orNull("productCategory"),
+    ceoName: orNull("ceoName"),
+    address: orNull("address"),
+    potentialInvestors: orNull("potentialInvestors"),
+    curationNotes: orNull("curationNotes"),
+    pitchDeckUrl: orNull("pitchDeckUrl"),
+    dataQualityNotes: orNull("dataQualityNotes"),
     published: checked(fd, "published"),
-  } as const;
+  } satisfies Partial<typeof smes.$inferInsert>;
 
   try {
     if (smeId) {

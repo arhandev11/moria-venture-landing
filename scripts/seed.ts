@@ -1,8 +1,9 @@
 /**
- * Seeds the admin users, the KNEKS SMEs and the access form's choices.
- * Safe to re-run: users are added only when their email is missing, and SMEs
- * and options only when their table (or option kind) is still empty, so it
- * never overwrites what an admin has since edited.
+ * Seeds the admin users and the access form's choices. Safe to re-run: users
+ * are added only when their email is missing, and options only when their
+ * kind is still empty, so it never overwrites what an admin has since edited.
+ * SMEs are not seeded: the real ones come from the HSDD import
+ * (npm run db:import:hsdd).
  *
  *   npm run db:seed
  *
@@ -18,9 +19,9 @@ import { drizzle } from "drizzle-orm/mysql2";
 import { createPool } from "../src/db/pool";
 import * as schema from "../src/db/schema";
 import type { AdminRole } from "../src/lib/auth/roles";
-import { SEED_REGIONS, SEED_SMES, SEED_TICKETS } from "../src/lib/kneks-seed";
+import { SEED_REGIONS, SEED_TICKETS } from "../src/lib/kneks-seed";
 
-const { adminUsers, formOptions, smes } = schema;
+const { adminUsers, formOptions } = schema;
 
 async function main() {
   const url = process.env.DATABASE_URL;
@@ -48,16 +49,6 @@ async function main() {
       await ensureUser(kneksEmail, process.env.SEED_KNEKS_PASSWORD ?? "12341234", "KNEKS", "kneks");
     } else {
       console.log("kneks user: SEED_KNEKS_EMAIL is empty, skipped");
-    }
-
-    const [{ n: smeCount }] = await db.select({ n: count() }).from(smes);
-    if (smeCount > 0) {
-      console.log(`smes: ${smeCount} rows present, left alone`);
-    } else {
-      await db.insert(smes).values(
-        SEED_SMES.map((sme, i) => ({ ...sme, sortOrder: (i + 1) * 10, published: true })),
-      );
-      console.log(`smes: ${SEED_SMES.length} seeded`);
     }
 
     for (const [kind, labels] of [

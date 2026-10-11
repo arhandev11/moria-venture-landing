@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
-import type { KneksLabels, Sme } from "@/components/kneks/sme-explorer";
+import { placeOf, type KneksLabels, type Sme } from "@/components/kneks/sme-explorer";
+import { numberLocale, type Locale } from "@/i18n/config";
 import { format } from "@/i18n/format";
+import { formatMoney } from "@/lib/money";
+import { LEGAL_FORM_LABELS } from "@/lib/sme-fields";
 
 /** The monogram on a tile: the first letters of the first two words. */
 function initials(name: string) {
@@ -65,11 +68,13 @@ export function SmeTile({
 export function SmeBrief({
   sme,
   tint,
+  locale,
   labels,
   onClose,
 }: {
   sme: Sme | null;
   tint: string;
+  locale: Locale;
   labels: KneksLabels;
   onClose: () => void;
 }) {
@@ -96,7 +101,7 @@ export function SmeBrief({
       onClick={(e) => {
         if (e.target === e.currentTarget) close();
       }}
-      className="m-auto w-[calc(100%-32px)] max-w-[540px] rounded-xl border border-kneks-line bg-white p-0 text-kneks-ink backdrop:bg-[rgb(11_61_58/0.72)]"
+      className="m-auto max-h-[calc(100dvh-32px)] w-[calc(100%-32px)] max-w-[540px] overflow-y-auto overscroll-contain rounded-xl border border-kneks-line bg-white p-0 text-kneks-ink backdrop:bg-[rgb(11_61_58/0.72)]"
     >
       {sme ? (
         <div className="relative p-[23px] sm:p-[27px]">
@@ -116,23 +121,46 @@ export function SmeBrief({
             {sme.name}
           </h3>
           <p className="mt-[4px] text-[14px] leading-[20px] text-kneks-muted">
-            {sme.sector} · {sme.city}
+            {placeOf(sme)}
+            {sme.city && sme.province ? `, ${sme.province}` : null}
           </p>
-          <p className="mt-[16px] text-[16px] leading-[26px] text-kneks-ink">{sme.brief}</p>
+          <div className="mt-[16px] space-y-[12px] text-[16px] leading-[26px] text-kneks-ink">
+            {sme.brief
+              .split(/\n\s*\n/)
+              .map((paragraph) => paragraph.trim())
+              .filter(Boolean)
+              .map((paragraph, i) => (
+                // SME texts stay English on every locale; isolating them keeps
+                // their punctuation on the right side of an Arabic page.
+                <p key={i} className="whitespace-pre-line">
+                  <bdi>{paragraph}</bdi>
+                </p>
+              ))}
+          </div>
 
-          <dl className="mt-[20px] grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-[10px] border-y border-kneks-line py-[18px] text-[15px] leading-[22px]">
-            <dt className="text-kneks-muted">{t.stage}</dt>
-            <dd className="font-medium">{sme.stage}</dd>
-            <dt className="text-kneks-muted">{t.ask}</dt>
-            <dd className="font-medium">{format(t.askValue, { amount: sme.askK })}</dd>
-            <dt className="text-kneks-muted">{t.traction}</dt>
-            <dd className="font-medium">{sme.metrics}</dd>
-            <dt className="text-kneks-muted">{t.status}</dt>
-            <dd className="font-medium">
+          <dl className="mt-[20px] grid gap-y-[12px] border-y border-kneks-line py-[18px] text-[15px] leading-[22px]">
+            <Row label={t.readiness}>{sme.readiness}</Row>
+            <Row label={t.stage}>{sme.stage}</Row>
+            <Row label={t.ask}>
+              {sme.ask ? <bdi>{formatMoney(sme.ask, numberLocale[locale], "full")}</bdi> : t.notDisclosed}
+            </Row>
+            <Row label={t.legalForm}>
+              {sme.legalForm ? (t.legalForms[sme.legalForm] ?? LEGAL_FORM_LABELS[sme.legalForm]) : null}
+            </Row>
+            <Row label={t.supportingOrg}>{sme.supportingOrg}</Row>
+            <Row label={t.equity}>{sme.valuationTerms}</Row>
+            <Row label={t.useOfFunds}>{sme.useOfFunds}</Row>
+            <Row label={t.traction}>{sme.metrics}</Row>
+            <Row label={t.status}>
               {sme.status === "funded"
-                ? format(t.fundedStatus, { amount: sme.raisedK, investor: sme.investor })
+                ? sme.raised
+                  ? format(t.fundedFrom, {
+                      amount: formatMoney(sme.raised, numberLocale[locale], "full"),
+                      investor: sme.investor,
+                    })
+                  : format(t.fundedBy, { investor: sme.investor })
                 : t.inProgram}
-            </dd>
+            </Row>
           </dl>
 
           <button
@@ -153,5 +181,18 @@ export function SmeBrief({
         </div>
       ) : null}
     </dialog>
+  );
+}
+
+/** One term of the brief's list; a row with nothing to say is left out. */
+function Row({ label, children }: { label: string; children: ReactNode }) {
+  if (children === null || children === undefined || children === "") return null;
+  return (
+    <div className="grid gap-x-6 gap-y-[2px] sm:grid-cols-[150px_minmax(0,1fr)]">
+      <dt className="text-kneks-muted">{label}</dt>
+      <dd className="whitespace-pre-line break-words font-medium">
+        <bdi>{children}</bdi>
+      </dd>
+    </div>
   );
 }

@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeBrief, SmeTile } from "@/components/kneks/sme-brief";
-import type { Locale } from "@/i18n/config";
+import { numberLocale, type Locale } from "@/i18n/config";
 import { format, formatPlural } from "@/i18n/format";
 import type { Dictionary } from "@/i18n/types";
+import { formatMoney, type Money } from "@/lib/money";
+import type { LegalForm } from "@/lib/sme-fields";
 
 /** The KNEKS page's dictionary, handed down to its client pieces. */
 export type KneksLabels = Dictionary["kneks"];
@@ -13,29 +15,42 @@ export type KneksLabels = Dictionary["kneks"];
 export type Sme = {
   name: string;
   sector: string;
-  city: string;
-  stage: string;
-  /** One or two sentences for the brief. */
+  city: string | null;
+  province: string | null;
+  stage: string | null;
+  /** What the SME says it is ready for, e.g. "Investment / financing". */
+  readiness: string | null;
+  /** The description; paragraphs are separated by a blank line. */
   brief: string;
-  /** The round the SME is raising, in USD thousands. */
-  askK: number;
+  /** The round the SME is raising, in its own currency; null when not disclosed. */
+  ask: Money | null;
+  legalForm: LegalForm | null;
+  valuationTerms: string | null;
+  useOfFunds: string | null;
+  supportingOrg: string | null;
   /** Traction, as the brief's one-line summary. */
-  metrics: string;
+  metrics: string | null;
   /** An uploaded photo for the tile; without one the tile draws the initials. */
   image?: string | null;
 } & (
   | {
       status: "program";
-      /** Share of the ask investors have signalled interest in, 0–100. */
-      interest: number;
+      /** Share of the ask investors have signalled interest in, 0–100; null hides the meter. */
+      interest: number | null;
     }
   | {
       status: "funded";
-      /** What the closed round raised, in USD thousands. */
-      raisedK: number;
+      /** What the closed round raised, in its own currency. */
+      raised: Money | null;
       investor: string;
     }
 );
+
+/** "Sector · City", falling back to the province, else the sector alone. */
+export function placeOf(sme: { sector: string; city: string | null; province?: string | null }) {
+  const place = sme.city || sme.province;
+  return place ? `${sme.sector} · ${place}` : sme.sector;
+}
 
 /** Tile tints, cycled through the cards in the order the deck draws them. */
 export const TINTS = ["#e0eae3", "#eee5d1", "#dde9df", "#dde8e8"];
@@ -72,7 +87,7 @@ export function SmeExplorer({
   const tintOf = (sme: Sme) => TINTS[smes.indexOf(sme) % TINTS.length];
 
   const sectors = useMemo(
-    () => [ALL, ...new Set(smes.map((sme) => sme.sector))],
+    () => [ALL, ...[...new Set(smes.map((sme) => sme.sector))].sort((a, b) => a.localeCompare(b))],
     [smes],
   );
 
@@ -80,8 +95,8 @@ export function SmeExplorer({
     if (sector !== ALL && sme.sector !== sector) return false;
     const q = query.trim().toLowerCase();
     if (!q) return true;
-    return [sme.name, sme.sector, sme.city].some((field) =>
-      field.toLowerCase().includes(q),
+    return [sme.name, sme.sector, sme.city, sme.province].some((field) =>
+      field?.toLowerCase().includes(q),
     );
   });
   const shownSectors = new Set(shown.map((sme) => sme.sector)).size;
@@ -127,7 +142,7 @@ export function SmeExplorer({
         </div>
       </div>
 
-      <div className="mt-[28px] flex flex-col gap-4 lg:flex-row lg:items-center">
+      <div className="mt-[28px] flex flex-col gap-4 lg:flex-row lg:items-start">
         <label className="flex h-[49px] w-full shrink-0 items-center gap-3 rounded-lg border border-kneks-line bg-white px-[15px] focus-within:border-kneks-pine lg:w-[290px]">
           <svg viewBox="0 0 24 24" aria-hidden className="size-[18px] shrink-0 stroke-kneks-pine" fill="none" strokeWidth={2.2}>
             <circle cx="11" cy="11" r="7" />
@@ -143,7 +158,12 @@ export function SmeExplorer({
           />
         </label>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label={t.filterLabel}>
+        {/* Fifteen-odd sectors: one swipeable line on phones, wrapping from sm up. */}
+        <div
+          className="-mx-4 flex min-w-0 gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden"
+          role="group"
+          aria-label={t.filterLabel}
+        >
           {sectors.map((name) => {
             const active = name === sector;
             return (
@@ -152,7 +172,7 @@ export function SmeExplorer({
                 type="button"
                 aria-pressed={active}
                 onClick={() => setSector(name)}
-                className={`flex h-11 items-center gap-1.5 rounded-full border px-[15px] text-[14px] font-medium transition-colors ${
+                className={`flex h-11 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border px-[15px] text-[14px] font-medium transition-colors ${
                   active
                     ? "border-kneks-pine bg-kneks-pine text-white"
                     : "border-kneks-line bg-white text-kneks-muted hover:border-kneks-pine hover:text-kneks-pine"
@@ -181,6 +201,7 @@ export function SmeExplorer({
               key={sme.name}
               sme={sme}
               tint={tintOf(sme)}
+              locale={locale}
               labels={labels}
               onOpen={(button) => {
                 opener.current = button;
@@ -198,7 +219,7 @@ export function SmeExplorer({
       <div className="mt-[30px] flex items-center justify-between text-[13px] leading-[18px] text-kneks-muted">
         <p>
           {formatPlural(locale, t.countSmes, shown.length)} ·{" "}
-          {formatPlural(locale, t.countSectors, shownSectors)} · {t.sampleProfiles}
+          {formatPlural(locale, t.countSectors, shownSectors)} · {t.curatedProfiles}
         </p>
         <p className="hidden sm:block">{t.scrollHint}</p>
       </div>
@@ -206,6 +227,7 @@ export function SmeExplorer({
       <SmeBrief
         sme={briefOf}
         tint={briefOf ? tintOf(briefOf) : TINTS[0]}
+        locale={locale}
         labels={labels}
         onClose={() => {
           setBriefOf(null);
@@ -224,11 +246,13 @@ export function SmeExplorer({
 function SmeCard({
   sme,
   tint,
+  locale,
   labels,
   onOpen,
 }: {
   sme: Sme;
   tint: string;
+  locale: Locale;
   labels: KneksLabels;
   onOpen: (button: HTMLButtonElement) => void;
 }) {
@@ -236,7 +260,11 @@ function SmeCard({
   const { names, toggle } = useShortlist();
   const starred = names.includes(sme.name);
   const funded = sme.status === "funded";
-  const interest = funded ? 100 : sme.interest;
+  // Funded rows keep the full meter; a program row without a figure shows none.
+  const interest = funded ? 100 : sme.interest === null ? null : Math.min(100, Math.max(0, sme.interest));
+  const pill = sme.stage || sme.readiness;
+  const money = funded ? sme.raised : sme.ask;
+  const amount = money ? formatMoney(money, numberLocale[locale], "short") : null;
 
   return (
     <article className="group relative w-[280px] shrink-0 snap-start rounded-xl border border-kneks-line bg-white transition-colors hover:border-kneks-pine">
@@ -259,18 +287,26 @@ function SmeCard({
       </div>
 
       <div className="border-t border-[#e0eae3] px-[23px] pb-[23px] pt-[24px]">
-        <p className="text-[14px] leading-[20px] text-kneks-muted">
-          {sme.sector} · {sme.city}
+        <p className="truncate text-[14px] leading-[20px] text-kneks-muted">
+          {placeOf(sme)}
         </p>
-        <div className="mt-[6px] flex items-center justify-between">
+        {funded && !amount ? null : (
+          <p className="mt-[2px] text-[14px] leading-[20px] text-kneks-muted">
+            {funded ? t.raised : t.ask}{" "}
+            <bdi className={amount ? "font-semibold text-kneks-ink" : ""}>{amount ?? t.notDisclosed}</bdi>
+          </p>
+        )}
+        <div className="mt-[6px] flex min-h-11 items-center justify-between gap-3">
           {funded ? (
             <span className="rounded-full border border-kneks-gold bg-kneks-sand px-[9px] py-[4px] text-[13px] font-semibold leading-[17px] text-kneks-earth">
               {t.funded}
             </span>
-          ) : (
-            <span className="rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
-              {sme.stage}
+          ) : pill ? (
+            <span className="min-w-0 truncate rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
+              {pill}
             </span>
+          ) : (
+            <span />
           )}
           <button
             type="button"
@@ -284,12 +320,16 @@ function SmeCard({
             <StarIcon filled={starred} className="size-[22px]" />
           </button>
         </div>
-        <div className="mt-[4px] h-[3px] rounded-full bg-[#e0e6e6]">
-          <div className="h-full rounded-full bg-kneks-gold" style={{ width: `${interest}%` }} />
-        </div>
-        <p className="mt-[12px] text-[13px] leading-[18px] text-kneks-muted">
-          {funded ? t.roundClosed : format(t.interest, { pct: interest })}
-        </p>
+        {interest === null ? null : (
+          <>
+            <div className="mt-[4px] h-[3px] rounded-full bg-[#e0e6e6]">
+              <div className="h-full rounded-full bg-kneks-gold" style={{ width: `${interest}%` }} />
+            </div>
+            <p className="mt-[12px] text-[13px] leading-[18px] text-kneks-muted">
+              {funded ? t.roundClosed : format(t.interest, { pct: interest })}
+            </p>
+          </>
+        )}
       </div>
     </article>
   );

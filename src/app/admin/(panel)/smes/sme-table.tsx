@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { formatMoney, toMoney } from "@/lib/money";
+import { CURATION_STATUS_LABELS, type CurationStatus } from "@/lib/sme-fields";
 import { deleteSme, reorderSmes, toggleSmePublished } from "../../actions/smes";
 import { LiveRegion, OverflowMenu, SearchInput, Switch } from "../../_components/controls";
 import { useFeedback } from "../../_components/feedback";
@@ -16,6 +18,12 @@ export type SmeListItem = SmeFormValues & { id: number };
 
 function initials(name: string) {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("");
+}
+
+/** "IDR 15B", "USD 200K", or null when not disclosed. */
+function short(amount: string, currency: string) {
+  const money = toMoney(amount ? Number(amount) : null, currency);
+  return money ? formatMoney(money, "en", "short") : null;
 }
 
 function form(entries: Record<string, string | number>) {
@@ -59,7 +67,7 @@ export function SmeTable({
   });
 
   const q = query.trim().toLowerCase();
-  const shown = sortable.ordered.filter((sme) => !q || [sme.name, sme.sector, sme.city].some((f) => f.toLowerCase().includes(q)));
+  const shown = sortable.ordered.filter((sme) => !q || [sme.name, sme.sector, sme.city, sme.ceoName].some((f) => f.toLowerCase().includes(q)));
   const isPublished = (sme: SmeListItem) => published.get(sme.id);
 
   const setPublish = (sme: SmeListItem, next: boolean, undoable = true) => {
@@ -105,7 +113,7 @@ export function SmeTable({
         {items.length ? (
           <>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-5 py-3">
-              <SearchInput value={query} onChange={setQuery} placeholder="Search name, sector or city" />
+              <SearchInput value={query} onChange={setQuery} placeholder="Search name, sector, city or CEO" />
               <p className="text-[12px] text-ink-muted">
                 {q ? "Clear the search to reorder." : `${items.filter(isPublished).length} of ${items.length} live`}
               </p>
@@ -121,8 +129,8 @@ export function SmeTable({
                     <th className={`${TABLE.th} max-xl:hidden`}>Sector</th>
                     <th className={`${TABLE.th} max-xl:hidden`}>City</th>
                     <th className={`${TABLE.th} max-md:hidden`}>Status</th>
-                    <th className={`${TABLE.th} text-right max-xl:hidden`}>Ask</th>
-                    <th className={`${TABLE.th} text-right max-md:hidden`}>Interest / raised</th>
+                    <th className={`${TABLE.th} text-right max-lg:hidden`}>Ask</th>
+                    <th className={`${TABLE.th} text-right max-xl:hidden`}>Interest / raised</th>
                     <th className={TABLE.th}>Live</th>
                     <th className={`${TABLE.th} w-12`}>
                       <span className="sr-only">More</span>
@@ -160,18 +168,30 @@ export function SmeTable({
                               {sme.name}
                             </button>
                             <p className="max-w-[150px] truncate text-[12px] text-ink-muted sm:max-w-[260px]">
-                              {sme.stage}
-                              <span className="xl:hidden">, {sme.sector}, {sme.city}</span>
+                              {sme.stage || sme.readiness}
+                              <span className="xl:hidden">
+                                {sme.stage || sme.readiness ? ", " : ""}
+                                {[sme.sector, sme.city].filter(Boolean).join(", ")}
+                              </span>
                             </p>
                           </div>
                         </div>
                       </td>
                       <td className={`${TABLE.td} text-ink-muted max-xl:hidden`}>{sme.sector}</td>
-                      <td className={`${TABLE.td} text-ink-muted max-xl:hidden`}>{sme.city}</td>
-                      <td className={`${TABLE.td} max-md:hidden`}>{sme.status === "funded" ? <Badge tone="gold">Funded</Badge> : <Badge tone="indigo">In programme</Badge>}</td>
-                      <td className={`${TABLE.td} whitespace-nowrap text-right tabular-nums max-xl:hidden`}>USD {Number(sme.askK).toLocaleString("en")}K</td>
-                      <td className={`${TABLE.td} whitespace-nowrap text-right tabular-nums max-md:hidden`}>
-                        {sme.status === "funded" ? `USD ${Number(sme.raisedK || 0).toLocaleString("en")}K` : `${sme.interestPct || 0}%`}
+                      <td className={`${TABLE.td} text-ink-muted max-xl:hidden`}>{sme.city || DASH}</td>
+                      <td className={`${TABLE.td} max-md:hidden`}>
+                        <div className="flex flex-wrap gap-1">
+                          {sme.status === "funded" ? <Badge tone="gold">Funded</Badge> : <Badge tone="indigo">In programme</Badge>}
+                          {sme.curationStatus ? (
+                            <Badge tone={sme.curationStatus === "approved" ? "green" : "muted"}>{CURATION_STATUS_LABELS[sme.curationStatus as CurationStatus]}</Badge>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td className={`${TABLE.td} whitespace-nowrap text-right tabular-nums max-lg:hidden`}>
+                        <AskCell sme={sme} />
+                      </td>
+                      <td className={`${TABLE.td} whitespace-nowrap text-right tabular-nums max-xl:hidden`}>
+                        {sme.status === "funded" ? (short(sme.raisedAmount, sme.raisedCurrency) ?? DASH) : sme.interestPct ? `${sme.interestPct}%` : DASH}
                       </td>
                       <td className={TABLE.td}>
                         <Switch checked={isPublished(sme)} onChange={(next) => setPublish(sme, next)} label={`Show ${sme.name} on the KNEKS page`} />
@@ -226,5 +246,26 @@ export function SmeTable({
         ) : null}
       </Modal>
     </div>
+  );
+}
+
+const DASH = <span className="text-ink/35">–</span>;
+
+/** The ask, short, with a marker when its currency was guessed rather than stated. */
+function AskCell({ sme }: { sme: SmeListItem }) {
+  const ask = short(sme.askAmount, sme.askCurrency);
+  if (!ask) return DASH;
+  return (
+    <span className="inline-flex items-center justify-end gap-1.5">
+      {sme.askCurrencyInferred ? (
+        <span
+          title="Currency unconfirmed: guessed from the figure's size"
+          className="inline-flex size-4 items-center justify-center rounded-full bg-gold/30 text-[10px] font-bold text-[#5c4200] ring-1 ring-inset ring-gold/60"
+        >
+          ?<span className="sr-only">Currency unconfirmed</span>
+        </span>
+      ) : null}
+      {ask}
+    </span>
   );
 }

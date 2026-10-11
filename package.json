@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.ts\"",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
+    "db:import:hsdd": "tsx --env-file-if-exists=.env.local scripts/import-hsdd.ts",
     "mail:test": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/mail-test.ts"
   },
   "dependencies": {

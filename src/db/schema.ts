@@ -1,5 +1,7 @@
 import {
+  bigint,
   boolean,
+  char,
   index,
   int,
   mysqlEnum,
@@ -11,6 +13,7 @@ import {
 } from "drizzle-orm/mysql-core";
 // Relative, not "@/": drizzle-kit and the seed script load this file too.
 import { ADMIN_ROLES, type AdminRole } from "../lib/auth/roles";
+import { CURATION_STATUSES, LEGAL_FORMS } from "../lib/sme-fields";
 
 /**
  * Tables for the admin area and the KNEKS partnership page. Kept free of
@@ -52,35 +55,73 @@ export const adminSessions = mysqlTable(
   (t) => [index("admin_sessions_user_idx").on(t.userId)],
 );
 
-/** The SMEs shown under "SMEs in the program" on /kneks. */
+/**
+ * The SMEs shown under "SMEs in the program" on /kneks.
+ *
+ * Money is stored as a whole amount in its own currency (ISO 4217 code), never
+ * converted: the curation data mixes IDR and USD. Columns under "admin only"
+ * must never be selected by the public read path.
+ */
 export const smes = mysqlTable(
   "smes",
   {
     id: int("id").autoincrement().primaryKey(),
     name: varchar("name", { length: 120 }).notNull().unique(),
+    /** Canonical short sector; each one is a filter chip on /kneks. */
     sector: varchar("sector", { length: 60 }).notNull(),
-    city: varchar("city", { length: 80 }).notNull(),
-    stage: varchar("stage", { length: 40 }).notNull(),
+    city: varchar("city", { length: 80 }),
+    province: varchar("province", { length: 80 }),
+    stage: varchar("stage", { length: 40 }),
+    /** Investment, Market access, Project financing ... as the curation source states it. */
+    readiness: varchar("readiness", { length: 60 }),
     status: mysqlEnum("status", ["program", "funded"]).notNull().default("program"),
     brief: text("brief").notNull(),
-    /** The round being raised, in USD thousands. */
-    askK: int("ask_k").notNull(),
-    /** Program SMEs only: share of the ask investors have signalled, 0–100. */
+    /** The round being raised, in whole units of askCurrency. Both set or both null. */
+    askAmount: bigint("ask_amount", { mode: "number", unsigned: true }),
+    askCurrency: char("ask_currency", { length: 3 }),
+    /** Program SMEs only: share of the ask investors have signalled, 0–100; null hides the meter. */
     interestPct: int("interest_pct"),
     /** Traction, as the brief's one-line summary. */
-    metrics: varchar("metrics", { length: 255 }).notNull(),
-    /** Funded SMEs only: what the closed round raised, in USD thousands. */
-    raisedK: int("raised_k"),
+    metrics: varchar("metrics", { length: 255 }),
+    /** Funded SMEs only: what the closed round raised, in whole units of raisedCurrency. */
+    raisedAmount: bigint("raised_amount", { mode: "number", unsigned: true }),
+    raisedCurrency: char("raised_currency", { length: 3 }),
     investor: varchar("investor", { length: 120 }),
     quote: text("quote"),
+    legalForm: mysqlEnum("legal_form", LEGAL_FORMS),
+    /** Supporting ministry, agency or incubator. */
+    supportingOrg: varchar("supporting_org", { length: 160 }),
+    /** Valuation or equity offered, as written ("10% equity"). */
+    valuationTerms: varchar("valuation_terms", { length: 255 }),
+    useOfFunds: text("use_of_funds"),
     /** File name inside UPLOAD_DIR/smes, served by /media/smes/[file]. */
     imageFile: varchar("image_file", { length: 100 }),
+
+    // Admin only from here to sourceRef.
+    curationStatus: mysqlEnum("curation_status", CURATION_STATUSES),
+    /** The product category exactly as the curation source wrote it. */
+    productCategory: varchar("product_category", { length: 160 }),
+    /** True when the ask's currency was guessed from the figure's size, not stated by the source. */
+    askCurrencyInferred: boolean("ask_currency_inferred").notNull().default(false),
+    ceoName: varchar("ceo_name", { length: 200 }),
+    address: text("address"),
+    potentialInvestors: text("potential_investors"),
+    curationNotes: text("curation_notes"),
+    pitchDeckUrl: varchar("pitch_deck_url", { length: 500 }),
+    dataQualityNotes: text("data_quality_notes"),
+    /** Import provenance and upsert key: e.g. "hsdd-2026" and the source's row number. Null when added by hand. */
+    source: varchar("source", { length: 40 }),
+    sourceRef: int("source_ref"),
+
     sortOrder: int("sort_order").notNull().default(0),
     published: boolean("published").notNull().default(true),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
   },
-  (t) => [index("smes_order_idx").on(t.published, t.sortOrder)],
+  (t) => [
+    index("smes_order_idx").on(t.published, t.sortOrder),
+    uniqueIndex("smes_source_ref_uq").on(t.source, t.sourceRef),
+  ],
 );
 
 export const OPTION_KINDS = ["region", "ticket"] as const;

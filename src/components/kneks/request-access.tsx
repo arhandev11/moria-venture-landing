@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeTile } from "@/components/kneks/sme-brief";
-import { TINTS, type KneksLabels } from "@/components/kneks/sme-explorer";
+import { placeOf, TINTS, type KneksLabels } from "@/components/kneks/sme-explorer";
 import type { Locale } from "@/i18n/config";
 import { format } from "@/i18n/format";
 import { submitInvestorRequest } from "@/lib/actions/investor-request";
@@ -18,10 +18,14 @@ import {
 export type SmeOption = {
   name: string;
   sector: string;
-  city: string;
+  city: string | null;
+  province?: string | null;
   image: string | null;
   funded: boolean;
 };
+
+/** From this many SMEs up, the picker gets a filter box above its list. */
+const FILTER_FROM = 9;
 
 /**
  * The shortlist half of a rejected result, read loosely: the action reports
@@ -144,7 +148,7 @@ export function RequestAccessForm({
         if (names.length) return;
         e.preventDefault();
         setPickMissing(true);
-        picker.current?.querySelector("input")?.focus();
+        picker.current?.querySelector<HTMLInputElement>('input[type="checkbox"]')?.focus();
       }}
       className="relative grid gap-x-5 gap-y-[27px] sm:grid-cols-2"
     >
@@ -285,6 +289,16 @@ function SmePicker({
   const { names, toggle } = useShortlist();
   const id = useId();
   const errorId = `${id}-error`;
+  const [filter, setFilter] = useState("");
+  const q = filter.trim().toLowerCase();
+  // Picked SMEs stay listed whatever the filter says, so a tick never vanishes.
+  const listed = q
+    ? smes.filter(
+        (sme) =>
+          names.includes(sme.name) ||
+          [sme.name, sme.sector, sme.city, sme.province].some((field) => field?.toLowerCase().includes(q)),
+      )
+    : smes;
 
   return (
     <fieldset ref={ref} aria-describedby={error ? errorId : undefined} className="min-w-0 sm:col-span-2">
@@ -295,8 +309,32 @@ function SmePicker({
           {names.length ? format(labels.selected, { count: names.length }) : labels.pickAtLeastOne}
         </span>
       </div>
+      {smes.length >= FILTER_FROM ? (
+        <label className="mt-[7px] flex h-[41px] items-center gap-2 rounded-md border border-kneks-line bg-white px-[11px] focus-within:border-kneks-pine">
+          <svg viewBox="0 0 24 24" aria-hidden className="size-[15px] shrink-0 stroke-kneks-muted" fill="none" strokeWidth={2.2}>
+            <circle cx="11" cy="11" r="7" />
+            <path d="M20 20l-4-4" />
+          </svg>
+          <span className="sr-only">{labels.filterSmes}</span>
+          <input
+            type="search"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            // Enter in the filter must not send the form.
+            onKeyDown={(e) => {
+              if (e.key === "Enter") e.preventDefault();
+            }}
+            placeholder={labels.filterSmesPlaceholder}
+            className="w-full min-w-0 bg-transparent text-[14px] text-kneks-ink outline-none placeholder:text-kneks-muted"
+          />
+        </label>
+      ) : null}
+      {listed.length ? null : (
+        <p className="mt-[7px] text-[13px] leading-[18px] text-kneks-muted">{labels.filterSmesEmpty}</p>
+      )}
       <ul className="mt-[7px] grid max-h-[250px] gap-2 overflow-y-auto sm:grid-cols-2">
-        {smes.map((sme, i) => {
+        {listed.map((sme) => {
+          const i = smes.indexOf(sme);
           const picked = names.includes(sme.name);
           return (
             <li key={sme.name}>
@@ -313,7 +351,7 @@ function SmePicker({
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] font-semibold leading-[19px] text-kneks-ink">{sme.name}</span>
                   <span className="block truncate text-[12px] leading-[17px] text-kneks-muted">
-                    {sme.sector} · {sme.city}
+                    {placeOf(sme)}
                   </span>
                 </span>
                 {sme.funded ? (
@@ -332,7 +370,7 @@ function SmePicker({
                   aria-describedby={error ? errorId : undefined}
                   className="size-[18px] shrink-0 cursor-pointer accent-kneks-pine"
                 />
-                <span className="sr-only">, {sme.sector}, {sme.city}{sme.funded ? labels.fundedSr : ""}</span>
+                <span className="sr-only">, {placeOf(sme).replace(" · ", ", ")}{sme.funded ? labels.fundedSr : ""}</span>
               </label>
             </li>
           );
