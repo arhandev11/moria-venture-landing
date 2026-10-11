@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
 import { saveSme } from "../../actions/smes";
 import { SubmitButton } from "../../_components/buttons";
+import { Combobox } from "../../_components/combobox";
 import { ModalBody, ModalFooter } from "../../_components/modal";
 import { btn, Field, FormMessage, INPUT } from "../../_components/ui";
 
@@ -93,14 +94,46 @@ export function SmeForm({
         <Field label="Name" error={err("name")} hint="The tile shows the initials of the first two words." className="sm:col-span-2">
           <input name="name" required data-autofocus maxLength={120} defaultValue={v("name")} aria-invalid={!!err("name")} className={INPUT} />
         </Field>
-        <Field label="Sector" error={err("sector")} hint="Each sector becomes a filter on the page.">
-          <input name="sector" required maxLength={60} list="sme-sectors" defaultValue={v("sector")} aria-invalid={!!err("sector")} className={INPUT} />
+        <Field label="Sector" error={err("sector")} hint="Each sector becomes a filter on the page. Pick one in use, or type a new one.">
+          <Combobox
+            name="sector"
+            label="Sector"
+            options={suggestions.sectors}
+            creatable
+            required
+            maxLength={60}
+            placeholder="Choose a sector"
+            defaultValue={v("sector")}
+            invalid={!!err("sector")}
+            onValueChange={onDirty}
+          />
         </Field>
         <Field label="City" error={err("city")}>
-          <input name="city" required maxLength={80} list="sme-cities" defaultValue={v("city")} aria-invalid={!!err("city")} className={INPUT} />
+          <Combobox
+            name="city"
+            label="City"
+            options={suggestions.cities}
+            creatable
+            required
+            maxLength={80}
+            placeholder="Choose a city"
+            defaultValue={v("city")}
+            invalid={!!err("city")}
+            onValueChange={onDirty}
+          />
         </Field>
         <Field label="Stage" error={err("stage")}>
-          <input name="stage" required maxLength={40} list="sme-stages" defaultValue={v("stage")} aria-invalid={!!err("stage")} className={INPUT} />
+          <Combobox
+            name="stage"
+            label="Stage"
+            options={suggestions.stages}
+            required
+            maxLength={40}
+            placeholder="Choose a stage"
+            defaultValue={v("stage")}
+            invalid={!!err("stage")}
+            onValueChange={onDirty}
+          />
         </Field>
         <Field label="Traction" error={err("metrics")} hint="One line, like “40 outlets, 3 export trials”.">
           <input name="metrics" required maxLength={255} defaultValue={v("metrics")} aria-invalid={!!err("metrics")} className={INPUT} />
@@ -154,10 +187,6 @@ export function SmeForm({
           </span>
         </label>
       </Group>
-
-      <datalist id="sme-sectors">{suggestions.sectors.map((s) => <option key={s} value={s} />)}</datalist>
-      <datalist id="sme-stages">{suggestions.stages.map((s) => <option key={s} value={s} />)}</datalist>
-      <datalist id="sme-cities">{suggestions.cities.map((s) => <option key={s} value={s} />)}</datalist>
     </div>
   );
 

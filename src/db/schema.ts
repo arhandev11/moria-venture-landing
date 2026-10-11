@@ -9,17 +9,27 @@ import {
   uniqueIndex,
   varchar,
 } from "drizzle-orm/mysql-core";
+// Relative, not "@/": drizzle-kit and the seed script load this file too.
+import { ADMIN_ROLES, type AdminRole } from "../lib/auth/roles";
 
 /**
  * Tables for the admin area and the KNEKS partnership page. Kept free of
  * `server-only` so drizzle-kit and the seed script can import it as plain TS.
  */
 
+export { ADMIN_ROLES, type AdminRole };
+
 export const adminUsers = mysqlTable("admin_users", {
   id: int("id").autoincrement().primaryKey(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   name: varchar("name", { length: 120 }).notNull(),
   passwordHash: varchar("password_hash", { length: 100 }).notNull(),
+  /**
+   * The default exists only so the migration that added this column turned
+   * every admin who already existed into a superadmin, which is what they
+   * were. New rows must still name their role: every insert sets it.
+   */
+  role: mysqlEnum("role", ADMIN_ROLES).notNull().default("superadmin"),
   lastLoginAt: timestamp("last_login_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
   updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),

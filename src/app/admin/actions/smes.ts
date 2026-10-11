@@ -4,7 +4,9 @@ import { eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { smes } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth/dal";
+import { authorizeAction, NOT_ALLOWED } from "@/lib/auth/dal";
+import { SME_EDITORS } from "@/lib/auth/roles";
+import { revalidateKneks } from "@/lib/revalidate-kneks";
 import { deleteSmeImage, saveSmeImage } from "@/lib/uploads";
 import { checked, id, idList, isDuplicate, text, whole } from "../_lib/form";
 import type { ActionResult, FormState } from "../_lib/state";
@@ -22,7 +24,7 @@ const TEXT_FIELDS = {
 
 /** Everything that shows SMEs: the public page and the admin list. */
 function refresh() {
-  revalidatePath("/[lang]/kneks", "page");
+  revalidateKneks();
   revalidatePath("/admin/smes");
 }
 
@@ -32,7 +34,7 @@ function refresh() {
  * never leaves a stray file behind.
  */
 export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState> {
-  await requireAdmin();
+  if (!(await authorizeAction(SME_EDITORS))) return { message: NOT_ALLOWED };
   const db = getDb();
   const smeId = id(fd);
 
@@ -126,7 +128,7 @@ export async function saveSme(_prev: FormState, fd: FormData): Promise<FormState
 }
 
 export async function deleteSme(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SME_EDITORS))) return { ok: false, message: NOT_ALLOWED };
   const smeId = id(fd);
   if (!smeId) return { ok: false, message: "Unknown SME." };
   const db = getDb();
@@ -139,7 +141,7 @@ export async function deleteSme(fd: FormData): Promise<ActionResult> {
 }
 
 export async function toggleSmePublished(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SME_EDITORS))) return { ok: false, message: NOT_ALLOWED };
   const smeId = id(fd);
   if (!smeId) return { ok: false, message: "Unknown SME." };
   const published = checked(fd, "published");
@@ -154,7 +156,7 @@ export async function toggleSmePublished(fd: FormData): Promise<ActionResult> {
  * tab cannot drop or duplicate a row.
  */
 export async function reorderSmes(ids: unknown): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SME_EDITORS))) return { ok: false, message: NOT_ALLOWED };
   const order = idList(ids);
   if (!order) return { ok: false, message: "That order could not be read." };
   const db = getDb();

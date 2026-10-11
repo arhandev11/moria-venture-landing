@@ -4,12 +4,13 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { investorRequests } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth/dal";
+import { authorizeAction, NOT_ALLOWED } from "@/lib/auth/dal";
+import { SUPERADMIN_ONLY } from "@/lib/auth/roles";
 import { id, text } from "../_lib/form";
 import type { ActionResult } from "../_lib/state";
 
 export async function setSubmissionStatus(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { ok: false, message: NOT_ALLOWED };
   const requestId = id(fd);
   const status = text(fd, "status") === "handled" ? "handled" : "new";
   if (!requestId) return { ok: false, message: "Unknown request." };
@@ -22,7 +23,7 @@ export async function setSubmissionStatus(fd: FormData): Promise<ActionResult> {
 }
 
 export async function deleteSubmission(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { ok: false, message: NOT_ALLOWED };
   const requestId = id(fd);
   if (!requestId) return { ok: false, message: "Unknown request." };
   await getDb().delete(investorRequests).where(eq(investorRequests.id, requestId));

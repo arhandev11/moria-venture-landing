@@ -3,7 +3,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getDb } from "@/db";
 import { formOptions, investorRequests, smes } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth/dal";
+import { requireRole } from "@/lib/auth/dal";
+import { SUPERADMIN_ONLY } from "@/lib/auth/roles";
 import { BuildingIcon, DownloadIcon, InboxIcon, ListIcon, PlusIcon } from "../_components/icons";
 import { Badge, btn, Card, CardHeader, EmptyState, formatDate, PageHeader, TABLE, TextLink } from "../_components/ui";
 
@@ -19,8 +20,9 @@ function lastDays(now: Date) {
   return Array.from({ length: DAYS }, (_, i) => new Date(now.getTime() + WIB_MS - (DAYS - 1 - i) * DAY_MS).toISOString().slice(0, 10));
 }
 
+/** Superadmins only: everything here is about investor requests. A KNEKS user is sent on to the SMEs. */
 export default async function AdminHome() {
-  const me = await requireAdmin();
+  const me = await requireRole(SUPERADMIN_ONLY, { otherwise: "home" });
   const db = getDb();
   const now = new Date();
   const days = lastDays(now);

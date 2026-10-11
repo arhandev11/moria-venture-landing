@@ -1,6 +1,7 @@
 import { desc, eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { investorRequests } from "@/db/schema";
+import { SUPERADMIN_ONLY } from "@/lib/auth/roles";
 import { readSession } from "@/lib/auth/session";
 
 /**
@@ -15,8 +16,12 @@ function cell(value: string | number | Date | null) {
 }
 
 export async function GET(request: Request) {
-  // A handler, not a page, so it answers 401 rather than redirecting.
-  if (!(await readSession())) return new Response("Unauthorized", { status: 401 });
+  // A handler, not a page, so it answers rather than redirecting: 401 with
+  // no session, and for a role that may not see requests the same 404 as a
+  // page that does not exist.
+  const me = await readSession();
+  if (!me) return new Response("Unauthorized", { status: 401 });
+  if (!SUPERADMIN_ONLY.includes(me.role)) return new Response("Not Found", { status: 404 });
 
   const status = new URL(request.url).searchParams.get("status");
   const where = status === "new" || status === "handled" ? eq(investorRequests.status, status) : undefined;

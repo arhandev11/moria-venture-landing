@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { redirect } from "next/navigation";
+import { homeFor } from "@/lib/auth/roles";
 import { readSession } from "@/lib/auth/session";
 import { LoginForm } from "./login-form";
 
 export const metadata: Metadata = { title: "Sign in" };
 
 export default async function LoginPage() {
-  if (await readSession()) redirect("/admin");
+  const session = await readSession();
+  if (session) redirect(homeFor(session.role));
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-clip px-4 py-16">

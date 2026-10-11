@@ -6,13 +6,18 @@
  *
  *   npm run db:seed
  *
- * SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD override the default first admin.
+ * SEED_ADMIN_EMAIL / SEED_ADMIN_PASSWORD override the default first admin, a
+ * superadmin. SEED_KNEKS_EMAIL / SEED_KNEKS_PASSWORD do the same for a KNEKS
+ * user, who may only edit the SMEs (admin1@test.com by default, for local
+ * testing); set SEED_KNEKS_EMAIL to an empty string to skip that user, e.g.
+ * on a server where the real KNEKS accounts are added from the admin.
  */
 import bcrypt from "bcryptjs";
 import { count, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { createPool } from "../src/db/pool";
 import * as schema from "../src/db/schema";
+import type { AdminRole } from "../src/lib/auth/roles";
 import { SEED_REGIONS, SEED_SMES, SEED_TICKETS } from "../src/lib/kneks-seed";
 
 const { adminUsers, formOptions, smes } = schema;
@@ -23,19 +28,26 @@ async function main() {
   const pool = createPool(url);
   const db = drizzle({ client: pool, schema, mode: "default" });
 
-  try {
-    const email = (process.env.SEED_ADMIN_EMAIL ?? "admin@test.com").toLowerCase();
-    const password = process.env.SEED_ADMIN_PASSWORD ?? "12341234";
-    const [existing] = await db.select({ id: adminUsers.id }).from(adminUsers).where(eq(adminUsers.email, email));
+  /** Adds the user only when the email is missing; an existing user, role included, is left as it is. */
+  async function ensureUser(rawEmail: string, password: string, name: string, role: AdminRole) {
+    const email = rawEmail.trim().toLowerCase();
+    const [existing] = await db.select({ role: adminUsers.role }).from(adminUsers).where(eq(adminUsers.email, email));
     if (existing) {
-      console.log(`admin ${email} already exists`);
+      console.log(`admin ${email} already exists (${existing.role}), left alone`);
+      return;
+    }
+    // The role is always named: the column's default exists only for the migration.
+    await db.insert(adminUsers).values({ email, name, role, passwordHash: await bcrypt.hash(password, 12) });
+    console.log(`admin ${email} created as ${role}`);
+  }
+
+  try {
+    await ensureUser(process.env.SEED_ADMIN_EMAIL ?? "admin@test.com", process.env.SEED_ADMIN_PASSWORD ?? "12341234", "Admin", "superadmin");
+    const kneksEmail = process.env.SEED_KNEKS_EMAIL ?? "admin1@test.com";
+    if (kneksEmail.trim()) {
+      await ensureUser(kneksEmail, process.env.SEED_KNEKS_PASSWORD ?? "12341234", "KNEKS", "kneks");
     } else {
-      await db.insert(adminUsers).values({
-        email,
-        name: "Admin",
-        passwordHash: await bcrypt.hash(password, 12),
-      });
-      console.log(`admin ${email} created`);
+      console.log("kneks user: SEED_KNEKS_EMAIL is empty, skipped");
     }
 
     const [{ n: smeCount }] = await db.select({ n: count() }).from(smes);

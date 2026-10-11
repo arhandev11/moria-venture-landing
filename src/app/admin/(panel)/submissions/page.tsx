@@ -2,7 +2,7 @@ import { count, desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import { getDb } from "@/db";
 import { investorRequests } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth/dal";
+import { requireSuperadmin } from "@/lib/auth/dal";
 import { RequestsTable } from "./requests-table";
 import { toItem } from "./to-item";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Investor requests" };
 const PER_PAGE = 50;
 
 export default async function SubmissionsPage({ searchParams }: PageProps<"/admin/submissions">) {
-  await requireAdmin();
+  await requireSuperadmin();
   const sp = await searchParams;
   const status = sp.status === "new" || sp.status === "handled" ? sp.status : "all";
   const page = Math.max(1, Number.parseInt(String(sp.page ?? "1"), 10) || 1);

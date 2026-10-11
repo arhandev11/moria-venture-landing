@@ -1,4 +1,5 @@
 import "server-only";
+import { eq } from "drizzle-orm";
 import { getDb } from "@/db";
 import { adminUsers } from "@/db/schema";
 import { button, details, escapeHtml, heading, label, layout, list, paragraph } from "@/lib/mail/layout";
@@ -6,8 +7,8 @@ import { createMailer, oneLine, readMailConfig, type Mail } from "@/lib/mail/tra
 
 /**
  * The two emails a stored /kneks access request sets off: a heads-up to every
- * admin, and a receipt to the investor. Runs after the response has gone, so
- * it never throws: every failure is logged and swallowed.
+ * superadmin, and a receipt to the investor. Runs after the response has
+ * gone, so it never throws: every failure is logged and swallowed.
  */
 
 export type StoredInvestorRequest = {
@@ -55,16 +56,26 @@ export async function sendInvestorRequestEmails(request: StoredInvestorRequest, 
 
   let admins: string[] = [];
   try {
-    admins = (await getDb().select({ email: adminUsers.email }).from(adminUsers)).map((row) => row.email);
+    admins = await teamRecipients();
   } catch (err) {
     console.error(`[mail] could not load admin emails for investor request ${request.id}`, err);
   }
 
   const jobs = [send("investor confirmation", investorConfirmation(request))];
   if (admins.length) jobs.push(send("team notification", teamNotification(request, admins, site)));
-  else warnOnce("[mail] no admin users to notify of investor requests");
+  else warnOnce("[mail] no superadmins to notify of investor requests");
   await Promise.all(jobs);
   mailer.close();
+}
+
+/**
+ * Who hears about a new request: superadmins only. KNEKS users manage the
+ * SMEs and are never sent investors' details, so they are left off here
+ * rather than filtered out later.
+ */
+export async function teamRecipients() {
+  const rows = await getDb().select({ email: adminUsers.email }).from(adminUsers).where(eq(adminUsers.role, "superadmin"));
+  return rows.map((row) => row.email);
 }
 
 function teamNotification(r: StoredInvestorRequest, to: string[], site: string | null): Mail {
@@ -92,7 +103,7 @@ function teamNotification(r: StoredInvestorRequest, to: string[], site: string |
         list(r.shortlist) +
         details(rows) +
         (link ? button(link, "Open in admin") : paragraph("Open it in the admin under Submissions.")),
-      footer: "Sent to every admin of the Moria Ventures site.",
+      footer: "Sent to every superadmin of the Moria Ventures site.",
     }),
     text: [
       "New investor access request",

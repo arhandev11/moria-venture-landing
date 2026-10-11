@@ -6,23 +6,30 @@ import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { FeedbackProvider } from "./feedback";
 import { BuildingIcon, CloseIcon, HomeIcon, InboxIcon, ListIcon, LogoutIcon, MenuIcon, UserIcon, UsersIcon } from "./icons";
+import { homeFor, SME_EDITORS, SUPERADMIN_ONLY, type AdminRole } from "@/lib/auth/roles";
 import { FOCUS } from "./ui";
 
+const EVERYONE: readonly AdminRole[] = ["superadmin", "kneks"];
+
+/**
+ * The nav, with who may use each entry. Hiding an entry is only a courtesy;
+ * the page behind it checks the same role list on the server.
+ */
 const GROUPS = [
   {
     label: "KNEKS programme",
     links: [
-      { href: "/admin", label: "Overview", icon: HomeIcon, exact: true },
-      { href: "/admin/submissions", label: "Investor requests", icon: InboxIcon },
-      { href: "/admin/smes", label: "SMEs", icon: BuildingIcon },
-      { href: "/admin/options", label: "Form options", icon: ListIcon },
+      { href: "/admin", label: "Overview", icon: HomeIcon, exact: true, roles: SUPERADMIN_ONLY },
+      { href: "/admin/submissions", label: "Investor requests", icon: InboxIcon, roles: SUPERADMIN_ONLY },
+      { href: "/admin/smes", label: "SMEs", icon: BuildingIcon, roles: SME_EDITORS },
+      { href: "/admin/options", label: "Form options", icon: ListIcon, roles: SUPERADMIN_ONLY },
     ],
   },
   {
     label: "Settings",
     links: [
-      { href: "/admin/users", label: "Admins", icon: UsersIcon },
-      { href: "/admin/account", label: "Account", icon: UserIcon },
+      { href: "/admin/users", label: "Admins", icon: UsersIcon, roles: SUPERADMIN_ONLY },
+      { href: "/admin/account", label: "Account", icon: UserIcon, roles: EVERYONE },
     ],
   },
 ];
@@ -51,7 +58,7 @@ export function AdminShell({
   logout,
   children,
 }: {
-  user: { name: string; email: string };
+  user: { name: string; email: string; role: AdminRole };
   unread: number;
   logout: () => Promise<void>;
   children: ReactNode;
@@ -59,6 +66,7 @@ export function AdminShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const crumbs = TITLES.find(([re]) => re.test(pathname))?.[1] ?? ["Admin"];
+  const groups = GROUPS.map((g) => ({ ...g, links: g.links.filter((l) => l.roles.includes(user.role)) })).filter((g) => g.links.length);
 
   return (
     <FeedbackProvider>
@@ -71,7 +79,7 @@ export function AdminShell({
           }`}
         >
           <div className="flex h-16 shrink-0 items-center justify-between border-b border-ink/10 px-5">
-            <Link href="/admin" onClick={() => setOpen(false)} className={`rounded ${FOCUS}`}>
+            <Link href={homeFor(user.role)} onClick={() => setOpen(false)} className={`rounded ${FOCUS}`}>
               <Image src="/assets/brand/logo-wordmark.svg" alt="Moria Ventures admin" width={323} height={49} className="h-[22px] w-auto" priority />
             </Link>
             <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className={`rounded-md p-1 text-ink-muted hover:bg-shell lg:hidden ${FOCUS}`}>
@@ -80,7 +88,7 @@ export function AdminShell({
           </div>
 
           <nav aria-label="Admin" className="flex-1 overflow-y-auto px-3 py-4">
-            {GROUPS.map((group) => (
+            {groups.map((group) => (
               <div key={group.label} className="mb-5">
                 <p className="px-3 pb-1.5 text-[12px] font-medium text-ink/45">{group.label}</p>
                 <ul className="space-y-0.5">

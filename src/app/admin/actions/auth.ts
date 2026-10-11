@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { adminUsers } from "@/db/schema";
 import { verifyPassword } from "@/lib/auth/password";
+import { homeFor } from "@/lib/auth/roles";
 import { createSession, deleteSession } from "@/lib/auth/session";
 import { clientIp, hit, reset } from "@/lib/rate-limit";
 import { text } from "../_lib/form";
@@ -35,7 +36,7 @@ export async function login(_prev: FormState, fd: FormData): Promise<FormState> 
 
   const db = getDb();
   const [user] = await db
-    .select({ id: adminUsers.id, passwordHash: adminUsers.passwordHash })
+    .select({ id: adminUsers.id, role: adminUsers.role, passwordHash: adminUsers.passwordHash })
     .from(adminUsers)
     .where(eq(adminUsers.email, email))
     .limit(1);
@@ -47,7 +48,7 @@ export async function login(_prev: FormState, fd: FormData): Promise<FormState> 
   reset(`login:email:${email}`);
   await db.update(adminUsers).set({ lastLoginAt: new Date() }).where(eq(adminUsers.id, user.id));
   await createSession(user.id);
-  redirect("/admin");
+  redirect(homeFor(user.role));
 }
 
 export async function logout() {

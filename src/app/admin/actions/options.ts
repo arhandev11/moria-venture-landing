@@ -4,14 +4,16 @@ import { and, eq, max } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { formOptions, OPTION_KINDS, type OptionKind } from "@/db/schema";
-import { requireAdmin } from "@/lib/auth/dal";
+import { authorizeAction, NOT_ALLOWED } from "@/lib/auth/dal";
+import { SUPERADMIN_ONLY } from "@/lib/auth/roles";
+import { revalidateKneks } from "@/lib/revalidate-kneks";
 import { checked, id, idList, isDuplicate, text } from "../_lib/form";
 import type { ActionResult, FormState } from "../_lib/state";
 
 const LABEL_MAX = 120;
 
 function refresh() {
-  revalidatePath("/[lang]/kneks", "page");
+  revalidateKneks();
   revalidatePath("/admin/options");
 }
 
@@ -30,7 +32,7 @@ function checkLabel(label: string) {
 }
 
 export async function addOption(_prev: FormState, fd: FormData): Promise<FormState> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { message: NOT_ALLOWED };
   const kind = kindOf(fd);
   const label = text(fd, "label");
   if (!kind) return { message: "Unknown option list." };
@@ -50,7 +52,7 @@ export async function addOption(_prev: FormState, fd: FormData): Promise<FormSta
 }
 
 export async function renameOption(_prev: FormState, fd: FormData): Promise<FormState> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { message: NOT_ALLOWED };
   const optionId = id(fd);
   const label = text(fd, "label");
   if (!optionId) return { message: "Unknown option." };
@@ -67,7 +69,7 @@ export async function renameOption(_prev: FormState, fd: FormData): Promise<Form
 }
 
 export async function toggleOption(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { ok: false, message: NOT_ALLOWED };
   const optionId = id(fd);
   if (!optionId) return { ok: false, message: "Unknown option." };
   await getDb().update(formOptions).set({ active: checked(fd, "active") }).where(eq(formOptions.id, optionId));
@@ -81,7 +83,7 @@ export async function toggleOption(fd: FormData): Promise<ActionResult> {
  * duplicate or smuggle in a row from the other list.
  */
 export async function reorderOptions(kind: unknown, ids: unknown): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { ok: false, message: NOT_ALLOWED };
   const list = asKind(kind);
   const order = idList(ids);
   if (!list || !order) return { ok: false, message: "That order could not be read." };
@@ -107,7 +109,7 @@ export async function reorderOptions(kind: unknown, ids: unknown): Promise<Actio
  * never rewrites the inbox; deactivating it is the gentler choice.
  */
 export async function deleteOption(fd: FormData): Promise<ActionResult> {
-  await requireAdmin();
+  if (!(await authorizeAction(SUPERADMIN_ONLY))) return { ok: false, message: NOT_ALLOWED };
   const optionId = id(fd);
   if (!optionId) return { ok: false, message: "Unknown option." };
   await getDb().delete(formOptions).where(eq(formOptions.id, optionId));

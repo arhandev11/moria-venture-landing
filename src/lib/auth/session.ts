@@ -3,7 +3,7 @@ import { createHmac, randomBytes } from "node:crypto";
 import { and, eq, gt, lt, ne } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { getDb } from "@/db";
-import { adminSessions, adminUsers } from "@/db/schema";
+import { adminSessions, adminUsers, type AdminRole } from "@/db/schema";
 import { SESSION_COOKIE, SESSION_COOKIE_PATH } from "./cookie";
 
 const SESSION_DAYS = 7;
@@ -21,7 +21,7 @@ function sessionId(token: string) {
   return createHmac("sha256", secret()).update(token).digest("hex");
 }
 
-export type AdminIdentity = { id: number; email: string; name: string };
+export type AdminIdentity = { id: number; email: string; name: string; role: AdminRole };
 
 /** Opens a session for the user and sets the cookie. Server Actions only. */
 export async function createSession(userId: number) {
@@ -41,13 +41,17 @@ export async function createSession(userId: number) {
   });
 }
 
-/** The signed-in admin, or null. Reads the database, so it is the real check. */
+/**
+ * The signed-in admin, or null. Reads the database, so it is the real check.
+ * The role comes from the user's row on every request rather than from the
+ * cookie or the session row, so a role change applies at once, mid-session.
+ */
 export async function readSession(): Promise<(AdminIdentity & { sessionId: string }) | null> {
   const token = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!token || token.length > 100) return null;
   const id = sessionId(token);
   const [row] = await getDb()
-    .select({ id: adminUsers.id, email: adminUsers.email, name: adminUsers.name })
+    .select({ id: adminUsers.id, email: adminUsers.email, name: adminUsers.name, role: adminUsers.role })
     .from(adminSessions)
     .innerJoin(adminUsers, eq(adminUsers.id, adminSessions.userId))
     .where(and(eq(adminSessions.id, id), gt(adminSessions.expiresAt, new Date())))

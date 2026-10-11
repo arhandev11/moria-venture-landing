@@ -5,10 +5,10 @@ import { changePassword } from "../../actions/users";
 import { SubmitButton } from "../../_components/buttons";
 import { useFeedback } from "../../_components/feedback";
 import { Modal, ModalBody, ModalFooter } from "../../_components/modal";
-import { btn, Card, Field, FormMessage, INPUT, PageHeader } from "../../_components/ui";
+import { Badge, btn, Card, Field, FormMessage, INPUT, PageHeader } from "../../_components/ui";
 import { useFormDialog } from "../../_components/use-form-dialog";
 
-export function AccountPanel({ name, email }: { name: string; email: string }) {
+export function AccountPanel({ name, email, role }: { name: string; email: string; role: { label: string; summary: string } }) {
   const { toast } = useFeedback();
   const dialog = useFormDialog<true>();
 
@@ -24,6 +24,13 @@ export function AccountPanel({ name, email }: { name: string; email: string }) {
             <p className="font-semibold">{name}</p>
             <p className="truncate text-[13px] text-ink-muted">{email}</p>
           </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <div>
+            <p className="text-[14px] font-semibold">Role</p>
+            <p className="text-[13px] text-ink-muted">{role.summary} Only a superadmin can change it.</p>
+          </div>
+          <Badge tone="indigo">{role.label}</Badge>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
           <div>
