@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState, type ReactNode } from "react";
-import { formatMoney, isSmeCurrency, parseWholeAmount, SME_CURRENCIES } from "@/lib/money";
+import { useActionState, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { isSmeCurrency, parseWholeAmount, SME_CURRENCIES } from "@/lib/money";
 import { CURATION_STATUS_LABELS, CURATION_STATUSES, isHttpUrl, LEGAL_FORM_LABELS, LEGAL_FORMS, SME_TEXT_LIMITS } from "@/lib/sme-fields";
 import { saveSme } from "../../actions/smes";
 import { SubmitButton } from "../../_components/buttons";
@@ -475,10 +475,17 @@ function PlaceFields({
   );
 }
 
+/** Digits only, grouped in threes with dots as typed ("15.000.000.000"). */
+function groupDigits(raw: string) {
+  return raw.replace(/\D/g, "").replace(/^0+(?=\d)/, "").replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 /**
- * An amount and its currency side by side, with the figure written out
- * underneath as it will read ("IDR 15,000,000,000"), so a missing or extra
- * zero shows before saving. Both or neither.
+ * An amount and its currency side by side. The figure is grouped with dots
+ * every three digits while it is typed, which the server reads back as the
+ * same whole number, and the line underneath repeats it with its currency
+ * ("IDR 15.000.000.000"), so a missing or extra zero shows before saving.
+ * Both or neither.
  */
 function MoneyField({
   label,
@@ -499,12 +506,29 @@ function MoneyField({
   currencyError?: string;
   onDirty?: () => void;
 }) {
-  const [amount, setAmount] = useState(initialAmount);
+  const [amount, setAmount] = useState(() => groupDigits(initialAmount));
+  const input = useRef<HTMLInputElement>(null);
+  // Where the caret should land after regrouping, counted in digits from the
+  // end, so typing in the middle of a figure doesn't throw it to the end.
+  const caret = useRef<number | null>(null);
+  useLayoutEffect(() => {
+    const el = input.current;
+    const fromEnd = caret.current;
+    if (!el || fromEnd === null || document.activeElement !== el) return;
+    caret.current = null;
+    let digits = 0;
+    let at = amount.length;
+    while (at > 0 && digits < fromEnd) {
+      at -= 1;
+      if (/\d/.test(amount[at])) digits += 1;
+    }
+    el.setSelectionRange(at, at);
+  }, [amount]);
   const [currency, setCurrency] = useState(initialCurrency);
   // A server error stands until the figure is edited; then the live preview takes over.
   const [edited, setEdited] = useState(false);
   const parsed = amount.trim() ? parseWholeAmount(amount) : null;
-  const preview = parsed !== null && isSmeCurrency(currency) ? formatMoney({ amount: parsed, currency }, "en", "full") : null;
+  const preview = parsed !== null && isSmeCurrency(currency) ? `${currency} ${groupDigits(String(parsed))}` : null;
   const error = edited ? undefined : (amountError ?? currencyError);
 
   return (
@@ -537,10 +561,14 @@ function MoneyField({
           name={amountName}
           inputMode="numeric"
           autoComplete="off"
-          placeholder="e.g. 15000000000"
+          placeholder="e.g. 15.000.000.000"
+          ref={input}
           value={amount}
           onChange={(e) => {
-            setAmount(e.target.value);
+            const raw = e.target.value;
+            const end = e.target.selectionEnd ?? raw.length;
+            caret.current = raw.slice(end).replace(/\D/g, "").length;
+            setAmount(groupDigits(raw));
             setEdited(true);
           }}
           aria-invalid={!edited && !!amountError}
