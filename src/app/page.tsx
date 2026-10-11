@@ -96,34 +96,42 @@ export default function HomePage() {
           The hero slides between the firm itself and the KNEKS partnership.
           The first panel is transparent so the mark behind it shows through;
           the second carries its own ground and covers it.
+
+          The hero fills the screen below the header and no more, so the type
+          and the gaps between it scale with the screen's height as well as its
+          width: a short laptop screen gets a smaller headline rather than a
+          hero to scroll past.
         */}
         <HeroSlider
           slides={[
             {
               label: "Moria Ventures",
               content: (
-                <Section tone="none" className="relative">
-                  <Container
-                    data-hero-reveal
-                    className="pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px]"
-                  >
+                <Section tone="none" className="relative flex h-full flex-col justify-center">
+                  <Container data-hero-reveal className="pb-[clamp(72px,10svh,112px)] pt-[clamp(16px,3svh,64px)]">
                     <Image
                       src="/assets/brand/wordmark-hero.svg"
                       alt="Moria Ventures"
                       width={388}
                       height={59}
                       priority
-                      className="h-10 w-auto lg:h-[57px]"
+                      className="h-[min(40px,5svh)] w-auto lg:h-[min(57px,6.4svh)]"
                     />
                     {/* Line breaks are set to match the deck exactly. */}
-                    <h1 data-reveal-lines className="t-hero mt-10 uppercase text-indigo-brand lg:mt-[41px]">
+                    <h1
+                      data-reveal-lines
+                      className="t-hero mt-[min(40px,4svh)] uppercase text-indigo-brand lg:mt-[min(41px,4.5svh)] text-[length:clamp(28px,min(max(5.56vw,min(38px,5svh)),9svh),80px)]!"
+                    >
                       Compliant Capital.
                       <br />
                       Connecting the Gulf
                       <br />
                       and Indonesia
                     </h1>
-                    <p data-reveal-lines className="t-lede mt-10 max-w-[640px] text-ink lg:mt-[52px]">
+                    <p
+                      data-reveal-lines
+                      className="t-lede mt-[min(40px,4svh)] max-w-[640px] text-ink lg:mt-[min(52px,5.8svh)] text-[length:clamp(15px,min(max(1.46vw,16px),2.4svh),21px)]!"
+                    >
                       <span className="font-semibold text-indigo-brand">
                         PT Moria Ventures Capital
                       </span>{" "}
@@ -132,7 +140,8 @@ export default function HomePage() {
                       investors with regional expertise and long term commitment to
                       founders.
                     </p>
-                    <div className="mt-12 flex flex-wrap gap-4">
+                    {/* Narrower buttons on a phone, so the pair shares one row. */}
+                    <div className="mt-[min(48px,4.5svh)] flex flex-wrap gap-3 max-sm:[&>a]:px-5 sm:gap-4 lg:mt-[min(48px,5.3svh)]">
                       <Button href="/for-limited-partners" tone="indigo">
                         I&apos;m an Investor
                       </Button>
@@ -339,8 +348,8 @@ function KneksSlide() {
   return (
     // The blue holds through the first third so the copy, which sits left,
     // keeps its contrast; the green opens out behind the facts.
-    <section className="h-full bg-[linear-gradient(116deg,#156ba5_30%,#1db45f)] text-white">
-      <Container className="grid gap-16 pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px] xl:grid-cols-[minmax(0,1fr)_380px]">
+    <section className="flex h-full flex-col justify-center bg-[linear-gradient(116deg,#156ba5_30%,#1db45f)] text-white">
+      <Container className="grid gap-16 pb-[clamp(72px,10svh,112px)] pt-[clamp(16px,3svh,64px)] xl:grid-cols-[minmax(0,1fr)_380px]">
         <div>
           <div data-slide-rise className="flex items-center gap-4 sm:gap-5">
             <Image
@@ -348,26 +357,32 @@ function KneksSlide() {
               alt="Moria Ventures"
               width={388}
               height={59}
-              className="h-6 w-auto min-w-0 object-contain object-left sm:h-8 lg:h-[44px]"
+              className="h-6 w-auto min-w-0 object-contain object-left sm:h-8 lg:h-[min(44px,5svh)]"
             />
             <span aria-hidden className="text-[18px] leading-none text-white lg:text-[22px]">
               ×
             </span>
             <KneksLogo />
           </div>
-          <h2 data-slide-rise className="t-hero mt-8 uppercase lg:mt-[41px]">
+          <h2
+            data-slide-rise
+            className="t-hero mt-[min(32px,3.6svh)] uppercase lg:mt-[min(41px,4.5svh)] text-[length:clamp(28px,min(max(5.56vw,min(38px,5svh)),9svh),80px)]!"
+          >
             Partners in
             <br className="hidden sm:block" /> Indonesia&apos;s
             <br className="hidden sm:block" /> Islamic economy
           </h2>
-          <p data-slide-rise className="t-lede mt-10 max-w-[680px] lg:mt-[52px]">
+          <p
+            data-slide-rise
+            className="t-lede mt-[min(40px,4svh)] max-w-[680px] lg:mt-[min(52px,5.8svh)] text-[length:clamp(15px,min(max(1.46vw,16px),2.4svh),21px)]!"
+          >
             <span className="font-semibold">KNEKS</span>, the
             National Committee for Islamic Economy and Finance, coordinates
             Indonesia&apos;s Islamic economy across ministries and institutions.
             Together we bring its SMEs in front of investors from the Gulf and
             Southeast Asia.
           </p>
-          <div data-slide-rise className="mt-12 flex flex-wrap gap-4">
+          <div data-slide-rise className="mt-[min(48px,4.5svh)] flex flex-wrap gap-3 max-sm:[&>a]:px-5 sm:gap-4 lg:mt-[min(48px,5.3svh)]">
             <Button href="/kneks" tone="gold">
               Explore the program
             </Button>
@@ -389,7 +404,7 @@ function KneksSlide() {
           Only beside the copy, from xl up. Stacked under it they would make
           this panel, and so the whole hero, taller than the first.
         */}
-        <dl data-slide-rise className="hidden gap-4 self-end xl:grid">
+        <dl data-slide-rise className="hidden gap-4 self-center xl:grid">
           {KNEKS_FACTS.map((fact) => (
             <div
               key={fact.value}
