@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, type ReactNode } from "react";
-import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
+import { CoinIcon, useShortlist } from "@/components/kneks/shortlist";
 import { placeOf, type KneksLabels, type Sme } from "@/components/kneks/sme-explorer";
 import { numberLocale, type Locale } from "@/i18n/config";
 import { format } from "@/i18n/format";
@@ -168,7 +168,7 @@ export function SmeBrief({
                 : "bg-kneks-gold text-kneks-earth hover:bg-[#a87a20]"
             }`}
           >
-            <StarIcon filled={starred} className="size-[16px]" />
+            <CoinIcon active={starred} className="size-[18px]" />
             {starred ? t.remove : t.add}
           </button>
         </div>

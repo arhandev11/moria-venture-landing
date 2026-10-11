@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState, type ReactNode } from "react";
-import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
+import { CoinIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeTile } from "@/components/kneks/sme-brief";
 import { placeOf, TINTS, type KneksLabels } from "@/components/kneks/sme-explorer";
 import type { Locale } from "@/i18n/config";
@@ -54,7 +54,7 @@ export function ShortlistCard({ labels }: { labels: KneksLabels["shortlist"] }) 
   return (
     <div className="rounded-xl border border-kneks-line bg-kneks-mist px-[23px] pb-[25px] pt-[21px]">
       <p className="flex items-center gap-[10px] text-[20px] font-bold leading-[30px] text-kneks-ink">
-        <StarIcon className="size-[21px] text-kneks-pine" />
+        <CoinIcon className="size-[22px]" />
         {labels.title}
       </p>
       {names.length ? (
@@ -339,12 +339,12 @@ function SmePicker({
           return (
             <li key={sme.name}>
               <label
-                className={`flex h-[50px] cursor-pointer items-center gap-3 rounded-md border px-[9px] transition-colors has-focus-visible:border-kneks-pine ${
+                className={`flex h-[50px] cursor-pointer items-center gap-3 rounded-md border px-[9px] transition-[opacity,border-color,background-color] duration-300 has-focus-visible:border-kneks-pine ${
                   error
                     ? "border-[#b3261e]"
                     : picked
-                      ? "border-kneks-pine bg-kneks-mist"
-                      : "border-kneks-line bg-white hover:border-kneks-pine"
+                      ? "border-kneks-gold bg-kneks-sand"
+                      : `border-kneks-line bg-white hover:border-kneks-pine ${names.length ? "opacity-55 hover:opacity-100 has-focus-visible:opacity-100" : ""}`
                 }`}
               >
                 <SmeTile image={sme.image} tint={TINTS[i % TINTS.length]} className="size-8 shrink-0 rounded-md" mark="size-5" />

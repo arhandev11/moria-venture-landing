@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
+import { CoinIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeBrief, SmeTile } from "@/components/kneks/sme-brief";
 import { numberLocale, type Locale } from "@/i18n/config";
 import { format, formatPlural } from "@/i18n/format";
@@ -265,9 +265,18 @@ function SmeCard({
   const pill = sme.stage || sme.readiness;
   const money = funded ? sme.raised : sme.ask;
   const amount = money ? formatMoney(money, numberLocale[locale], "short") : null;
+  // Once anything is shortlisted, the rest step back so the picks stand out;
+  // hover or focus brings a card back to full strength to pick it too.
+  const dimmed = names.length > 0 && !starred;
 
   return (
-    <article className="group relative w-[280px] shrink-0 snap-start rounded-xl border border-kneks-line bg-white transition-colors hover:border-kneks-pine">
+    <article
+      className={`group relative w-[280px] shrink-0 snap-start rounded-xl border bg-white transition-[opacity,border-color,box-shadow] duration-300 ${
+        starred
+          ? "border-kneks-gold shadow-[0_0_0_3px_rgba(184,137,43,0.22)]"
+          : `border-kneks-line hover:border-kneks-pine ${dimmed ? "opacity-55 hover:opacity-100 focus-within:opacity-100" : ""}`
+      }`}
+    >
       <button
         type="button"
         onClick={(e) => onOpen(e.currentTarget)}
@@ -313,11 +322,13 @@ function SmeCard({
             onClick={() => toggle(sme.name)}
             aria-pressed={starred}
             aria-label={format(starred ? labels.shortlist.remove : labels.shortlist.add, { name: sme.name })}
-            className={`relative z-10 flex size-11 items-center justify-center rounded-full border-2 border-kneks-pine transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold ${
-              starred ? "bg-kneks-pine text-kneks-sand" : "bg-white text-kneks-pine hover:bg-kneks-mist"
+            className={`relative z-10 flex size-11 items-center justify-center rounded-full border-2 transition-[background-color,border-color,box-shadow] duration-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold [perspective:200px] ${
+              starred
+                ? "border-kneks-gold bg-kneks-sand shadow-[0_0_0_4px_rgba(184,137,43,0.18)]"
+                : "border-kneks-line bg-white hover:border-kneks-gold/60 hover:bg-kneks-mist"
             }`}
           >
-            <StarIcon filled={starred} className="size-[22px]" />
+            <CoinIcon active={starred} className="size-[26px]" />
           </button>
         </div>
         {interest === null ? null : (
