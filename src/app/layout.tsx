@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Figtree } from "next/font/google";
+import { FooterSlot } from "@/components/footer-slot";
+import { KneksFooter } from "@/components/kneks/kneks-footer";
 import { SiteFooter } from "@/components/site-footer";
 import { HeroReveal } from "@/components/hero-reveal";
 import { ScrollReveal } from "@/components/scroll-reveal";
@@ -28,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         <SiteHeader />
         <main className="flex-1">{children}</main>
-        <SiteFooter />
+        <FooterSlot site={<SiteFooter />} kneks={<KneksFooter />} />
         <HeroReveal />
         <ScrollReveal />
       </body>

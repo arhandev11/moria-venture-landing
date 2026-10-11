@@ -13,6 +13,17 @@
   /* The revised deck draws section and list hairlines in a cool grey. */
   --color-hairline: #c2c8cf;
 
+  /* The KNEKS partnership page runs on its own palette, set by its deck. */
+  --color-kneks-ink: #10201f;
+  --color-kneks-pine: #0b3d3a;
+  --color-kneks-muted: #51625f;
+  --color-kneks-gold: #b8892b;
+  --color-kneks-sand: #f3e7c9;
+  --color-kneks-mist: #eef3f1;
+  --color-kneks-line: #d3dedb;
+  --color-kneks-earth: #1b1404;
+  --color-kneks-blue: #166aa4;
+
   --font-sans: var(--font-figtree), ui-sans-serif, system-ui, sans-serif;
 }
 
