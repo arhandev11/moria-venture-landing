@@ -8,10 +8,12 @@ import { LiveRegion, OverflowMenu, Switch } from "../../_components/controls";
 import { useFeedback } from "../../_components/feedback";
 import { ListIcon, PlusIcon } from "../../_components/icons";
 import { Modal, ModalBody, ModalFooter } from "../../_components/modal";
+import { runAction } from "../../_components/run-action";
 import { SortableHelp, useSortable } from "../../_components/sortable";
 import { btn, Card, CardHeader, EmptyState, Field, INPUT, PageHeader } from "../../_components/ui";
 import { useFormDialog } from "../../_components/use-form-dialog";
 import { useOptimisticFlags } from "../../_components/use-optimistic-flags";
+import { useRefusalKey } from "../../_components/use-refusal-key";
 
 type Option = { id: number; kind: OptionKind; label: string; active: boolean };
 /** What the dialog edits: an existing option, or a new one for a list. */
@@ -108,7 +110,7 @@ function OptionList({
   const setOn = (o: Option, next: boolean, undoable = true) => {
     active.set(o.id, next);
     startTransition(async () => {
-      const result = await toggleOption(form({ id: o.id, active: String(next) }));
+      const result = await runAction(() => toggleOption(form({ id: o.id, active: String(next) })));
       if (!result.ok) {
         active.set(o.id, !next);
         toast(result.message ?? "That change could not be saved.", { tone: "error" });
@@ -127,7 +129,7 @@ function OptionList({
       confirmLabel: "Delete option",
     });
     if (!ok) return;
-    const result = await deleteOption(form({ id: o.id }));
+    const result = await runAction(() => deleteOption(form({ id: o.id })));
     toast(result.ok ? `Deleted “${o.label}”.` : result.message ?? "That option could not be deleted.", { tone: result.ok ? "success" : "error" });
   };
 
@@ -212,9 +214,11 @@ function OptionForm({
   }, [state, onSaved]);
 
   const error = state && !state.ok ? state.fieldErrors?.label ?? state.message : undefined;
+  // Remounted on every refusal, so React's reset after the action cannot untick the chosen list.
+  const formKey = useRefusalKey(state);
 
   return (
-    <form action={action} onInput={onDirty}>
+    <form key={formKey} action={action} onInput={onDirty}>
       <ModalBody className="space-y-4">
         {editing.option ? (
           <input type="hidden" name="id" value={editing.option.id} />

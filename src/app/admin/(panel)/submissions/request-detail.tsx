@@ -6,6 +6,7 @@ import { Switch } from "../../_components/controls";
 import { useFeedback } from "../../_components/feedback";
 import { useOptimisticFlags } from "../../_components/use-optimistic-flags";
 import { MailIcon } from "../../_components/icons";
+import { runAction } from "../../_components/run-action";
 import { btn } from "../../_components/ui";
 
 export type RequestItem = {
@@ -40,7 +41,7 @@ export function useHandledToggle(rows: RequestItem[]) {
   const setHandled = (r: RequestItem, next: boolean) => {
     handled.set(r.id, next);
     startTransition(async () => {
-      const result = await setSubmissionStatus(form({ id: r.id, status: next ? "handled" : "new" }));
+      const result = await runAction(() => setSubmissionStatus(form({ id: r.id, status: next ? "handled" : "new" })));
       if (!result.ok) handled.set(r.id, !next);
       toast(result.ok ? `${r.name}: ${next ? "marked as handled" : "marked as new"}.` : result.message ?? "That change could not be saved.", {
         tone: result.ok ? "success" : "error",
@@ -60,7 +61,7 @@ export function useDeleteRequest() {
       confirmLabel: "Delete request",
     });
     if (!ok) return false;
-    const result = await deleteSubmission(form({ id: r.id }));
+    const result = await runAction(() => deleteSubmission(form({ id: r.id })));
     toast(result.message ?? (result.ok ? "Deleted." : "That request could not be deleted."), { tone: result.ok ? "success" : "error" });
     return result.ok;
   };

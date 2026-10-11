@@ -7,6 +7,7 @@ import { SubmitButton } from "../../_components/buttons";
 import { Combobox } from "../../_components/combobox";
 import { ModalBody, ModalFooter } from "../../_components/modal";
 import { btn, Field, FormMessage, INPUT } from "../../_components/ui";
+import { useRefusalKey } from "../../_components/use-refusal-key";
 
 export type StoryFormValues = {
   id?: number;
@@ -77,9 +78,9 @@ export function StoryForm({
   const v = (key: TextKey) => state?.values?.[key] ?? initial[key] ?? "";
   const on = (key: "published" | "isSample") => (state?.values ? state.values[key] === "on" : initial[key]);
   const err = (key: string) => state?.fieldErrors?.[key];
-  // React clears a form after its action; keying on what came back remounts
-  // the fields with those values, so a rejected form keeps its text.
-  const formKey = state && !state.ok ? JSON.stringify(state.values ?? {}) : "initial";
+  // React clears a form after its action; a new key on every refusal remounts
+  // the fields with what came back, so a rejected form keeps its text and choices.
+  const formKey = useRefusalKey(state);
   const isNew = !initial.id;
 
   return (
@@ -92,7 +93,8 @@ export function StoryForm({
           <TitleAndSlug
             title={v("title")}
             slug={v("slug")}
-            follow={isNew && !v("slug")}
+            // A rejected save hands back the slug made from the title; it still follows the title then.
+            follow={isNew && (!v("slug") || v("slug") === slugify(v("title")))}
             titleError={err("title")}
             slugError={err("slug")}
           />

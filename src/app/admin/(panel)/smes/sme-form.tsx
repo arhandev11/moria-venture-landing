@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
-import { isSmeCurrency, parseWholeAmount, SME_CURRENCIES } from "@/lib/money";
+import { isSmeCurrency, MAX_AMOUNT, parseWholeAmount, SME_CURRENCIES } from "@/lib/money";
 import { CURATION_STATUS_LABELS, CURATION_STATUSES, isHttpUrl, LEGAL_FORM_LABELS, LEGAL_FORMS, SME_TEXT_LIMITS } from "@/lib/sme-fields";
 import { saveSme } from "../../actions/smes";
 import { SubmitButton } from "../../_components/buttons";
@@ -9,6 +9,7 @@ import { Combobox } from "../../_components/combobox";
 import { ExternalIcon } from "../../_components/icons";
 import { ModalBody, ModalFooter } from "../../_components/modal";
 import { btn, FormMessage, INPUT } from "../../_components/ui";
+import { useRefusalKey } from "../../_components/use-refusal-key";
 import { citiesOf } from "./indonesia-regions";
 
 export type SmeFormValues = {
@@ -131,9 +132,9 @@ export function SmeForm({
   const v = (key: TextKey) => state?.values?.[key] ?? initial[key] ?? "";
   const on = (key: "published" | "askCurrencyInferred") => (state?.values ? state.values[key] === "on" : initial[key]);
   const err = (key: string) => state?.fieldErrors?.[key];
-  // React clears a form after its action; keying on what came back remounts
-  // the fields with those values, so a rejected form keeps its text.
-  const formKey = state && !state.ok ? JSON.stringify(state.values ?? {}) : "initial";
+  // React clears a form after its action; a new key on every refusal remounts
+  // the fields with what came back, so a rejected form keeps its text and choices.
+  const formKey = useRefusalKey(state);
   const isNew = !initial.id;
 
   /** A plain one-line input. */
@@ -172,7 +173,7 @@ export function SmeForm({
       {state && !state.ok && state.message ? <FormMessage>{state.message}</FormMessage> : null}
 
       <Group title="Public profile" hint="Shown on the KNEKS page.">
-        <Field label="Name" error={err("name")} hint="The tile shows the initials of the first two words." className="sm:col-span-2">
+        <Field label="Name" error={err("name")} hint="The card's title. Each SME needs a name of its own." className="sm:col-span-2">
           {line("name", { required: true, autoFocus: true })}
         </Field>
         <Field label="Sector" error={err("sector")} hint="Each sector becomes a filter on the page. Pick one, or type a new one.">
@@ -581,7 +582,11 @@ function MoneyField({
         </p>
       ) : (
         <p className="mt-1.5 text-[12px] leading-[18px] text-ink-muted tabular-nums">
-          {preview ?? (amount.trim() && parsed === null ? "Whole units only: no decimals or signs." : "Whole units of the currency. Leave both empty if not disclosed.")}
+          {preview ??
+            // Only digits get this far, so a figure that does not parse is zero or too large.
+            (amount.trim() && parsed === null
+              ? `Enter an amount from 1 to ${groupDigits(String(MAX_AMOUNT))}.`
+              : "Whole units of the currency. Leave both empty if not disclosed.")}
         </p>
       )}
     </div>
@@ -691,7 +696,7 @@ function ImagePicker({ current, error }: { current: string | null; error?: strin
           />
         </label>
         <div className="space-y-1.5 text-[12px] text-ink-muted">
-          <p>JPEG, PNG or WebP, up to 2 MB. Without one, the card shows the initials.</p>
+          <p>JPEG, PNG or WebP, up to 2 MB. Without one, the card shows the Moria coin.</p>
           {preview && !removed ? (
             <button
               type="button"

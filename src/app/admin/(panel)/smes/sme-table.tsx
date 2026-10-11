@@ -8,6 +8,7 @@ import { LiveRegion, OverflowMenu, SearchInput, Switch } from "../../_components
 import { useFeedback } from "../../_components/feedback";
 import { BuildingIcon, PlusIcon } from "../../_components/icons";
 import { Modal } from "../../_components/modal";
+import { runAction } from "../../_components/run-action";
 import { SortableHelp, useSortable } from "../../_components/sortable";
 import { Badge, btn, Card, EmptyState, PageHeader, TABLE } from "../../_components/ui";
 import { useFormDialog } from "../../_components/use-form-dialog";
@@ -69,7 +70,7 @@ export function SmeTable({
   const setPublish = (sme: SmeListItem, next: boolean, undoable = true) => {
     published.set(sme.id, next);
     startTransition(async () => {
-      const result = await toggleSmePublished(form({ id: sme.id, published: String(next) }));
+      const result = await runAction(() => toggleSmePublished(form({ id: sme.id, published: String(next) })));
       if (!result.ok) {
         published.set(sme.id, !next);
         toast(result.message ?? "That change could not be saved.", { tone: "error" });
@@ -88,7 +89,7 @@ export function SmeTable({
       confirmLabel: "Delete SME",
     });
     if (!ok) return;
-    const result = await deleteSme(form({ id: sme.id }));
+    const result = await runAction(() => deleteSme(form({ id: sme.id })));
     toast(result.message ?? (result.ok ? "Deleted." : "That SME could not be deleted."), { tone: result.ok ? "success" : "error" });
   };
 

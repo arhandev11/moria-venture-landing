@@ -8,8 +8,10 @@ import { OverflowMenu } from "../../_components/controls";
 import { useFeedback } from "../../_components/feedback";
 import { PlusIcon } from "../../_components/icons";
 import { Modal, ModalBody, ModalFooter } from "../../_components/modal";
+import { runAction } from "../../_components/run-action";
 import { Badge, btn, Card, Field, FormMessage, INPUT, PageHeader, TABLE } from "../../_components/ui";
 import { useFormDialog } from "../../_components/use-form-dialog";
+import { useRefusalKey } from "../../_components/use-refusal-key";
 
 type User = { id: number; name: string; email: string; role: AdminRole; lastLogin: string };
 
@@ -32,7 +34,7 @@ export function UsersTable({ users, meId }: { users: User[]; meId: number }) {
     if (!ok) return;
     const fd = new FormData();
     fd.set("id", String(u.id));
-    const result = await removeAdmin(fd);
+    const result = await runAction(() => removeAdmin(fd));
     toast(result.message ?? "Done.", { tone: result.ok ? "success" : "error" });
   };
 
@@ -204,7 +206,7 @@ function RoleForm({
         fd.set("role", role);
         startTransition(async () => {
           // Demoting yourself ends on another page: the action redirects.
-          const result = await setAdminRole(fd);
+          const result = await runAction(() => setAdminRole(fd));
           onDone(result.message ?? (result.ok ? "Role changed." : "That role could not be changed."), result.ok);
         });
       }}
@@ -242,9 +244,11 @@ function AddAdminForm({ onSaved, onCancel, onDirty }: { onSaved: (m: string) => 
     }
   }, [state, onSaved]);
   const err = (key: string) => (state && !state.ok ? state.fieldErrors?.[key] : undefined);
+  // Remounted on every refusal, so React's reset after the action cannot untick the chosen role.
+  const formKey = useRefusalKey(state);
 
   return (
-    <form action={action} onInput={onDirty}>
+    <form key={formKey} action={action} onInput={onDirty}>
       <ModalBody className="space-y-4">
         {state && !state.ok && state.message ? <FormMessage>{state.message}</FormMessage> : null}
         <Field label="Name" error={err("name")}>

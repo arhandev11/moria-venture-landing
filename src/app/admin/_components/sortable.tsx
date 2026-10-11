@@ -1,5 +1,6 @@
 "use client";
 
+import { unstable_rethrow } from "next/navigation";
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { GripIcon } from "./icons";
 import { FOCUS } from "./ui";
@@ -58,7 +59,9 @@ export function useSortable<T extends { id: number }>({
     let result: { ok: boolean; message?: string };
     try {
       result = await save(ids);
-    } catch {
+    } catch (err) {
+      // An expired session's redirect to the login page still goes through.
+      unstable_rethrow(err);
       result = { ok: false };
     }
     if (!result.ok) {

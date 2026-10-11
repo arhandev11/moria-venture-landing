@@ -6,6 +6,7 @@ import { LiveRegion, OverflowMenu, SearchInput, Switch } from "../../_components
 import { useFeedback } from "../../_components/feedback";
 import { PlusIcon, StoryIcon } from "../../_components/icons";
 import { Modal } from "../../_components/modal";
+import { runAction } from "../../_components/run-action";
 import { SortableHelp, useSortable } from "../../_components/sortable";
 import { Badge, btn, Card, EmptyState, PageHeader, TABLE } from "../../_components/ui";
 import { useFormDialog } from "../../_components/use-form-dialog";
@@ -53,7 +54,7 @@ export function StoryTable({ items, smeNames }: { items: StoryListItem[]; smeNam
   const setPublish = (story: StoryListItem, next: boolean, undoable = true) => {
     published.set(story.id, next);
     startTransition(async () => {
-      const result = await toggleStoryPublished(form({ id: story.id, published: String(next) }));
+      const result = await runAction(() => toggleStoryPublished(form({ id: story.id, published: String(next) })));
       if (!result.ok) {
         published.set(story.id, !next);
         toast(result.message ?? "That change could not be saved.", { tone: "error" });
@@ -72,7 +73,7 @@ export function StoryTable({ items, smeNames }: { items: StoryListItem[]; smeNam
       confirmLabel: "Delete story",
     });
     if (!ok) return;
-    const result = await deleteStory(form({ id: story.id }));
+    const result = await runAction(() => deleteStory(form({ id: story.id })));
     toast(result.message ?? (result.ok ? "Deleted." : "That story could not be deleted."), { tone: result.ok ? "success" : "error" });
   };
 
@@ -141,13 +142,19 @@ export function StoryTable({ items, smeNames }: { items: StoryListItem[]; smeNam
                                   e.stopPropagation();
                                   dialog.open(story);
                                 }}
-                                className="block max-w-[180px] truncate rounded text-left font-semibold text-ink hover:text-indigo-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-brand sm:max-w-[320px]"
+                                className="block max-w-[150px] truncate rounded text-left font-semibold text-ink hover:text-indigo-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-brand sm:max-w-[320px]"
                               >
                                 {story.title}
                               </button>
-                              {story.isSample ? <Badge tone="gold">Sample</Badge> : null}
+                              {/* On a phone the badge would push the switch off the card; the line below says it instead. */}
+                              {story.isSample ? (
+                                <span className="max-sm:hidden">
+                                  <Badge tone="gold">Sample</Badge>
+                                </span>
+                              ) : null}
                             </div>
-                            <p className="max-w-[180px] truncate font-mono text-[12px] text-ink-muted sm:max-w-[320px]">
+                            <p className="max-w-[150px] truncate font-mono text-[12px] text-ink-muted sm:max-w-[320px]">
+                              {story.isSample ? <span className="font-sans font-semibold text-[#5c4200] sm:hidden">Sample · </span> : null}
                               /kneks/stories/{story.slug}
                               <span className="font-sans lg:hidden">{story.sme ? ` · ${story.sme}` : ""}</span>
                             </p>

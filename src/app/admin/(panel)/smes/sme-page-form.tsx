@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { deleteSme } from "../../actions/smes";
 import { useFeedback } from "../../_components/feedback";
+import { runAction } from "../../_components/run-action";
 import { btn, Card, PageHeader } from "../../_components/ui";
 import { SmeForm, type SmeFormValues, type SmeSuggestions } from "./sme-form";
 
@@ -25,7 +26,7 @@ export function SmePageForm({ initial, suggestions }: { initial: SmeFormValues; 
     if (!ok) return;
     const fd = new FormData();
     fd.set("id", String(initial.id));
-    const result = await deleteSme(fd);
+    const result = await runAction(() => deleteSme(fd));
     toast(result.message ?? "Deleted.", { tone: result.ok ? "success" : "error" });
     if (result.ok) back();
   };

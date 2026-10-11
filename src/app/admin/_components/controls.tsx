@@ -55,10 +55,13 @@ export function OverflowMenu({ items, label }: { items: MenuItem[]; label: strin
   const [pos, setPos] = useState({ top: 0, right: 0 });
   const button = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLDivElement>(null);
+  /** Where the button sat when the menu opened, which the menu is placed against. */
+  const anchor = useRef<{ top: number; left: number } | null>(null);
 
   useLayoutEffect(() => {
     if (!open || !button.current) return;
     const r = button.current.getBoundingClientRect();
+    anchor.current = { top: r.top, left: r.left };
     const below = r.bottom + 4 + items.length * 36 + 12 < window.innerHeight;
     setPos({
       top: below ? r.bottom + 4 : r.top - 4 - (items.length * 36 + 12),
@@ -71,6 +74,14 @@ export function OverflowMenu({ items, label }: { items: MenuItem[]; label: strin
     if (!open) return;
     const close = (e: Event) => {
       if (e.type === "pointerdown" && (list.current?.contains(e.target as Node) || button.current?.contains(e.target as Node))) return;
+      // Scroll events arrive a frame late: the one from bringing the row into
+      // view (or the tail of a fling) can land just after the menu opened.
+      // Only a scroll that moved the button leaves the menu out of place.
+      if (e.type === "scroll") {
+        const r = button.current?.getBoundingClientRect();
+        const a = anchor.current;
+        if (r && a && Math.abs(r.top - a.top) < 2 && Math.abs(r.left - a.left) < 2) return;
+      }
       setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {

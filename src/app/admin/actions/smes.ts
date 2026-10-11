@@ -57,7 +57,7 @@ function money(values: Record<string, string>, errors: Record<string, string>, a
   const code = values[currencyKey];
   if (!raw && !code) return { amount: null, currency: null };
   const amount = raw ? parseWholeAmount(raw) : null;
-  if (raw && amount === null) errors[amountKey] = "Enter a whole amount above zero, like 15000000000 or 15,000,000,000.";
+  if (raw && amount === null) errors[amountKey] = "Enter a whole amount above zero, like 15.000.000.000.";
   if (code && !isSmeCurrency(code)) errors[currencyKey] = "Pick a currency from the list.";
   if (!raw) errors[amountKey] = BOTH_OR_NEITHER;
   if (!code) errors[currencyKey] = BOTH_OR_NEITHER;
