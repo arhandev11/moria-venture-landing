@@ -9,7 +9,8 @@
     "lint": "eslint",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts"
+    "db:seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
+    "mail:test": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/mail-test.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -17,6 +18,7 @@
     "lottie-react": "^3.1.1",
     "mysql2": "^3.24.5",
     "next": "16.3.8",
+    "nodemailer": "^10.1.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "server-only": "^0.0.1"

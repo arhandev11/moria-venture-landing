@@ -17,14 +17,27 @@ export const REQUEST_LIMITS: Record<RequestField, number> = {
 /** The hidden field a person never sees and a form-filling bot usually fills. */
 export const HONEYPOT_FIELD = "company_website";
 
+/**
+ * The SMEs the investor picked: comma-separated names in one field, or the
+ * field repeated once per name. At least one published SME is required.
+ */
+export const SHORTLIST_FIELD = "shortlist";
+
+/** Fields that can carry an inline error: the text inputs plus the SME picker. */
+export type RequestErrorField = RequestField | typeof SHORTLIST_FIELD;
+
 export type InvestorRequestResult =
   | { ok: true }
   | {
       ok: false;
       /** Per-field messages, ready to show under each input. */
-      fieldErrors: Partial<Record<RequestField, string>>;
+      fieldErrors: Partial<Record<RequestErrorField, string>>;
       /** A form-level message, e.g. rate limited or server error. */
       formError?: string;
-      /** What was submitted, so the form can be refilled after a failed round trip. */
-      values: Partial<Record<RequestField, string>>;
+      /**
+       * What was submitted, so the form can be refilled after a failed round
+       * trip. `shortlist` is always set on a failure: the picked names that
+       * are published SMEs, in the page's order.
+       */
+      values: Partial<Record<RequestField, string>> & { shortlist?: string[] };
     };
