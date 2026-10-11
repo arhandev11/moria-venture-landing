@@ -11,7 +11,7 @@ import type { ActionResult, FormState } from "../_lib/state";
 const LABEL_MAX = 120;
 
 function refresh() {
-  revalidatePath("/kneks");
+  revalidatePath("/[lang]/kneks", "page");
   revalidatePath("/admin/options");
 }
 

@@ -3,6 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeBrief, SmeTile } from "@/components/kneks/sme-brief";
+import type { Locale } from "@/i18n/config";
+import { format, formatPlural } from "@/i18n/format";
+import type { Dictionary } from "@/i18n/types";
+
+/** The KNEKS page's dictionary, handed down to its client pieces. */
+export type KneksLabels = Dictionary["kneks"];
 
 export type Sme = {
   name: string;
@@ -37,9 +43,26 @@ export const TINTS = ["#e0eae3", "#eee5d1", "#dde9df", "#dde8e8"];
 /** One card and the gap after it: what an arrow press moves by. */
 const STEP = 300;
 
-export function SmeExplorer({ smes }: { smes: Sme[] }) {
+/** The sector filter's own "show everything" value; never shown, so never translated. */
+const ALL = "\u0000all";
+
+/**
+ * The pipeline row, its search and sector filter, and the brief it opens.
+ * SME data comes from the database as stored (English); only the interface
+ * around it is translated.
+ */
+export function SmeExplorer({
+  smes,
+  locale,
+  labels,
+}: {
+  smes: Sme[];
+  locale: Locale;
+  labels: KneksLabels;
+}) {
+  const t = labels.explorer;
   const [query, setQuery] = useState("");
-  const [sector, setSector] = useState("All");
+  const [sector, setSector] = useState(ALL);
   const scroller = useRef<HTMLDivElement>(null);
   const [edges, setEdges] = useState({ start: true, end: false });
   const [briefOf, setBriefOf] = useState<Sme | null>(null);
@@ -49,12 +72,12 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
   const tintOf = (sme: Sme) => TINTS[smes.indexOf(sme) % TINTS.length];
 
   const sectors = useMemo(
-    () => ["All", ...new Set(smes.map((sme) => sme.sector))],
+    () => [ALL, ...new Set(smes.map((sme) => sme.sector))],
     [smes],
   );
 
   const shown = smes.filter((sme) => {
-    if (sector !== "All" && sme.sector !== sector) return false;
+    if (sector !== ALL && sme.sector !== sector) return false;
     const q = query.trim().toLowerCase();
     if (!q) return true;
     return [sme.name, sme.sector, sme.city].some((field) =>
@@ -65,35 +88,40 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
 
   // The arrows go quiet at either end of the row. Filtering changes the row's
   // length, so the edges are re-read whenever the visible set changes too.
+  // A right-to-left row starts at the right and scrolls into negative
+  // scrollLeft, so the distance travelled is read as a magnitude.
   const readEdges = () => {
     const el = scroller.current;
     if (!el) return;
+    const travelled = Math.abs(el.scrollLeft);
     setEdges({
-      start: el.scrollLeft <= 1,
-      end: el.scrollLeft + el.clientWidth >= el.scrollWidth - 1,
+      start: travelled <= 1,
+      end: travelled + el.clientWidth >= el.scrollWidth - 1,
     });
   };
   useEffect(readEdges, [shown.length]);
 
-  const move = (direction: 1 | -1) =>
-    scroller.current?.scrollBy({ left: direction * STEP, behavior: "smooth" });
+  const move = (direction: 1 | -1) => {
+    const forwards = document.documentElement.dir === "rtl" ? -1 : 1;
+    scroller.current?.scrollBy({ left: direction * forwards * STEP, behavior: "smooth" });
+  };
 
   return (
     <>
       <div className="flex items-start justify-between gap-6">
         <div>
           <h2 className="text-[30px] font-bold leading-[1.15] tracking-[-0.01em] text-kneks-ink lg:text-[38px] lg:leading-[44px]">
-            SMEs in the program
+            {t.title}
           </h2>
           <p className="mt-[12px] text-[16px] leading-[26px] text-kneks-muted">
-            Explore the sample pipeline by sector, city and funding stage.
+            {t.lede}
           </p>
         </div>
         <div className="mt-[20px] hidden gap-3 sm:flex">
-          <ArrowButton label="Previous SMEs" disabled={edges.start} onClick={() => move(-1)}>
+          <ArrowButton label={t.previous} disabled={edges.start} onClick={() => move(-1)}>
             <path d="M19 12H5M11 6l-6 6 6 6" />
           </ArrowButton>
-          <ArrowButton label="Next SMEs" disabled={edges.end} onClick={() => move(1)}>
+          <ArrowButton label={t.next} disabled={edges.end} onClick={() => move(1)}>
             <path d="M5 12h14M13 6l6 6-6 6" />
           </ArrowButton>
         </div>
@@ -105,17 +133,17 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
             <circle cx="11" cy="11" r="7" />
             <path d="M20 20l-4-4" />
           </svg>
-          <span className="sr-only">Search SMEs</span>
+          <span className="sr-only">{t.searchLabel}</span>
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search name, sector, city"
+            placeholder={t.searchPlaceholder}
             className="w-full bg-transparent text-[14px] text-kneks-ink outline-none placeholder:text-kneks-muted"
           />
         </label>
 
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by sector">
+        <div className="flex flex-wrap gap-2" role="group" aria-label={t.filterLabel}>
           {sectors.map((name) => {
             const active = name === sector;
             return (
@@ -135,7 +163,7 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
                     <path d="M5 12.5l4.5 4.5L19 7.5" />
                   </svg>
                 ) : null}
-                {name}
+                {name === ALL ? t.all : name}
               </button>
             );
           })}
@@ -153,6 +181,7 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
               key={sme.name}
               sme={sme}
               tint={tintOf(sme)}
+              labels={labels}
               onOpen={(button) => {
                 opener.current = button;
                 setBriefOf(sme);
@@ -161,22 +190,23 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
           ))
         ) : (
           <p className="flex h-[391px] w-full items-center justify-center rounded-xl border border-dashed border-kneks-line text-[15px] text-kneks-muted">
-            No SMEs match that search.
+            {t.empty}
           </p>
         )}
       </div>
 
       <div className="mt-[30px] flex items-center justify-between text-[13px] leading-[18px] text-kneks-muted">
         <p>
-          {shown.length} SME{shown.length === 1 ? "" : "s"} · {shownSectors} sector
-          {shownSectors === 1 ? "" : "s"} · Sample profiles
+          {formatPlural(locale, t.countSmes, shown.length)} ·{" "}
+          {formatPlural(locale, t.countSectors, shownSectors)} · {t.sampleProfiles}
         </p>
-        <p className="hidden sm:block">Scroll to explore →</p>
+        <p className="hidden sm:block">{t.scrollHint}</p>
       </div>
 
       <SmeBrief
         sme={briefOf}
         tint={briefOf ? tintOf(briefOf) : TINTS[0]}
+        labels={labels}
         onClose={() => {
           setBriefOf(null);
           opener.current?.focus();
@@ -194,12 +224,15 @@ export function SmeExplorer({ smes }: { smes: Sme[] }) {
 function SmeCard({
   sme,
   tint,
+  labels,
   onOpen,
 }: {
   sme: Sme;
   tint: string;
+  labels: KneksLabels;
   onOpen: (button: HTMLButtonElement) => void;
 }) {
+  const t = labels.explorer;
   const { names, toggle } = useShortlist();
   const starred = names.includes(sme.name);
   const funded = sme.status === "funded";
@@ -210,11 +243,11 @@ function SmeCard({
       <button
         type="button"
         onClick={(e) => onOpen(e.currentTarget)}
-        aria-label={`Open brief: ${sme.name}`}
+        aria-label={format(t.openBrief, { name: sme.name })}
         aria-haspopup="dialog"
         className="absolute inset-0 z-[1] rounded-xl focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-kneks-gold"
       />
-      <svg viewBox="0 0 16 16" aria-hidden className="absolute right-[15px] top-[15px] size-4 stroke-kneks-muted transition-colors group-hover:stroke-kneks-pine" fill="none" strokeWidth={1.3}>
+      <svg viewBox="0 0 16 16" aria-hidden className="absolute inset-e-[15px] top-[15px] size-4 stroke-kneks-muted transition-colors group-hover:stroke-kneks-pine rtl:-scale-x-100" fill="none" strokeWidth={1.3}>
         <path d="M2 14L14 2M5 2h9v9" />
       </svg>
 
@@ -232,7 +265,7 @@ function SmeCard({
         <div className="mt-[6px] flex items-center justify-between">
           {funded ? (
             <span className="rounded-full border border-kneks-gold bg-kneks-sand px-[9px] py-[4px] text-[13px] font-semibold leading-[17px] text-kneks-earth">
-              Funded
+              {t.funded}
             </span>
           ) : (
             <span className="rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
@@ -243,7 +276,7 @@ function SmeCard({
             type="button"
             onClick={() => toggle(sme.name)}
             aria-pressed={starred}
-            aria-label={starred ? `Remove ${sme.name} from shortlist` : `Add ${sme.name} to shortlist`}
+            aria-label={format(starred ? labels.shortlist.remove : labels.shortlist.add, { name: sme.name })}
             className={`relative z-10 flex size-11 items-center justify-center rounded-full border-2 border-kneks-pine transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold ${
               starred ? "bg-kneks-pine text-kneks-sand" : "bg-white text-kneks-pine hover:bg-kneks-mist"
             }`}
@@ -255,7 +288,7 @@ function SmeCard({
           <div className="h-full rounded-full bg-kneks-gold" style={{ width: `${interest}%` }} />
         </div>
         <p className="mt-[12px] text-[13px] leading-[18px] text-kneks-muted">
-          {funded ? "Round closed" : `Investor interest: ${interest}% of ask (sample)`}
+          {funded ? t.roundClosed : format(t.interest, { pct: interest })}
         </p>
       </div>
     </article>
@@ -281,7 +314,7 @@ function ArrowButton({
       onClick={onClick}
       className="flex size-11 items-center justify-center rounded-full border border-kneks-line bg-white text-kneks-pine transition-colors hover:border-kneks-pine disabled:opacity-40 disabled:hover:border-kneks-line"
     >
-      <svg viewBox="0 0 24 24" aria-hidden className="size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" aria-hidden className="size-5 rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         {children}
       </svg>
     </button>

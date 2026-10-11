@@ -2,7 +2,8 @@
 
 import { useEffect, useId, useRef } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
-import type { Sme } from "@/components/kneks/sme-explorer";
+import type { KneksLabels, Sme } from "@/components/kneks/sme-explorer";
+import { format } from "@/i18n/format";
 
 /** The monogram on a tile: the first letters of the first two words. */
 function initials(name: string) {
@@ -64,12 +65,15 @@ export function SmeTile({
 export function SmeBrief({
   sme,
   tint,
+  labels,
   onClose,
 }: {
   sme: Sme | null;
   tint: string;
+  labels: KneksLabels;
   onClose: () => void;
 }) {
+  const t = labels.brief;
   const dialog = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const { names, toggle } = useShortlist();
@@ -100,8 +104,8 @@ export function SmeBrief({
           <button
             type="button"
             onClick={close}
-            aria-label="Close brief"
-            className="absolute right-[33px] top-[33px] flex size-10 items-center justify-center rounded-full border border-kneks-line bg-white text-kneks-pine transition-colors hover:border-kneks-pine focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold sm:right-[37px] sm:top-[37px]"
+            aria-label={t.close}
+            className="absolute inset-e-[33px] top-[33px] flex size-10 items-center justify-center rounded-full border border-kneks-line bg-white text-kneks-pine transition-colors hover:border-kneks-pine focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-kneks-gold sm:inset-e-[37px] sm:top-[37px]"
           >
             <svg viewBox="0 0 16 16" aria-hidden className="size-[14px]" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
               <path d="M3.5 3.5l9 9M12.5 3.5l-9 9" />
@@ -117,17 +121,17 @@ export function SmeBrief({
           <p className="mt-[16px] text-[16px] leading-[26px] text-kneks-ink">{sme.brief}</p>
 
           <dl className="mt-[20px] grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-[10px] border-y border-kneks-line py-[18px] text-[15px] leading-[22px]">
-            <dt className="text-kneks-muted">Stage</dt>
+            <dt className="text-kneks-muted">{t.stage}</dt>
             <dd className="font-medium">{sme.stage}</dd>
-            <dt className="text-kneks-muted">Ask</dt>
-            <dd className="font-medium">USD {sme.askK}K</dd>
-            <dt className="text-kneks-muted">Traction</dt>
+            <dt className="text-kneks-muted">{t.ask}</dt>
+            <dd className="font-medium">{format(t.askValue, { amount: sme.askK })}</dd>
+            <dt className="text-kneks-muted">{t.traction}</dt>
             <dd className="font-medium">{sme.metrics}</dd>
-            <dt className="text-kneks-muted">Status</dt>
+            <dt className="text-kneks-muted">{t.status}</dt>
             <dd className="font-medium">
               {sme.status === "funded"
-                ? `Funded: USD ${sme.raisedK}K from ${sme.investor}`
-                : "In the program"}
+                ? format(t.fundedStatus, { amount: sme.raisedK, investor: sme.investor })
+                : t.inProgram}
             </dd>
           </dl>
 
@@ -144,7 +148,7 @@ export function SmeBrief({
             }`}
           >
             <StarIcon filled={starred} className="size-[16px]" />
-            {starred ? "Remove from shortlist" : "Add to shortlist"}
+            {starred ? t.remove : t.add}
           </button>
         </div>
       ) : null}

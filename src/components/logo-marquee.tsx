@@ -18,6 +18,9 @@ export type MarqueeLogo = {
  *
  * Pure CSS, so it needs no client JavaScript: hovering pauses it, and readers
  * who have asked for reduced motion get the strip standing still.
+ *
+ * On a right-to-left page the strip starts from the right edge, so it drifts
+ * the other way and the gap rides on each logo's inline end.
  */
 export function LogoMarquee({
   logos,
@@ -34,9 +37,9 @@ export function LogoMarquee({
 }) {
   return (
     <div className={`group overflow-hidden ${className}`}>
-      <style>{`@keyframes logo-marquee { to { transform: translateX(-50%); } }`}</style>
+      <style>{`@keyframes logo-marquee { to { transform: translateX(-50%); } } @keyframes logo-marquee-rtl { to { transform: translateX(50%); } }`}</style>
       <ul
-        className="flex w-max items-center animate-[logo-marquee_var(--marquee-duration)_linear_infinite] group-hover:[animation-play-state:paused] motion-reduce:animate-none"
+        className="flex w-max items-center animate-[logo-marquee_var(--marquee-duration)_linear_infinite] motion-safe:rtl:animate-[logo-marquee-rtl_var(--marquee-duration)_linear_infinite] group-hover:[animation-play-state:paused] motion-reduce:animate-none"
         style={{ "--marquee-duration": `${duration}s` } as React.CSSProperties}
       >
         {[0, 1].map((copy) =>
@@ -46,7 +49,7 @@ export function LogoMarquee({
               // The second copy only exists to close the loop.
               aria-hidden={copy === 1 || undefined}
               className="shrink-0"
-              style={{ paddingRight: gap }}
+              style={{ paddingInlineEnd: gap }}
             >
               <Image
                 src={logo.src}

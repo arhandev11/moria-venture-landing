@@ -179,3 +179,34 @@ body {
     transition: none;
   }
 }
+
+/*
+ * Arabic. Figtree stays first in the stack, so Latin words and every digit
+ * keep the brand face; Arabic letters, which Figtree does not carry, fall
+ * through to IBM Plex Sans Arabic, which only Arabic pages load.
+ */
+html:lang(ar) {
+  --font-sans: var(--font-figtree), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Arabic is a joined script: tracking pulls a word's letters apart, and a
+ * slanted face has no Arabic italic to fall back on, so both are dropped.
+ * Its letters also climb and drop further than Latin capitals, so the tight
+ * display leading opens up a little. Unlayered, so these win over utilities.
+ */
+[dir="rtl"] *,
+[dir="rtl"] *::before,
+[dir="rtl"] *::after {
+  letter-spacing: 0;
+}
+
+:lang(ar) .italic {
+  font-style: normal;
+}
+
+:lang(ar) .t-hero,
+:lang(ar) .t-section,
+:lang(ar) .t-display {
+  line-height: 1.3;
+}

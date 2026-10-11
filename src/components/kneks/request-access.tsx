@@ -3,9 +3,16 @@
 import { useActionState, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { StarIcon, useShortlist } from "@/components/kneks/shortlist";
 import { SmeTile } from "@/components/kneks/sme-brief";
-import { TINTS } from "@/components/kneks/sme-explorer";
+import { TINTS, type KneksLabels } from "@/components/kneks/sme-explorer";
+import type { Locale } from "@/i18n/config";
+import { format } from "@/i18n/format";
 import { submitInvestorRequest } from "@/lib/actions/investor-request";
-import { HONEYPOT_FIELD, REQUEST_LIMITS, type InvestorRequestResult } from "@/lib/investor-request";
+import {
+  HONEYPOT_FIELD,
+  LOCALE_FIELD,
+  REQUEST_LIMITS,
+  type InvestorRequestResult,
+} from "@/lib/investor-request";
 
 /** What the form's SME picker needs of each published SME. */
 export type SmeOption = {
@@ -15,9 +22,6 @@ export type SmeOption = {
   image: string | null;
   funded: boolean;
 };
-
-/** Same words as the server's check, so the two never read differently. */
-const PICK_ERROR = "Choose at least one SME you're interested in.";
 
 /**
  * The shortlist half of a rejected result, read loosely: the action reports
@@ -40,14 +44,14 @@ const FIELD =
   "w-full rounded-md border border-kneks-line bg-white px-[13px] text-[15px] text-kneks-ink outline-none transition-colors placeholder:text-kneks-muted focus:border-kneks-pine aria-[invalid=true]:border-[#b3261e]";
 
 /** The investor's starred SMEs, carried into the access request. */
-export function ShortlistCard() {
+export function ShortlistCard({ labels }: { labels: KneksLabels["shortlist"] }) {
   const { names, toggle } = useShortlist();
 
   return (
     <div className="rounded-xl border border-kneks-line bg-kneks-mist px-[23px] pb-[25px] pt-[21px]">
       <p className="flex items-center gap-[10px] text-[20px] font-bold leading-[30px] text-kneks-ink">
         <StarIcon className="size-[21px] text-kneks-pine" />
-        Your shortlist
+        {labels.title}
       </p>
       {names.length ? (
         <ul className="mt-[10px] flex flex-wrap gap-2">
@@ -56,8 +60,8 @@ export function ShortlistCard() {
               <button
                 type="button"
                 onClick={() => toggle(name)}
-                aria-label={`Remove ${name} from shortlist`}
-                className="flex h-8 items-center gap-1.5 rounded-full border border-kneks-line bg-white pl-3 pr-2.5 text-[14px] font-medium text-kneks-ink hover:border-kneks-pine"
+                aria-label={format(labels.remove, { name })}
+                className="flex h-8 items-center gap-1.5 rounded-full border border-kneks-line bg-white ps-3 pe-2.5 text-[14px] font-medium text-kneks-ink hover:border-kneks-pine"
               >
                 {name}
                 <span aria-hidden className="text-kneks-muted">×</span>
@@ -66,10 +70,10 @@ export function ShortlistCard() {
           ))}
         </ul>
       ) : (
-        <p className="mt-[10px] text-[16px] leading-[26px] text-kneks-muted">None yet.</p>
+        <p className="mt-[10px] text-[16px] leading-[26px] text-kneks-muted">{labels.empty}</p>
       )}
       <p className="mt-[14px] text-[13px] leading-[18px] text-kneks-muted">
-        Star an SME, or pick it in the form, to include it with your request.
+        {labels.hint}
       </p>
     </div>
   );
@@ -80,16 +84,25 @@ export function ShortlistCard() {
  * and stores it for the team's inbox in /admin; the shortlist rides along as a
  * hidden field. Field errors come back inline, and a sent request swaps the
  * form for a confirmation.
+ *
+ * The page's language rides along as a hidden field too, since a Server
+ * Action cannot read the route's; the action answers in that language. The
+ * region and ticket choices are the admin's labels, shown as stored.
  */
 export function RequestAccessForm({
   regions,
   tickets,
   smes,
+  locale,
+  labels,
 }: {
   regions: string[];
   tickets: string[];
   smes: SmeOption[];
+  locale: Locale;
+  labels: KneksLabels;
 }) {
+  const t = labels.form;
   const { names, replace } = useShortlist();
   // A rejected request puts the shortlist back to what was sent. It lives in
   // the shared shortlist rather than the form, so the form's remount below
@@ -112,10 +125,10 @@ export function RequestAccessForm({
   const pickError = names.length
     ? undefined
     : pickMissing
-      ? PICK_ERROR
+      ? labels.errors.shortlist
       : shortlistResult(state).error;
 
-  if (state?.ok) return <RequestSent shortlist={names} />;
+  if (state?.ok) return <RequestSent shortlist={names} labels={t.sent} />;
 
   return (
     // React clears a form once its action settles; keying on what came back
@@ -136,41 +149,43 @@ export function RequestAccessForm({
       className="relative grid gap-x-5 gap-y-[27px] sm:grid-cols-2"
     >
       <input type="hidden" name="shortlist" value={names.join(", ")} />
-      <Field label="Name" error={errors.name}>
+      <input type="hidden" name={LOCALE_FIELD} value={locale} />
+      <Field label={t.name.label} error={errors.name}>
         <input
           name="name"
           autoComplete="name"
-          placeholder="Your full name"
+          placeholder={t.name.placeholder}
           maxLength={REQUEST_LIMITS.name}
           defaultValue={values.name}
           aria-invalid={!!errors.name}
           className={`${FIELD} h-[49px]`}
         />
       </Field>
-      <Field label="Email" error={errors.email}>
+      <Field label={t.email.label} error={errors.email}>
         <input
           name="email"
           type="email"
+          dir="ltr"
           autoComplete="email"
-          placeholder="you@example.com"
+          placeholder={t.email.placeholder}
           maxLength={REQUEST_LIMITS.email}
           defaultValue={values.email}
           aria-invalid={!!errors.email}
-          className={`${FIELD} h-[49px]`}
+          className={`${FIELD} h-[49px] rtl:text-right`}
         />
       </Field>
-      <Field label="Region" error={errors.region}>
-        <Select name="region" placeholder="Select region" options={regions} value={values.region} invalid={!!errors.region} />
+      <Field label={t.region.label} error={errors.region}>
+        <Select name="region" placeholder={t.region.placeholder} options={regions} value={values.region} invalid={!!errors.region} />
       </Field>
-      <Field label="Ticket size" error={errors.ticket}>
-        <Select name="ticket" placeholder="Select ticket size" options={tickets} value={values.ticket} invalid={!!errors.ticket} />
+      <Field label={t.ticket.label} error={errors.ticket}>
+        <Select name="ticket" placeholder={t.ticket.placeholder} options={tickets} value={values.ticket} invalid={!!errors.ticket} />
       </Field>
-      <SmePicker ref={picker} smes={smes} error={pickError} onPick={() => setPickMissing(false)} />
-      <Field label="Message" wide error={errors.message}>
+      <SmePicker ref={picker} smes={smes} labels={t} error={pickError} onPick={() => setPickMissing(false)} />
+      <Field label={t.message.label} wide error={errors.message}>
         <textarea
           name="message"
           rows={4}
-          placeholder="Tell us about your investment interests."
+          placeholder={t.message.placeholder}
           maxLength={REQUEST_LIMITS.message}
           defaultValue={values.message}
           aria-invalid={!!errors.message}
@@ -181,15 +196,17 @@ export function RequestAccessForm({
       <div className="-mt-[10px] sm:col-span-2">
         {/* Off-screen and skipped by keyboard and screen readers: only bots fill
             it. It sits inside this block rather than directly in the grid, where
-            the site's scroll reveal would pick it up and wait on it forever. */}
-        <div aria-hidden className="absolute left-[-10000px] top-0 h-px w-px overflow-hidden">
+            the site's scroll reveal would pick it up and wait on it forever. Pushed
+            off the inline start, which on a right-to-left page is the right: off
+            the left there it would widen the page's scroll area. */}
+        <div aria-hidden className="absolute -inset-s-[10000px] top-0 h-px w-px overflow-hidden">
           <label>
-            Company website
+            {t.honeypot}
             <input name={HONEYPOT_FIELD} type="text" tabIndex={-1} autoComplete="off" defaultValue="" />
           </label>
         </div>
         <p className="text-[13px] leading-[18px] text-kneks-muted">
-          Your details are used only to coordinate investor access and introductions.
+          {t.privacy}
         </p>
         {failed?.formError ? (
           <p role="alert" className="mt-[12px] text-[14px] leading-[20px] text-[#b3261e]">
@@ -201,8 +218,8 @@ export function RequestAccessForm({
           disabled={pending}
           className="mt-[18px] flex h-[43px] items-center gap-[10px] rounded-md bg-kneks-gold px-5 text-[14px] font-semibold text-kneks-earth transition-colors hover:bg-[#a87a20] disabled:cursor-wait disabled:opacity-70"
         >
-          {pending ? "Sending…" : "Send request"}
-          <svg viewBox="0 0 16 16" aria-hidden className="size-[13px]" fill="none" stroke="currentColor" strokeWidth={1.8}>
+          {pending ? t.sending : t.send}
+          <svg viewBox="0 0 16 16" aria-hidden className="size-[13px] rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth={1.8}>
             <path d="M3 13L13 3M5.5 3H13v7.5" />
           </svg>
         </button>
@@ -212,7 +229,13 @@ export function RequestAccessForm({
 }
 
 /** Takes the form's place once the request is stored, and takes focus with it. */
-function RequestSent({ shortlist }: { shortlist: string[] }) {
+function RequestSent({
+  shortlist,
+  labels,
+}: {
+  shortlist: string[];
+  labels: KneksLabels["form"]["sent"];
+}) {
   const panel = useRef<HTMLDivElement>(null);
   useEffect(() => panel.current?.focus(), []);
 
@@ -227,15 +250,14 @@ function RequestSent({ shortlist }: { shortlist: string[] }) {
         <svg viewBox="0 0 16 16" aria-hidden className="size-[18px] text-kneks-pine" fill="none" stroke="currentColor" strokeWidth={2}>
           <path d="M2.5 8.5l3.5 3.5 7.5-8.5" />
         </svg>
-        Request sent
+        {labels.title}
       </p>
       <p className="mt-[10px] text-[16px] leading-[26px] text-kneks-muted">
-        Thanks, we&apos;ll be in touch. Expect the current SME list and an
-        invitation to an intro call.
+        {labels.body}
       </p>
       {shortlist.length ? (
         <p className="mt-[14px] text-[13px] leading-[18px] text-kneks-muted">
-          Your shortlist went with it: {shortlist.join(", ")}.
+          {format(labels.shortlist, { names: shortlist.join(", ") })}
         </p>
       ) : null}
     </div>
@@ -250,11 +272,13 @@ function RequestSent({ shortlist }: { shortlist: string[] }) {
 function SmePicker({
   ref,
   smes,
+  labels,
   error,
   onPick,
 }: {
   ref: React.Ref<HTMLFieldSetElement>;
   smes: SmeOption[];
+  labels: KneksLabels["form"];
   error?: string;
   onPick: () => void;
 }) {
@@ -264,11 +288,11 @@ function SmePicker({
 
   return (
     <fieldset ref={ref} aria-describedby={error ? errorId : undefined} className="min-w-0 sm:col-span-2">
-      <legend className="sr-only">SMEs you&apos;re interested in</legend>
+      <legend className="sr-only">{labels.smesLabel}</legend>
       <div aria-hidden className="flex items-baseline justify-between gap-4">
-        <span className="text-[13px] font-semibold leading-[18px] text-kneks-ink">SMEs you&apos;re interested in</span>
+        <span className="text-[13px] font-semibold leading-[18px] text-kneks-ink">{labels.smesLabel}</span>
         <span className="text-[13px] leading-[18px] text-kneks-muted">
-          {names.length ? `${names.length} selected` : "Pick at least one"}
+          {names.length ? format(labels.selected, { count: names.length }) : labels.pickAtLeastOne}
         </span>
       </div>
       <ul className="mt-[7px] grid max-h-[250px] gap-2 overflow-y-auto sm:grid-cols-2">
@@ -294,7 +318,7 @@ function SmePicker({
                 </span>
                 {sme.funded ? (
                   <span className="shrink-0 rounded-full border border-kneks-gold bg-kneks-sand px-2 py-[2px] text-[11px] font-semibold leading-[15px] text-kneks-earth">
-                    Funded
+                    {labels.funded}
                   </span>
                 ) : null}
                 <input
@@ -308,7 +332,7 @@ function SmePicker({
                   aria-describedby={error ? errorId : undefined}
                   className="size-[18px] shrink-0 cursor-pointer accent-kneks-pine"
                 />
-                <span className="sr-only">, {sme.sector}, {sme.city}{sme.funded ? ", funded" : ""}</span>
+                <span className="sr-only">, {sme.sector}, {sme.city}{sme.funded ? labels.fundedSr : ""}</span>
               </label>
             </li>
           );
@@ -367,7 +391,7 @@ function Select({
         name={name}
         defaultValue={value && options.includes(value) ? value : ""}
         aria-invalid={invalid}
-        className={`${FIELD} h-[49px] appearance-none pr-10 invalid:text-kneks-muted`}
+        className={`${FIELD} h-[49px] appearance-none pe-10 invalid:text-kneks-muted`}
         required
       >
         <option value="" disabled>
@@ -377,7 +401,7 @@ function Select({
           <option key={option}>{option}</option>
         ))}
       </select>
-      <svg viewBox="0 0 16 16" aria-hidden className="pointer-events-none absolute right-[17px] top-1/2 size-[13px] -translate-y-1/2 stroke-kneks-ink" fill="none" strokeWidth={1.8}>
+      <svg viewBox="0 0 16 16" aria-hidden className="pointer-events-none absolute inset-e-[17px] top-1/2 size-[13px] -translate-y-1/2 stroke-kneks-ink" fill="none" strokeWidth={1.8}>
         <path d="M3 6l5 5 5-5" />
       </svg>
     </span>

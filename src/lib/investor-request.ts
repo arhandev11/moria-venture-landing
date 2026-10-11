@@ -23,6 +23,12 @@ export const HONEYPOT_FIELD = "company_website";
  */
 export const SHORTLIST_FIELD = "shortlist";
 
+/**
+ * The page's language ("en", "id", "ar"), posted by the form so the action
+ * can word its messages to match; anything else reads as English.
+ */
+export const LOCALE_FIELD = "locale";
+
 /** Fields that can carry an inline error: the text inputs plus the SME picker. */
 export type RequestErrorField = RequestField | typeof SHORTLIST_FIELD;
 

@@ -42,6 +42,14 @@ export function HeroReveal() {
     hero.dataset.heroRevealDone = "1";
 
     /**
+     * On a right-to-left page an inline-block is a neutral to the bidi
+     * algorithm, so a run of Latin words wrapped one per box would come out in
+     * reverse ("Capital Ventures Moria"). Such a run stays in one box instead.
+     */
+    const rtl = document.documentElement.dir === "rtl";
+    const latin = (word: string) => /[A-Za-z]/.test(word) && !/[\u0590-\u08ff]/.test(word);
+
+    /**
      * Replaces each text node with one span per word, leaving element children
      * where they are. Returns the spans in document order.
      */
@@ -57,13 +65,23 @@ export function HeroReveal() {
       const words: HTMLElement[] = [];
       for (const text of texts) {
         const frag = document.createDocumentFragment();
+        let run: HTMLElement | null = null;
+        let gap = "";
         // Keep the separators: dropping them would re-flow the paragraph.
         for (const part of text.textContent!.split(/(\s+)/)) {
           if (!part) continue;
           if (!part.trim()) {
-            frag.appendChild(document.createTextNode(part));
+            if (run) gap = part;
+            else frag.appendChild(document.createTextNode(part));
             continue;
           }
+          if (run && latin(part)) {
+            run.textContent += gap + part;
+            gap = "";
+            continue;
+          }
+          if (gap) frag.appendChild(document.createTextNode(gap));
+          gap = "";
           const span = document.createElement("span");
           span.textContent = part;
           // Inline boxes cannot be transformed; inline-block can, and still
@@ -71,7 +89,9 @@ export function HeroReveal() {
           span.style.display = "inline-block";
           frag.appendChild(span);
           words.push(span);
+          run = rtl && latin(part) ? span : null;
         }
+        if (gap) frag.appendChild(document.createTextNode(gap));
         text.parentNode?.replaceChild(frag, text);
       }
       return words;

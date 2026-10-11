@@ -9,6 +9,8 @@ import {
   useSyncExternalStore,
   type ReactNode,
 } from "react";
+import { format } from "@/i18n/format";
+import type { Dictionary } from "@/i18n/types";
 
 /** How long a slide holds before the next one comes in on its own. */
 const HOLD_MS = 6000;
@@ -32,6 +34,13 @@ const watchVisibility = (onChange: () => void) => {
 
 const wrap = (i: number, n: number) => ((i % n) + n) % n;
 
+/**
+ * +1 on a left-to-right page, -1 on a right-to-left one. "Next" runs the way
+ * the page reads, so on an Arabic page it enters from the left and a swipe
+ * to the right moves forwards.
+ */
+const reading = () => (document.documentElement.dir === "rtl" ? -1 : 1);
+
 export type Slide = {
   /** Read out by the dots, e.g. "Moria Ventures". */
   label: string;
@@ -48,7 +57,7 @@ export type Slide = {
  * the tallest panel, if a very short screen cannot hold one) and the band below
  * never jumps. Only the panel leaving and the panel arriving move: the arriving
  * one is placed on the side it travels from, so "next" always runs leftwards
- * and "previous" rightwards, straight across the seam from the last slide to
+ * and "previous" rightwards (mirrored on a right-to-left page), straight across the seam from the last slide to
  * the first, without clones of any panel in the page. Panels out of view are
  * hidden and inert, which keeps their links out of the tab order and away from
  * screen readers.
@@ -59,7 +68,13 @@ export type Slide = {
  * background. Readers who have asked for reduced motion get no clock and no
  * sliding, only the switch.
  */
-export function HeroSlider({ slides }: { slides: Slide[] }) {
+export function HeroSlider({
+  slides,
+  labels,
+}: {
+  slides: Slide[];
+  labels: Dictionary["heroSlider"];
+}) {
   const n = slides.length;
   const [index, setIndex] = useState(0);
   // Bumped by every manual move, so the clock restarts from the reader's turn.
@@ -136,7 +151,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
 
     const out = panels[from] as HTMLElement;
     const into = panels[index] as HTMLElement;
-    const dir = heading.current;
+    const dir = heading.current * reading();
     const timing = {
       duration: hurry.current ? QUEUED_MS : SLIDE_MS,
       easing: SLIDE_EASE,
@@ -210,7 +225,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
       className="relative touch-pan-y overflow-clip"
       role="region"
       aria-roledescription="carousel"
-      aria-label="Highlights"
+      aria-label={labels.region}
       onFocus={(e) => {
         // Only keyboard focus holds the clock; a click leaves focus on the
         // arrow it pressed, and that must not stop the show.
@@ -226,7 +241,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
         if (touchX.current === null) return;
         const dx = e.clientX - touchX.current;
         touchX.current = null;
-        if (Math.abs(dx) >= SWIPE_PX) manual(dx < 0 ? 1 : -1);
+        if (Math.abs(dx) >= SWIPE_PX) manual((dx < 0 ? 1 : -1) * reading());
       }}
       onPointerCancel={() => {
         touchX.current = null;
@@ -239,7 +254,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
             key={slide.label}
             role="group"
             aria-roledescription="slide"
-            aria-label={`${i + 1} of ${n}: ${slide.label}`}
+            aria-label={format(labels.slide, { index: i + 1, total: n, label: slide.label })}
             inert={i !== index}
             className={`[grid-area:1/1] ${i === index ? "" : "invisible"}`}
           >
@@ -254,7 +269,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
         keeps clear.
       */}
       <div className="pointer-events-none absolute inset-0 flex items-end justify-center gap-3 pb-5 lg:pb-6">
-        <SlideArrow label="Previous slide" dark={dark} side="left" onClick={() => manual(-1)}>
+        <SlideArrow label={labels.previous} dark={dark} side="start" onClick={() => manual(-1)}>
           <path d="M15 6l-6 6 6 6" />
         </SlideArrow>
         <div
@@ -267,7 +282,7 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
               key={slide.label}
               type="button"
               onClick={() => showSlide(i)}
-              aria-label={`Show slide ${i + 1}: ${slide.label}`}
+              aria-label={format(labels.showSlide, { index: i + 1, label: slide.label })}
               aria-current={i === index}
               className="flex h-6 items-center px-1"
             >
@@ -283,14 +298,14 @@ export function HeroSlider({ slides }: { slides: Slide[] }) {
                 {i === index ? (
                   <span
                     ref={fill}
-                    className={`absolute inset-0 origin-left ${dark ? "bg-white" : "bg-indigo-brand"}`}
+                    className={`absolute inset-0 origin-left rtl:origin-right ${dark ? "bg-white" : "bg-indigo-brand"}`}
                   />
                 ) : null}
               </span>
             </button>
           ))}
         </div>
-        <SlideArrow label="Next slide" dark={dark} side="right" onClick={() => manual(1)}>
+        <SlideArrow label={labels.next} dark={dark} side="end" onClick={() => manual(1)}>
           <path d="M9 6l6 6-6 6" />
         </SlideArrow>
       </div>
@@ -307,7 +322,8 @@ function SlideArrow({
 }: {
   label: string;
   dark?: boolean;
-  side: "left" | "right";
+  /** Which edge it sits on from lg up; its chevron points that way, mirrored in RTL. */
+  side: "start" | "end";
   onClick: () => void;
   children: ReactNode;
 }) {
@@ -317,14 +333,14 @@ function SlideArrow({
       aria-label={label}
       onClick={onClick}
       className={`pointer-events-auto flex size-10 shrink-0 items-center justify-center rounded-full backdrop-blur-sm transition-colors duration-300 lg:absolute lg:top-1/2 lg:size-12 lg:-translate-y-1/2 ${
-        side === "left" ? "lg:left-4" : "lg:right-4"
+        side === "start" ? "lg:inset-s-4" : "lg:inset-e-4"
       } ${
         dark
           ? "bg-white/15 text-white shadow-[0_6px_20px_rgba(0,0,0,0.18)] ring-1 ring-white/55 hover:bg-white hover:text-[#156ba5]"
           : "bg-white text-indigo-brand shadow-[0_6px_20px_rgba(56,49,137,0.16)] ring-1 ring-indigo-brand/15 hover:bg-indigo-brand hover:text-gold"
       }`}
     >
-      <svg viewBox="0 0 24 24" aria-hidden className="size-[18px] lg:size-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+      <svg viewBox="0 0 24 24" aria-hidden className="size-[18px] lg:size-5 rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
         {children}
       </svg>
     </button>

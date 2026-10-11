@@ -5,27 +5,45 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Container } from "@/components/ui";
-
-const PORTFOLIO_MENU = [
-  { label: "Portfolio", href: "/portfolio" },
-  { label: "For Businesses", href: "/for-businesses" },
-  { label: "For Limited Partners", href: "/for-limited-partners" },
-  { label: "Indonesia–Saudi Corridor", href: "/corridor" },
-];
-
-const PARTNERS_MENU = [{ label: "KNEKS", href: "/kneks" }];
+import type { Locale } from "@/i18n/config";
+import { LanguageSwitcher } from "@/i18n/language-switcher";
+import { localizePath, splitLocale } from "@/i18n/paths";
+import type { Dictionary } from "@/i18n/types";
 
 type MenuItem = { label: string; href: string };
 
-export function SiteHeader() {
+/**
+ * The site's top bar. Every href is written as the English path and localised
+ * once here; the page you are on is matched on the path with its language
+ * stripped, which reads the same on the server (/en/about) and in the browser
+ * (/about or /id/about).
+ */
+export function SiteHeader({
+  locale,
+  labels,
+  switcherLabels,
+}: {
+  locale: Locale;
+  labels: Dictionary["header"];
+  switcherLabels: Dictionary["languageSwitcher"];
+}) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
+  const pathname = splitLocale(usePathname()).path;
+  const href = (path: string) => localizePath(locale, path);
+
+  const portfolioMenu: MenuItem[] = [
+    { label: labels.portfolioMenu.portfolio, href: "/portfolio" },
+    { label: labels.portfolioMenu.forBusinesses, href: "/for-businesses" },
+    { label: labels.portfolioMenu.forLimitedPartners, href: "/for-limited-partners" },
+    { label: labels.portfolioMenu.corridor, href: "/corridor" },
+  ];
+  const partnersMenu: MenuItem[] = [{ label: labels.partnersMenu.kneks, href: "/kneks" }];
 
   return (
     <header className="sticky top-0 z-50 border-b border-rule/60 bg-shell/95 backdrop-blur">
       <Container>
         <div className="flex h-[68px] items-center justify-between">
-          <Link href="/" aria-label="Moria Ventures — home">
+          <Link href={href("/")} aria-label={labels.homeLabel}>
             <Image
               src="/assets/brand/logo-wordmark.svg"
               alt="Moria Ventures"
@@ -37,18 +55,19 @@ export function SiteHeader() {
           </Link>
 
           <nav className="hidden items-center gap-8 lg:flex">
-            <TopLink href="/about" pathname={pathname}>About</TopLink>
-            <TopLink href="/what-we-do" pathname={pathname}>What We Do</TopLink>
-            <DropdownMenu label="Portfolio" items={PORTFOLIO_MENU} pathname={pathname} />
-            <DropdownMenu label="Partners" items={PARTNERS_MENU} pathname={pathname} />
-            <TopLink href="/contact" pathname={pathname}>Contact Us</TopLink>
+            <TopLink path="/about" locale={locale} pathname={pathname}>{labels.about}</TopLink>
+            <TopLink path="/what-we-do" locale={locale} pathname={pathname}>{labels.whatWeDo}</TopLink>
+            <DropdownMenu label={labels.portfolio} items={portfolioMenu} locale={locale} pathname={pathname} />
+            <DropdownMenu label={labels.partners} items={partnersMenu} locale={locale} pathname={pathname} />
+            <TopLink path="/contact" locale={locale} pathname={pathname}>{labels.contact}</TopLink>
+            <LanguageSwitcher locale={locale} labels={switcherLabels} />
           </nav>
 
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-label="Toggle navigation"
+            aria-label={labels.toggleNav}
             className="lg:hidden"
           >
             <svg viewBox="0 0 24 16" className="h-4 w-6 stroke-indigo-brand" strokeWidth={2}>
@@ -67,15 +86,15 @@ export function SiteHeader() {
           <Container>
             <ul className="flex flex-col py-2">
               {[
-                { label: "About", href: "/about" },
-                { label: "What We Do", href: "/what-we-do" },
-                ...PORTFOLIO_MENU,
-                ...PARTNERS_MENU,
-                { label: "Contact Us", href: "/contact" },
+                { label: labels.about, href: "/about" },
+                { label: labels.whatWeDo, href: "/what-we-do" },
+                ...portfolioMenu,
+                ...partnersMenu,
+                { label: labels.contact, href: "/contact" },
               ].map((item) => (
                 <li key={item.href}>
                   <Link
-                    href={item.href}
+                    href={href(item.href)}
                     onClick={() => setOpen(false)}
                     aria-current={pathname === item.href ? "page" : undefined}
                     className={`block py-3 text-[12px] font-bold uppercase tracking-[0.1em] ${pathname === item.href ? "text-indigo-brand" : "text-ink"}`}
@@ -85,6 +104,12 @@ export function SiteHeader() {
                 </li>
               ))}
             </ul>
+            <LanguageSwitcher
+              locale={locale}
+              labels={switcherLabels}
+              variant="mobile"
+              className="border-t border-rule/60 py-4"
+            />
           </Container>
         </nav>
       ) : null}
@@ -97,18 +122,20 @@ const ACTIVE = "text-indigo-brand underline decoration-1 underline-offset-[5px]"
 const TOP = "text-[11px] font-bold uppercase tracking-[0.1em]";
 
 function TopLink({
-  href,
+  path,
+  locale,
   pathname,
   children,
 }: {
-  href: string;
+  path: string;
+  locale: Locale;
   pathname: string;
   children: string;
 }) {
-  const active = pathname === href;
+  const active = pathname === path;
   return (
     <Link
-      href={href}
+      href={localizePath(locale, path)}
       aria-current={active ? "page" : undefined}
       className={`${TOP} ${active ? ACTIVE : "text-ink hover:text-indigo-brand"}`}
     >
@@ -120,10 +147,12 @@ function TopLink({
 function DropdownMenu({
   label,
   items,
+  locale,
   pathname,
 }: {
   label: string;
   items: MenuItem[];
+  locale: Locale;
   pathname: string;
 }) {
   const active = items.some((item) => item.href === pathname);
@@ -138,11 +167,11 @@ function DropdownMenu({
           <path d="M0 0h10L5 6z" />
         </svg>
       </button>
-      <ul className="invisible absolute left-0 top-full w-64 border border-rule bg-shell py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+      <ul className="invisible absolute inset-s-0 top-full w-64 border border-rule bg-shell py-2 opacity-0 shadow-sm transition group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
         {items.map((item) => (
           <li key={item.href}>
             <Link
-              href={item.href}
+              href={localizePath(locale, item.href)}
               aria-current={item.href === pathname ? "page" : undefined}
               className={`block px-4 py-2 text-[13px] hover:bg-cream hover:text-indigo-brand ${item.href === pathname ? "text-indigo-brand" : "text-ink"}`}
             >

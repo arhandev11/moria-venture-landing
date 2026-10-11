@@ -25,6 +25,7 @@ const INPUT: Record<FieldSize, Record<FieldTone, string>> = {
 
 export function Field({
   label,
+  name,
   placeholder,
   type = "text",
   rows,
@@ -33,6 +34,12 @@ export function Field({
   className = "",
 }: {
   label: string;
+  /**
+   * The field's id and name. Pass it whenever the label is translated: the
+   * fallback is built from the label's Latin letters, which an Arabic label
+   * does not have.
+   */
+  name?: string;
   placeholder: string;
   type?: string;
   rows?: number;
@@ -40,7 +47,10 @@ export function Field({
   size?: FieldSize;
   className?: string;
 }) {
-  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  const id = name ?? label.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+  // Addresses and numbers read left to right in any language; on a
+  // right-to-left page they still sit against the right edge.
+  const ltr = type === "email" || type === "tel";
   const labelClass =
     size === "lg"
       ? "block text-[13px] font-bold uppercase tracking-[0.02em] text-indigo-brand"
@@ -69,8 +79,9 @@ export function Field({
           id={id}
           name={id}
           type={type}
+          dir={ltr ? "ltr" : undefined}
           placeholder={placeholder}
-          className={`${size === "lg" ? "mt-3" : "mt-2"} ${inputClass}`}
+          className={`${size === "lg" ? "mt-3" : "mt-2"} ${inputClass}${ltr ? " rtl:text-right" : ""}`}
         />
       )}
     </div>

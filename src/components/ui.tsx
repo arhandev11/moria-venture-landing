@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
-import Link from "next/link";
+import { LocaleLink } from "@/i18n/locale-context";
 import type { ComponentProps, ReactNode } from "react";
 
 type Tone = "indigo" | "gold" | "outline" | "outline-on-gold";
@@ -14,6 +14,7 @@ const TONE: Record<Tone, string> = {
     "border border-indigo-brand text-indigo-brand hover:bg-indigo-brand hover:text-gold",
 };
 
+/** A call to action. Internal links keep the reader in their language. */
 export function Button({
   href = "#",
   tone = "indigo",
@@ -24,12 +25,12 @@ export function Button({
   children: ReactNode;
 }) {
   return (
-    <Link
+    <LocaleLink
       href={href}
       className={`t-label inline-flex h-[47px] items-center justify-center px-[34px] transition-colors ${TONE[tone]}`}
     >
       {children}
-    </Link>
+    </LocaleLink>
   );
 }
 
@@ -147,7 +148,7 @@ export function PageHero({
   padding = "pb-[100px] pt-[110px] lg:pb-[132px] lg:pt-[110px]",
   ledeGap = "mt-[45px]",
   ledeClassName = "t-lede max-w-[640px]",
-  markClassName = "absolute right-0 top-0 h-[300px] w-[159px] opacity-40 sm:opacity-100 lg:h-[470px] lg:w-[250px]",
+  markClassName = "absolute inset-e-0 top-0 rtl:-scale-x-100 h-[300px] w-[159px] opacity-40 sm:opacity-100 lg:h-[470px] lg:w-[250px]",
 }: {
   title: ReactNode;
   lede: ReactNode;
@@ -234,7 +235,7 @@ export function Stat({
   divider?: boolean;
 }) {
   return (
-    <div className={divider ? "border-l border-rule pl-6 first:border-l-0 first:pl-0" : ""}>
+    <div className={divider ? "border-s border-rule ps-6 first:border-s-0 first:ps-0" : ""}>
       <p className="t-stat text-indigo-brand">{value}</p>
       <p className="t-eyebrow mt-3 text-ink/70">{label}</p>
     </div>
@@ -323,7 +324,7 @@ export function ImageSlot({
     >
       <Supergraphic
         src="/assets/brand/supergraphic-wide.svg"
-        className="absolute -right-10 -top-10 h-[160%] w-auto opacity-70"
+        className="absolute -inset-e-10 -top-10 h-[160%] w-auto opacity-70 rtl:-scale-x-100"
       />
       <span className="t-eyebrow relative m-6 text-ink/40">
         {label ?? "Image placeholder"}

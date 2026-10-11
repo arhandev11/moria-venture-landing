@@ -2,9 +2,14 @@
 
 import Image from "next/image";
 import { createContext, useContext, useState, type ReactNode } from "react";
+import type { KneksLabels } from "@/components/kneks/sme-explorer";
+import { format } from "@/i18n/format";
 
 export type Hub = {
+  /** Stable id for the hub; also the fallback label. */
   name: string;
+  /** The city as the page's language writes it. */
+  label?: string;
   /** Position on the 1440 x 882 map artwork. */
   x: number;
   y: number;
@@ -13,7 +18,14 @@ export type Hub = {
   home?: boolean;
 };
 
-type HubState = { hubs: Hub[]; selected: string; select: (name: string) => void };
+type HubState = {
+  hubs: Hub[];
+  selected: string;
+  select: (name: string) => void;
+  labels: KneksLabels["hubs"];
+};
+
+const labelOf = (hub: Hub) => hub.label ?? hub.name;
 
 const HubContext = createContext<HubState | null>(null);
 
@@ -28,9 +40,17 @@ function useHubs() {
  * chips and card, which sit in the content column. They live at different
  * levels of the section, so the choice is held above both.
  */
-export function HubMapProvider({ hubs, children }: { hubs: Hub[]; children: ReactNode }) {
+export function HubMapProvider({
+  hubs,
+  labels,
+  children,
+}: {
+  hubs: Hub[];
+  labels: KneksLabels["hubs"];
+  children: ReactNode;
+}) {
   const [selected, select] = useState(hubs[0].name);
-  return <HubContext value={{ hubs, selected, select }}>{children}</HubContext>;
+  return <HubContext value={{ hubs, selected, select, labels }}>{children}</HubContext>;
 }
 
 /** A gentle sag on each route, so they read as flight paths, not rulers. */
@@ -67,14 +87,17 @@ const at = (x: number, y: number, lift = 0) => ({
  * It stops at 1.3x so on very wide screens the hubs never drift onto the card.
  *
  * Narrow screens keep the map as a backdrop and pick a hub from the chips.
+ *
+ * Geography does not mirror, so the stage is held left-to-right on an Arabic
+ * page too; only the type on it reads in the page's language.
  */
 export function HubMapBackdrop() {
-  const { hubs, selected, select } = useHubs();
+  const { hubs, selected, select, labels } = useHubs();
   const home = hubs.find((hub) => hub.home);
   const away = hubs.filter((hub) => !hub.home);
 
   return (
-    <div className="pointer-events-none absolute inset-0 [container-type:size]">
+    <div dir="ltr" className="pointer-events-none absolute inset-0 [container-type:size]">
       <div className="absolute left-1/2 top-1/2 aspect-[1440/882] w-[min(max(min(1440px,100cqw),68.12cqw,131.63cqh),1872px)] -translate-x-1/2 -translate-y-1/2">
         <Image
           src="/assets/kneks/map.svg"
@@ -113,12 +136,12 @@ export function HubMapBackdrop() {
                 type="button"
                 onClick={() => select(hub.name)}
                 aria-pressed={active}
-                aria-label={`${hub.name}: see who we are looking for there`}
+                aria-label={format(labels.pickAway, { name: labelOf(hub) })}
                 className="group pointer-events-auto absolute flex -translate-x-1/2 flex-col items-center"
                 style={at(hub.x, hub.y, 24)}
               >
                 <span className="text-[9px] font-bold leading-[15px] text-kneks-ink">
-                  {hub.name}
+                  {labelOf(hub)}
                 </span>
                 <span
                   className={`mt-[3px] block size-3 rounded-full bg-kneks-pine transition-shadow ${
@@ -136,12 +159,12 @@ export function HubMapBackdrop() {
               type="button"
               onClick={() => select(home.name)}
               aria-pressed={home.name === selected}
-              aria-label={`${home.name}, home base: see what we do there`}
+              aria-label={format(labels.pickHome, { name: labelOf(home) })}
               className="group pointer-events-auto absolute flex -translate-x-1/2 flex-col items-center"
               style={at(home.x, home.y, 56)}
             >
-              <span className="text-[12px] font-bold leading-[19px] text-kneks-ink">{home.name}</span>
-              <span className="text-[12px] leading-[19px] text-kneks-muted">Home base</span>
+              <span className="text-[12px] font-bold leading-[19px] text-kneks-ink">{labelOf(home)}</span>
+              <span className="text-[12px] leading-[19px] text-kneks-muted">{labels.homeBase}</span>
               <span
                 className={`mt-[1px] flex size-[34px] items-center justify-center rounded-full border-2 border-kneks-gold bg-kneks-pine transition-shadow ${
                   home.name === selected
@@ -163,7 +186,7 @@ export function HubMapBackdrop() {
 
 /** The chips that stand in for the dots on narrow screens, and the card that describes the chosen hub. */
 export function HubPicker() {
-  const { hubs, selected, select } = useHubs();
+  const { hubs, selected, select, labels } = useHubs();
   const current = hubs.find((hub) => hub.name === selected) ?? hubs[0];
 
   return (
@@ -181,7 +204,7 @@ export function HubPicker() {
                 : "border-kneks-line bg-white text-kneks-muted"
             }`}
           >
-            {hub.name}
+            {labelOf(hub)}
           </button>
         ))}
       </div>
@@ -195,7 +218,7 @@ export function HubPicker() {
             <circle cx="12" cy="12" r="9" />
             <path d="M8 12.5l2.8 2.8L16.5 9.5" />
           </svg>
-          {current.name} · Selected
+          {format(labels.selected, { name: labelOf(current) })}
         </p>
         <p className="text-[16px] leading-[26px] text-kneks-ink">{current.blurb}</p>
       </div>

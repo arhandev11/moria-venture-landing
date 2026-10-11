@@ -22,7 +22,7 @@ const TEXT_FIELDS = {
 
 /** Everything that shows SMEs: the public page and the admin list. */
 function refresh() {
-  revalidatePath("/kneks");
+  revalidatePath("/[lang]/kneks", "page");
   revalidatePath("/admin/smes");
 }
 

@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import Link from "next/link";
 import { Field, SubmitButton } from "@/components/form";
 import {
@@ -9,42 +8,24 @@ import {
   SectionTitle,
   Supergraphic,
 } from "@/components/ui";
+import { format } from "@/i18n/format";
+import { loadPage, metadataFor } from "@/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Contact",
-  description:
-    "Reach out to our teams in Jakarta and Riyadh. We bridge institutional capital demands with high-growth Islamic Principle-compliant operations.",
-};
+export const generateMetadata = ({ params }: PageProps<"/[lang]/contact">) =>
+  metadataFor(params, "/contact", (d) => d.contact.meta);
 
-const ROUTES = [
-  {
-    title: "For Investors & LPs",
-    body: "Interested in allocating to our Islamic Principle bilateral fund corridor or requesting data room access?",
-    cta: "Contact Investment Team",
-    email: "investors@moriaventures.com",
-  },
-  {
-    title: "For Businesses & Founders",
-    body: "Looking for Islamic Principle-compliant growth capital, project financing, or GCC expansion support?",
-    cta: "Contact Portfolio Team",
-    email: "portfolio@moriaventures.com",
-  },
-];
+/** Addresses per routed path, in the dictionary's order. */
+const ROUTE_EMAILS = ["investors@moriaventures.com", "portfolio@moriaventures.com"];
 
-const OFFICES = [
-  { region: "Southeast Asia HQ", city: "Jakarta", photo: "/assets/contact/jakarta.webp" },
-  { region: "GCC Regional HQ", city: "Riyadh", photo: "/assets/contact/riyadh.webp" },
-];
+/** Office photos, in the dictionary's order. */
+const OFFICE_PHOTOS = ["/assets/contact/jakarta.webp", "/assets/contact/riyadh.webp"];
 
-const DIRECT_LINES = [
-  { team: "Investor Relations", person: "Musab Bin Nosair", email: "ir@moriaglobal.com" },
-  { team: "Media and Press", person: "Corporate Communications", email: "media@moriaglobal.com" },
-  { team: "Portfolio Support", person: "Faris Achmad Kuddah", email: "ops@moriaglobal.com" },
-  {
-    team: "General Counsel",
-    person: "Islamic Principle Audit & Regulatory Desk",
-    email: "legal@moriaglobal.com",
-  },
+/** Addresses per direct line, in the dictionary's order. */
+const DIRECT_EMAILS = [
+  "ir@moriaglobal.com",
+  "media@moriaglobal.com",
+  "ops@moriaglobal.com",
+  "legal@moriaglobal.com",
 ];
 
 /** The deck's hairlines on this page are a cool grey, not the warm `rule`. */
@@ -55,20 +36,24 @@ const HAIRLINE = "border-hairline";
  * 80px short of it, so the split is drawn explicitly at desktop width.
  */
 const SPLIT = "grid gap-10 md:grid-cols-2 lg:grid-cols-[620px_minmax(0,1fr)] lg:gap-0";
-const SPLIT_FIRST = "lg:pr-20";
-const SPLIT_SECOND = `md:border-l md:pl-10 lg:pl-[119px] ${HAIRLINE}`;
+const SPLIT_FIRST = "lg:pe-20";
+const SPLIT_SECOND = `md:border-s md:ps-10 lg:ps-[119px] ${HAIRLINE}`;
 
 const EYEBROW = "text-[12.5px] font-bold uppercase tracking-[0.02em]";
 
-export default function ContactPage() {
+export default async function ContactPage({ params }: PageProps<"/[lang]/contact">) {
+  const { dict } = await loadPage(params);
+  const t = dict.contact;
+  const fields = t.inquiries.fields;
+
   return (
     <>
       <PageHero
-        title="Contact"
+        title={t.hero.title}
         padding="pb-[100px] pt-[110px] lg:pb-[123px] lg:pt-[73px]"
         ledeGap="mt-[28px]"
         ledeClassName="max-w-[720px] text-[21px] leading-[32px]"
-        lede="Reach out to our teams in Jakarta and Riyadh. We bridge institutional capital demands with high-growth Islamic Principle-compliant operations."
+        lede={t.hero.lede}
       />
 
       {/* Routed paths */}
@@ -77,15 +62,15 @@ export default function ContactPage() {
           {/* Corners are baked into the artwork, so the slot stays square. */}
           <ImageSlot
             src="/assets/contact/routed-paths.webp"
-            alt="The Moria reception"
+            alt={t.routed.imageAlt}
             ratio="aspect-[1280/360]"
             rounded="rounded-none"
           />
 
-          <SectionTitle className="mt-[74px]">Routed Paths</SectionTitle>
+          <SectionTitle className="mt-[74px]">{t.routed.title}</SectionTitle>
 
           <div className={`mt-[79px] ${SPLIT}`}>
-            {ROUTES.map((route, i) => (
+            {t.routed.routes.map((route, i) => (
               <div key={route.title} className={i === 1 ? SPLIT_SECOND : SPLIT_FIRST}>
                 <h3 className="text-[24px] font-semibold leading-[30px] text-indigo-brand">
                   {route.title}
@@ -95,10 +80,10 @@ export default function ContactPage() {
                 </p>
                 <p className={`mt-[25px] text-gold ${EYEBROW}`}>{route.cta}</p>
                 <Link
-                  href={`mailto:${route.email}`}
+                  href={`mailto:${ROUTE_EMAILS[i]}`}
                   className="mt-[6px] inline-block text-[14px] text-ink hover:text-indigo-brand"
                 >
-                  {route.email}
+                  {ROUTE_EMAILS[i]}
                 </Link>
               </div>
             ))}
@@ -109,11 +94,11 @@ export default function ContactPage() {
       {/* Offices */}
       <Section tone="cream" className={`border-t ${HAIRLINE}`}>
         <Container className={`pb-[121px] pt-[120px] ${SPLIT}`}>
-          {OFFICES.map((office, i) => (
+          {t.offices.map((office, i) => (
             <div key={office.city} className={i === 1 ? SPLIT_SECOND : SPLIT_FIRST}>
               <ImageSlot
-                src={office.photo}
-                alt={`${office.city} skyline`}
+                src={OFFICE_PHOTOS[i]}
+                alt={format(dict.common.skylineAlt, { city: office.city })}
                 ratio="aspect-[9/4]"
                 rounded="rounded-lg"
               />
@@ -129,31 +114,31 @@ export default function ContactPage() {
       {/* General inquiries */}
       <Section className={`border-y ${HAIRLINE}`}>
         <Container className="pb-[119px] pt-[117px]">
-          <SectionTitle>General Inquiries</SectionTitle>
+          <SectionTitle>{t.inquiries.title}</SectionTitle>
           <p className="mt-[26px] max-w-[620px] text-[16px] leading-[24px] text-ink">
-            Submit your investment criteria or business details. Our Islamic
-            Principle compliance board and underwriting team review inquiries
-            within 3 business days.
+            {t.inquiries.lede}
           </p>
 
           <form className="mt-[79px] max-w-[720px]">
             <div className="space-y-[26px]">
-              <Field size="lg" label="Full Name" placeholder="e.g. Sarah Mansour" />
+              <Field size="lg" name="full-name" label={fields.fullName.label} placeholder={fields.fullName.placeholder} />
               <Field
                 size="lg"
-                label="Email Address"
+                name="email-address"
+                label={fields.email.label}
                 type="email"
-                placeholder="e.g. sarah.m@company.com"
+                placeholder={fields.email.placeholder}
               />
               <Field
                 size="lg"
-                label="Phone Number"
+                name="phone-number"
+                label={fields.phone.label}
                 type="tel"
-                placeholder="e.g. +62 812 3456 7890"
+                placeholder={fields.phone.placeholder}
               />
             </div>
             <SubmitButton size="lg" className="mt-[31px]">
-              Submit Inquiry
+              {t.inquiries.submit}
             </SubmitButton>
           </form>
         </Container>
@@ -165,28 +150,26 @@ export default function ContactPage() {
           src="/assets/brand/supergraphic-direct-lines.svg"
           width={628}
           height={767}
-          className="absolute right-0 top-0 hidden h-full w-auto md:block"
+          className="absolute inset-e-0 top-0 hidden h-full w-auto md:block rtl:-scale-x-100"
         />
         <Container className="relative pb-[117px] pt-[116px]">
-          <h2 className="t-section text-indigo-brand">Direct Lines</h2>
+          <h2 className="t-section text-indigo-brand">{t.directLines.title}</h2>
           <p className="mt-[27px] max-w-[620px] text-[16px] leading-[24px] text-indigo-brand/70">
-            Contact specific global execution teams directly for rapid
-            resolution of operational, Islamic Principle compliance, or
-            investor queries.
+            {t.directLines.lede}
           </p>
 
           <div className="mt-[111px] grid gap-x-16 md:grid-cols-2">
-            {DIRECT_LINES.map((line) => (
+            {t.directLines.lines.map((line, i) => (
               <div key={line.team} className="border-b border-indigo-brand/20 pb-[28px] pt-[29px] first:pt-0 md:[&:nth-child(2)]:pt-0">
                 <p className={`text-indigo-brand/60 ${EYEBROW}`}>{line.team}</p>
                 <p className="mt-[15px] text-[22px] font-semibold leading-[28px] text-indigo-brand">
                   {line.person}
                 </p>
                 <Link
-                  href={`mailto:${line.email}`}
+                  href={`mailto:${DIRECT_EMAILS[i]}`}
                   className="mt-[4px] inline-block text-[15px] font-bold text-indigo-brand hover:underline"
                 >
-                  {line.email}
+                  {DIRECT_EMAILS[i]}
                 </Link>
               </div>
             ))}
