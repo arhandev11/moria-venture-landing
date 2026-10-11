@@ -2,6 +2,7 @@ import Image from "next/image";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { CtaBand } from "@/components/cta-band";
 import { HeroSlider } from "@/components/hero-slider";
+import { KneksFacts } from "@/components/kneks/kneks-facts";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { Button, Container, Section, SectionTitle } from "@/components/ui";
@@ -339,19 +340,7 @@ function KneksSlide({
           Only beside the copy, from xl up. Stacked under it they would make
           this panel, and so the whole hero, taller than the first.
         */}
-        <dl data-slide-rise className="hidden gap-4 self-center xl:grid">
-          {t.facts.map((fact) => (
-            <div
-              key={fact.value}
-              className="rounded-xl border border-white/25 bg-white/10 px-6 py-5 backdrop-blur-[6px]"
-            >
-              <dt className="text-[28px] font-bold leading-[34px] tracking-[-0.01em] text-gold">
-                {fact.value}
-              </dt>
-              <dd className="mt-2 text-[14px] leading-[21px]">{fact.label}</dd>
-            </div>
-          ))}
-        </dl>
+        <KneksFacts data-slide-rise facts={t.facts} tone="dark" className="hidden gap-4 self-center xl:grid" />
       </Container>
     </section>
   );

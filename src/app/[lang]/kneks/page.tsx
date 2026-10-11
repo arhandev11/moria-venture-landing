@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { HubMapBackdrop, HubMapProvider, HubPicker, type Hub } from "@/components/kneks/hub-map";
+import { KneksFacts } from "@/components/kneks/kneks-facts";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { ProgramSteps } from "@/components/kneks/program-steps";
 import { RequestAccessForm, ShortlistCard } from "@/components/kneks/request-access";
@@ -124,6 +125,17 @@ export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) 
           <p className="mt-[25px] text-[13px] leading-[18px] text-kneks-muted">
             {t.hero.tagline}
           </p>
+          {/*
+            The homepage slide's KNEKS facts, as a row under the call to action.
+            A column beside the copy would not fit: the headline alone runs to
+            ~850px in Arabic and would be forced onto extra lines. HeroReveal
+            brings it in as one block after the tagline, as the slide does.
+          */}
+          <KneksFacts
+            facts={dict.home.kneksSlide.facts}
+            tone="light"
+            className="mt-10 grid gap-3 lg:mt-[44px] lg:grid-cols-3 lg:gap-5"
+          />
         </Wrap>
       </section>
 
