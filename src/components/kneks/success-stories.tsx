@@ -103,8 +103,9 @@ function StoryCard({ story, locale, labels }: { story: PublicStorySummary; local
       </div>
       <div className="flex flex-1 flex-col px-[8px] pb-[8px] pt-[20px]">
         {eyebrow ? (
-          <p className="truncate text-[12px] font-bold uppercase leading-[16px] tracking-[0.02em] text-kneks-pine">
-            <bdi>{eyebrow}</bdi>
+          // Left to right even on an Arabic page, so a long name is cut at its end, not its start.
+          <p dir="ltr" className="truncate text-[12px] font-bold uppercase leading-[16px] tracking-[0.02em] text-kneks-pine rtl:text-right">
+            {eyebrow}
           </p>
         ) : null}
         <h3 lang="en" dir="ltr" className="mt-[10px] text-start text-[20px] font-bold leading-[26px] text-kneks-ink">

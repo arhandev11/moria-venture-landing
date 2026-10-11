@@ -296,7 +296,8 @@ function SmeCard({
       </div>
 
       <div className="border-t border-[#e0eae3] px-[23px] pb-[23px] pt-[24px]">
-        <p className="truncate text-[14px] leading-[20px] text-kneks-muted">
+        {/* Stored English, set left to right so a long line is cut at its end on an Arabic page too. */}
+        <p dir="ltr" className="truncate text-[14px] leading-[20px] text-kneks-muted rtl:text-right">
           {placeOf(sme)}
         </p>
         {funded && !amount ? null : (
@@ -311,7 +312,7 @@ function SmeCard({
               {t.funded}
             </span>
           ) : pill ? (
-            <span className="min-w-0 truncate rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
+            <span dir="ltr" className="min-w-0 truncate rounded-full bg-kneks-mist px-[10px] py-[5px] text-[13px] font-semibold leading-[17px] text-kneks-ink">
               {pill}
             </span>
           ) : (

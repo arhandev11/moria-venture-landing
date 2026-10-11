@@ -1026,7 +1026,7 @@ const id = {
     shortlist: {
       title: "Daftar pilihan Anda",
       empty: "Belum ada.",
-      hint: "Beri bintang pada UMKM, atau pilih di formulir, untuk menyertakannya dalam permintaan Anda.",
+      hint: "Pilih UMKM lewat koinnya, atau di formulir, untuk menyertakannya dalam permintaan Anda.",
       add: "Tambahkan {name} ke daftar pilihan",
       remove: "Hapus {name} dari daftar pilihan",
     },

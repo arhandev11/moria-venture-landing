@@ -1017,7 +1017,7 @@ const en = {
     shortlist: {
       title: "Your shortlist",
       empty: "None yet.",
-      hint: "Star an SME, or pick it in the form, to include it with your request.",
+      hint: "Pick an SME with its coin, or in the form, to include it with your request.",
       add: "Add {name} to shortlist",
       remove: "Remove {name} from shortlist",
     },
