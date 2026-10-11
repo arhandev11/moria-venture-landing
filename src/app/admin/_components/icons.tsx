@@ -25,6 +25,7 @@ export const LogoutIcon = (p: P) => <Icon {...p}><path d="M15 4h3a1 1 0 011 1v14
 export const ExternalIcon = (p: P) => <Icon {...p}><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 01-1 1H5a1 1 0 01-1-1V7a1 1 0 011-1h5" /></Icon>;
 export const ArrowLeftIcon = (p: P) => <Icon {...p}><path d="M19 12H5M11 6l-6 6 6 6" /></Icon>;
 export const ChevronRightIcon = (p: P) => <Icon {...p}><path d="M9 6l6 6-6 6" /></Icon>;
+export const StoryIcon = (p: P) => <Icon {...p}><path d="M5 4h11l3 3v13H5z" /><path d="M8.5 10h7M8.5 13.5h7M8.5 17h4" /></Icon>;
 export const MailIcon = (p: P) => <Icon {...p}><rect x="3" y="5" width="18" height="14" rx="1.5" /><path d="M3.5 6l8.5 7 8.5-7" /></Icon>;
 
 /** Six dots: the drag handle. */

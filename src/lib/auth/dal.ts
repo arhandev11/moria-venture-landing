@@ -1,7 +1,7 @@
 import "server-only";
 import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
-import { homeFor, SME_EDITORS, SUPERADMIN_ONLY, type AdminRole } from "./roles";
+import { homeFor, SME_EDITORS, STORY_EDITORS, SUPERADMIN_ONLY, type AdminRole } from "./roles";
 import { readSession } from "./session";
 
 /**
@@ -38,6 +38,11 @@ export function requireSuperadmin() {
 /** Pages that edit the SMEs: open to both roles. */
 export function requireSmeEditor() {
   return requireRole(SME_EDITORS);
+}
+
+/** Pages that edit the success stories: open to both roles. */
+export function requireStoryEditor() {
+  return requireRole(STORY_EDITORS);
 }
 
 /**

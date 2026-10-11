@@ -1021,6 +1021,33 @@ const en = {
       add: "Add {name} to shortlist",
       remove: "Remove {name} from shortlist",
     },
+    /**
+     * Success stories: the section between the SMEs and the graduates, and
+     * each story's own page. Story text is shown as entered (English) in
+     * every language; only these labels are translated.
+     */
+    stories: {
+      eyebrow: "Program journeys",
+      title: "Success stories",
+      lede: "How SMEs move through the program, from screening and mentoring to investor conversations.",
+      sample: "Sample story",
+      sampleNote: "Sample story, illustrative only. It describes the program journey in general terms and is not a factual account.",
+      readStory: "Read story",
+      readStoryAbout: "Read story: {title}",
+      back: "Back to success stories",
+      published: "Published {date}",
+      metaTitle: "{title} · Success story",
+      englishOnly: "",
+      aboutSme: "About {name}",
+      aboutSmeBody: "{name} is one of the SMEs in the KNEKS × Moria program.",
+      sector: "Sector",
+      seeSmes: "See the SMEs in the program",
+      cta: {
+        title: "Interested in SMEs like this one?",
+        body: "Tell us your region and ticket size. We will send the current SME list and set up an intro call.",
+        button: "Request investor access",
+      },
+    },
     graduates: {
       title: "Graduates who raised funding",
       lede: "Two sample graduates illustrate the cross-border funding pathway.",

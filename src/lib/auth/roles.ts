@@ -6,8 +6,9 @@
  */
 
 /**
- * A superadmin runs everything; a kneks user only edits the SMEs on /kneks,
- * and never sees investor requests, their emails or other admins.
+ * A superadmin runs everything; a kneks user only edits the SMEs and the
+ * success stories on /kneks, and never sees investor requests, their emails
+ * or other admins.
  */
 export const ADMIN_ROLES = ["superadmin", "kneks"] as const;
 export type AdminRole = (typeof ADMIN_ROLES)[number];
@@ -16,6 +17,8 @@ export type AdminRole = (typeof ADMIN_ROLES)[number];
 export const SUPERADMIN_ONLY: readonly AdminRole[] = ["superadmin"];
 /** The SME list on /kneks: both roles. */
 export const SME_EDITORS: readonly AdminRole[] = ["superadmin", "kneks"];
+/** The success stories on /kneks: both roles, since KNEKS writes them. */
+export const STORY_EDITORS: readonly AdminRole[] = SME_EDITORS;
 
 export const ROLE_LABELS: Record<AdminRole, string> = {
   superadmin: "Superadmin",
@@ -24,7 +27,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = {
 
 export const ROLE_SUMMARIES: Record<AdminRole, string> = {
   superadmin: "Everything, including investor requests and other admins.",
-  kneks: "Only the SMEs on the KNEKS page. No investor requests, no emails.",
+  kneks: "Only the SMEs and success stories on the KNEKS page. No investor requests, no emails.",
 };
 
 export function isAdminRole(value: unknown): value is AdminRole {

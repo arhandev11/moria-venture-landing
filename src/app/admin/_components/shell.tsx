@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 import { FeedbackProvider } from "./feedback";
-import { BuildingIcon, CloseIcon, HomeIcon, InboxIcon, ListIcon, LogoutIcon, MenuIcon, UserIcon, UsersIcon } from "./icons";
-import { homeFor, SME_EDITORS, SUPERADMIN_ONLY, type AdminRole } from "@/lib/auth/roles";
+import { BuildingIcon, CloseIcon, HomeIcon, InboxIcon, ListIcon, LogoutIcon, MenuIcon, StoryIcon, UserIcon, UsersIcon } from "./icons";
+import { homeFor, SME_EDITORS, STORY_EDITORS, SUPERADMIN_ONLY, type AdminRole } from "@/lib/auth/roles";
 import { FOCUS } from "./ui";
 
 const EVERYONE: readonly AdminRole[] = ["superadmin", "kneks"];
@@ -22,6 +22,7 @@ const GROUPS = [
       { href: "/admin", label: "Overview", icon: HomeIcon, exact: true, roles: SUPERADMIN_ONLY },
       { href: "/admin/submissions", label: "Investor requests", icon: InboxIcon, roles: SUPERADMIN_ONLY },
       { href: "/admin/smes", label: "SMEs", icon: BuildingIcon, roles: SME_EDITORS },
+      { href: "/admin/stories", label: "Success stories", icon: StoryIcon, roles: STORY_EDITORS },
       { href: "/admin/options", label: "Form options", icon: ListIcon, roles: SUPERADMIN_ONLY },
     ],
   },
@@ -41,6 +42,7 @@ const TITLES: [RegExp, string[]][] = [
   [/^\/admin\/smes\/new$/, ["SMEs", "Add SME"]],
   [/^\/admin\/smes\/\d+$/, ["SMEs", "Edit SME"]],
   [/^\/admin\/smes/, ["SMEs"]],
+  [/^\/admin\/stories/, ["Success stories"]],
   [/^\/admin\/options/, ["Form options"]],
   [/^\/admin\/users/, ["Admins"]],
   [/^\/admin\/account/, ["Account"]],

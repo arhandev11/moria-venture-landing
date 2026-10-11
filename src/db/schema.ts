@@ -2,6 +2,7 @@ import {
   bigint,
   boolean,
   char,
+  date,
   index,
   int,
   mysqlEnum,
@@ -160,6 +161,44 @@ export const investorRequests = mysqlTable(
   (t) => [index("investor_requests_created_idx").on(t.createdAt)],
 );
 
+/**
+ * Articles under "Success stories" on /kneks, each with its own page at
+ * /kneks/stories/[slug]. Content is stored as written (English) and shown
+ * as is in every language. The body is plain text with a tiny markup the
+ * public page renders itself (see src/lib/story-markup.ts), never as HTML.
+ */
+export const successStories = mysqlTable(
+  "success_stories",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    /** The URL segment; made from the title, editable, unique. */
+    slug: varchar("slug", { length: 120 }).notNull().unique(),
+    title: varchar("title", { length: 160 }).notNull(),
+    /** The card's summary. */
+    excerpt: varchar("excerpt", { length: 300 }).notNull(),
+    body: text("body").notNull(),
+    /** Uploaded cover: a file name inside UPLOAD_DIR/stories, served by /media/stories/[file]. Wins over coverAsset. */
+    coverFile: varchar("cover_file", { length: 100 }),
+    /** A cover shipped with the site, as a path under /assets/ (the seeded samples use these). */
+    coverAsset: varchar("cover_asset", { length: 200 }),
+    coverAlt: varchar("cover_alt", { length: 200 }),
+    /** The SME the story is about; the story stays when the SME is deleted. */
+    smeId: int("sme_id").references(() => smes.id, { onDelete: "set null" }),
+    /** Author or source line, as written. */
+    sourceLine: varchar("source_line", { length: 200 }),
+    /** The date shown on the story, as YYYY-MM-DD with no time zone to shift it. */
+    publishedAt: date("published_at", { mode: "string" }).notNull(),
+    /** Illustrative content: the public page marks it "Sample story". */
+    isSample: boolean("is_sample").notNull().default(false),
+    published: boolean("published").notNull().default(true),
+    sortOrder: int("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow().onUpdateNow(),
+  },
+  (t) => [index("success_stories_order_idx").on(t.published, t.sortOrder), index("success_stories_sme_idx").on(t.smeId)],
+);
+
 export type SmeRow = typeof smes.$inferSelect;
 export type FormOptionRow = typeof formOptions.$inferSelect;
 export type InvestorRequestRow = typeof investorRequests.$inferSelect;
+export type SuccessStoryRow = typeof successStories.$inferSelect;

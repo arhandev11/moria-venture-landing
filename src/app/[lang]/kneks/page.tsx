@@ -8,10 +8,12 @@ import { ProgramSteps } from "@/components/kneks/program-steps";
 import { RequestAccessForm, ShortlistCard } from "@/components/kneks/request-access";
 import { ShortlistProvider } from "@/components/kneks/shortlist";
 import { SmeExplorer } from "@/components/kneks/sme-explorer";
+import { SuccessStories } from "@/components/kneks/success-stories";
 import { lines } from "@/i18n/rich";
 import { loadPage, metadataFor } from "@/i18n/server";
 import type { Dictionary } from "@/i18n/types";
 import { getFormOptions, getPublishedSmes, pipelineStats } from "@/lib/kneks-data";
+import { getPublishedStories } from "@/lib/stories-data";
 
 export const generateMetadata = ({ params }: PageProps<"/[lang]/kneks">) =>
   metadataFor(params, "/kneks", (d) => d.kneks.meta);
@@ -39,6 +41,14 @@ const HUBS: (Omit<Hub, "name" | "blurb"> & { key: keyof Dictionary["kneks"]["hub
 const BAND =
   "bg-[linear-gradient(116deg,#156ba5,#1db45f)] rtl:bg-[linear-gradient(244deg,#156ba5,#1db45f)]";
 
+/**
+ * The graduates' band: the same sweep, opened with Moria's indigo so the
+ * funded section reads as Moria's own. Mirrored in RTL like BAND. White copy
+ * sits at about 10:1 on the indigo end and 5:1 on the blue.
+ */
+const BAND_GRADUATES =
+  "bg-[linear-gradient(116deg,#383189_0%,#156ba5_45%,#1db45f_100%)] rtl:bg-[linear-gradient(244deg,#383189_0%,#156ba5_45%,#1db45f_100%)]";
+
 const H2 =
   "text-[30px] font-bold leading-[1.15] tracking-[-0.01em] lg:text-[38px] lg:leading-[44px]";
 
@@ -60,10 +70,11 @@ function Check() {
 }
 
 export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) {
-  const [{ lang, dict }, smes, options] = await Promise.all([
+  const [{ lang, dict }, smes, options, stories] = await Promise.all([
     loadPage(params),
     getPublishedSmes(),
     getFormOptions(),
+    getPublishedStories(),
   ]);
   const t = dict.kneks;
   const hubs: Hub[] = HUBS.map(({ key, ...hub }) => ({
@@ -190,8 +201,17 @@ export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) 
         </Wrap>
       </section>
 
+      {/* Success stories, managed in /admin; hidden while none is published. */}
+      {stories.length ? (
+        <section id="stories" className="scroll-mt-[68px] bg-kneks-mist">
+          <Wrap className="pb-[61px] pt-[57px]">
+            <SuccessStories stories={stories} locale={lang} labels={t.stories} />
+          </Wrap>
+        </section>
+      ) : null}
+
       {/* Funded graduates */}
-      <section className={BAND}>
+      <section className={BAND_GRADUATES}>
         <Wrap className="pb-[60px] pt-[57px]">
           <h2 className={`${H2} text-white`}>{t.graduates.title}</h2>
           <p className="mt-[13px] text-[16px] leading-[26px] text-white/85">

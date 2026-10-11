@@ -11,4 +11,6 @@ import { revalidatePath } from "next/cache";
 export function revalidateKneks() {
   revalidatePath("/kneks");
   revalidatePath("/[lang]/kneks", "page");
+  // Story pages show their linked SME's name and sector, so they follow it.
+  revalidatePath("/[lang]/kneks/stories/[slug]", "page");
 }
