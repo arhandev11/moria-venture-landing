@@ -941,6 +941,13 @@ const id = {
       meetSmes: "Kenali UMKM-nya",
       becomePartner: "Jadi mitra investor",
       tagline: "Usaha yang selaras dengan prinsip Islam. Peluang lintas negara.",
+      stats: {
+        smes: "UMKM dalam pipeline",
+        funded: "Lulusan terdanai",
+        raised: "Dana terhimpun",
+        sectors: "Sektor",
+        note: "Angka terkini dari pipeline program.",
+      },
     },
     about: {
       eyebrow: "Landasan kelembagaan",

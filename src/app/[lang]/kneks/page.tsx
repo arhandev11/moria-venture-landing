@@ -2,8 +2,8 @@ import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { HubMapBackdrop, HubMapProvider, HubPicker, type Hub } from "@/components/kneks/hub-map";
-import { KneksFacts } from "@/components/kneks/kneks-facts";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
+import { PipelineStats } from "@/components/kneks/pipeline-stats";
 import { ProgramSteps } from "@/components/kneks/program-steps";
 import { RequestAccessForm, ShortlistCard } from "@/components/kneks/request-access";
 import { ShortlistProvider } from "@/components/kneks/shortlist";
@@ -11,7 +11,7 @@ import { SmeExplorer } from "@/components/kneks/sme-explorer";
 import { lines } from "@/i18n/rich";
 import { loadPage, metadataFor } from "@/i18n/server";
 import type { Dictionary } from "@/i18n/types";
-import { getFormOptions, getPublishedSmes } from "@/lib/kneks-data";
+import { getFormOptions, getPublishedSmes, pipelineStats } from "@/lib/kneks-data";
 
 export const generateMetadata = ({ params }: PageProps<"/[lang]/kneks">) =>
   metadataFor(params, "/kneks", (d) => d.kneks.meta);
@@ -87,12 +87,12 @@ export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) 
           className="absolute -inset-e-[96px] -top-[96px] h-[480px] w-[255px] lg:-inset-e-[84px] lg:-top-[198px] lg:h-[881px] lg:w-[468px] rtl:-scale-x-100"
         />
         {/*
-          Copy at the start, the homepage slide's KNEKS facts in a column at the
-          end, centred against it as on the slide. The headline steps down from
-          the deck's 80px beside the column so the Arabic, the longest at ~10.7px
-          of width per px of size, still sets in three lines. Below lg the facts
-          stack under the copy. HeroReveal steps into the copy and brings the
-          facts in as one block after the tagline, as the slide does.
+          Copy at the start, the pipeline's live figures in a column at the
+          end, centred against it. The headline steps down from the deck's 80px
+          beside the column so the Arabic, the longest at ~10.7px of width per px
+          of size, still sets in three lines. Below lg the figures go under the
+          copy. HeroReveal steps into the copy and brings the figures in as one
+          block after the tagline.
         */}
         <Wrap
           data-hero-reveal
@@ -138,11 +138,7 @@ export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) 
               {t.hero.tagline}
             </p>
           </div>
-          <KneksFacts
-            facts={dict.home.kneksSlide.facts}
-            tone="light"
-            className="grid gap-3 lg:gap-4 lg:self-center"
-          />
+          <PipelineStats stats={pipelineStats(smes)} labels={t.hero.stats} locale={lang} className="lg:self-center" />
         </Wrap>
       </section>
 

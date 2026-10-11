@@ -19,10 +19,10 @@ const TONES = {
 } as const;
 
 /**
- * The three KNEKS facts (founding, chairs, pillars), as cards. Shared by the
- * homepage's KNEKS slide and the /kneks hero so the two always say the same
- * thing; the copy lives with the slide in the dictionary. Layout (grid, gaps,
- * when it shows) is the caller's, through `className`.
+ * The three KNEKS facts (founding, chairs, pillars), as cards: dark on the
+ * homepage's KNEKS slide, light for anywhere on the site's own ground. The
+ * copy lives with the slide in the dictionary. Layout (grid, gaps, when it
+ * shows) is the caller's, through `className`.
  */
 export function KneksFacts({
   facts,

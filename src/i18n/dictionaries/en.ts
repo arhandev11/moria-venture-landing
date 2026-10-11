@@ -932,6 +932,13 @@ const en = {
       meetSmes: "Meet the SMEs",
       becomePartner: "Become an investor partner",
       tagline: "Islamic Principle-aligned businesses. Cross-border opportunity.",
+      stats: {
+        smes: "SMEs in pipeline",
+        funded: "Funded graduates",
+        raised: "Raised",
+        sectors: "Sectors",
+        note: "Live figures from the program pipeline.",
+      },
     },
     about: {
       eyebrow: "The institutional foundation",
