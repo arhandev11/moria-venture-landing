@@ -86,55 +86,62 @@ export default async function KneksPage({ params }: PageProps<"/[lang]/kneks">) 
         <AnimatedSupergraphic
           className="absolute -inset-e-[96px] -top-[96px] h-[480px] w-[255px] lg:-inset-e-[84px] lg:-top-[198px] lg:h-[881px] lg:w-[468px] rtl:-scale-x-100"
         />
-        <Wrap data-hero-reveal className="relative pb-[60px] pt-[40px] lg:pb-[61px] lg:pt-[66px]">
-          <div className="flex items-center">
-            <Image
-              src="/assets/brand/logo-wordmark.svg"
-              alt="Moria Ventures"
-              width={323}
-              height={49}
-              priority
-              className="h-[30px] w-auto min-w-0"
-            />
-            <span aria-hidden className="ms-2 me-[22px] text-[13px] text-ink">×</span>
-            <KneksLogo plate={false} alt={t.logoAlt} />
+        {/*
+          Copy at the start, the homepage slide's KNEKS facts in a column at the
+          end, centred against it as on the slide. The headline steps down from
+          the deck's 80px beside the column so the Arabic, the longest at ~10.7px
+          of width per px of size, still sets in three lines. Below lg the facts
+          stack under the copy. HeroReveal steps into the copy and brings the
+          facts in as one block after the tagline, as the slide does.
+        */}
+        <Wrap
+          data-hero-reveal
+          className="relative grid gap-10 pb-[60px] pt-[40px] lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12 lg:pb-[61px] lg:pt-[66px]"
+        >
+          <div>
+            <div className="flex items-center">
+              <Image
+                src="/assets/brand/logo-wordmark.svg"
+                alt="Moria Ventures"
+                width={323}
+                height={49}
+                priority
+                className="h-[30px] w-auto min-w-0"
+              />
+              <span aria-hidden className="ms-2 me-[22px] text-[13px] text-ink">×</span>
+              <KneksLogo plate={false} alt={t.logoAlt} />
+            </div>
+            <h1 data-reveal-lines className="t-hero mt-6 uppercase text-indigo-brand lg:mt-[22px] lg:text-[length:clamp(38px,4.6vw,66px)]!">
+              {lines(t.hero.title, "hidden sm:block")}
+            </h1>
+            <p data-reveal-lines className="mt-[29px] max-w-[505px] text-[16px] leading-[26px] text-ink lg:text-[18px] lg:leading-[29px]">
+              {t.hero.lede}
+            </p>
+            <div className="mt-[26px] flex flex-wrap gap-3">
+              <a
+                href="#smes"
+                className="flex h-[50px] items-center gap-2 bg-gold px-5 text-[14px] font-semibold text-kneks-earth transition-colors hover:bg-gold-deep"
+              >
+                {t.hero.meetSmes}
+                <svg viewBox="0 0 16 16" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                  <path d="M8 2.5v11M3.5 9L8 13.5 12.5 9" />
+                </svg>
+              </a>
+              <a
+                href="#request-access"
+                className="flex h-[50px] items-center border-2 border-indigo-brand px-6 text-[14px] font-semibold uppercase text-indigo-brand transition-colors hover:bg-indigo-brand hover:text-gold"
+              >
+                {t.hero.becomePartner}
+              </a>
+            </div>
+            <p className="mt-[25px] text-[13px] leading-[18px] text-kneks-muted">
+              {t.hero.tagline}
+            </p>
           </div>
-          <h1 data-reveal-lines className="t-hero mt-6 uppercase text-indigo-brand lg:mt-[22px]">
-            {lines(t.hero.title, "hidden sm:block")}
-          </h1>
-          <p data-reveal-lines className="mt-[29px] max-w-[505px] text-[16px] leading-[26px] text-ink lg:text-[18px] lg:leading-[29px]">
-            {t.hero.lede}
-          </p>
-          <div className="mt-[26px] flex flex-wrap gap-3">
-            <a
-              href="#smes"
-              className="flex h-[50px] items-center gap-2 bg-gold px-5 text-[14px] font-semibold text-kneks-earth transition-colors hover:bg-gold-deep"
-            >
-              {t.hero.meetSmes}
-              <svg viewBox="0 0 16 16" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth={1.8}>
-                <path d="M8 2.5v11M3.5 9L8 13.5 12.5 9" />
-              </svg>
-            </a>
-            <a
-              href="#request-access"
-              className="flex h-[50px] items-center border-2 border-indigo-brand px-6 text-[14px] font-semibold uppercase text-indigo-brand transition-colors hover:bg-indigo-brand hover:text-gold"
-            >
-              {t.hero.becomePartner}
-            </a>
-          </div>
-          <p className="mt-[25px] text-[13px] leading-[18px] text-kneks-muted">
-            {t.hero.tagline}
-          </p>
-          {/*
-            The homepage slide's KNEKS facts, as a row under the call to action.
-            A column beside the copy would not fit: the headline alone runs to
-            ~850px in Arabic and would be forced onto extra lines. HeroReveal
-            brings it in as one block after the tagline, as the slide does.
-          */}
           <KneksFacts
             facts={dict.home.kneksSlide.facts}
             tone="light"
-            className="mt-10 grid gap-3 lg:mt-[44px] lg:grid-cols-3 lg:gap-5"
+            className="grid gap-3 lg:gap-4 lg:self-center"
           />
         </Wrap>
       </section>
