@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { AnimatedSupergraphic } from "@/components/animated-supergraphic";
 import { CtaBand } from "@/components/cta-band";
+import { HeroSlider } from "@/components/hero-slider";
+import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { LogoMarquee } from "@/components/logo-marquee";
 import { Button, Container, Section, SectionTitle } from "@/components/ui";
 
@@ -90,47 +92,61 @@ export default function HomePage() {
       <div className="relative overflow-clip bg-shell">
         <AnimatedSupergraphic className="absolute right-0 top-0 h-[900px] w-[478px] opacity-50 sm:opacity-100 lg:h-[1700px] lg:w-[903px]" />
 
-        {/* Hero */}
-        <Section tone="none" className="relative">
-          <Container
-            data-hero-reveal
-            className="pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px]"
-          >
-            <Image
-              src="/assets/brand/wordmark-hero.svg"
-              alt="Moria Ventures"
-              width={388}
-              height={59}
-              priority
-              className="h-10 w-auto lg:h-[57px]"
-            />
-            {/* Line breaks are set to match the deck exactly. */}
-            <h1 data-reveal-lines className="t-hero mt-10 uppercase text-indigo-brand lg:mt-[41px]">
-              Compliant Capital.
-              <br />
-              Connecting the Gulf
-              <br />
-              and Indonesia
-            </h1>
-            <p data-reveal-lines className="t-lede mt-10 max-w-[640px] text-ink lg:mt-[52px]">
-              <span className="font-semibold text-indigo-brand">
-                PT Moria Ventures Capital
-              </span>{" "}
-              is an Islamic principles investment firm backing technology driven
-              companies across Indonesia and the Gulf, connecting global
-              investors with regional expertise and long term commitment to
-              founders.
-            </p>
-            <div className="mt-12 flex flex-wrap gap-4">
-              <Button href="/for-limited-partners" tone="indigo">
-                I&apos;m an Investor
-              </Button>
-              <Button href="/for-businesses" tone="outline">
-                I&apos;m a Founder
-              </Button>
-            </div>
-          </Container>
-        </Section>
+        {/*
+          The hero slides between the firm itself and the KNEKS partnership.
+          The first panel is transparent so the mark behind it shows through;
+          the second carries its own ground and covers it.
+        */}
+        <HeroSlider
+          slides={[
+            {
+              label: "Moria Ventures",
+              content: (
+                <Section tone="none" className="relative">
+                  <Container
+                    data-hero-reveal
+                    className="pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px]"
+                  >
+                    <Image
+                      src="/assets/brand/wordmark-hero.svg"
+                      alt="Moria Ventures"
+                      width={388}
+                      height={59}
+                      priority
+                      className="h-10 w-auto lg:h-[57px]"
+                    />
+                    {/* Line breaks are set to match the deck exactly. */}
+                    <h1 data-reveal-lines className="t-hero mt-10 uppercase text-indigo-brand lg:mt-[41px]">
+                      Compliant Capital.
+                      <br />
+                      Connecting the Gulf
+                      <br />
+                      and Indonesia
+                    </h1>
+                    <p data-reveal-lines className="t-lede mt-10 max-w-[640px] text-ink lg:mt-[52px]">
+                      <span className="font-semibold text-indigo-brand">
+                        PT Moria Ventures Capital
+                      </span>{" "}
+                      is an Islamic principles investment firm backing technology driven
+                      companies across Indonesia and the Gulf, connecting global
+                      investors with regional expertise and long term commitment to
+                      founders.
+                    </p>
+                    <div className="mt-12 flex flex-wrap gap-4">
+                      <Button href="/for-limited-partners" tone="indigo">
+                        I&apos;m an Investor
+                      </Button>
+                      <Button href="/for-businesses" tone="outline">
+                        I&apos;m a Founder
+                      </Button>
+                    </div>
+                  </Container>
+                </Section>
+              ),
+            },
+            { label: "Moria Ventures × KNEKS", dark: true, content: <KneksSlide /> },
+          ]}
+        />
 
         {/* Founder's quote */}
         <Container className="relative pb-[52px]">
@@ -297,5 +313,96 @@ export default function HomePage() {
 
       <CtaBand />
     </>
+  );
+}
+
+const KNEKS_FACTS = [
+  {
+    value: "2020",
+    label: "Established by Presidential Regulation No. 28 of 2020, building on the KNKS formed in 2016.",
+  },
+  {
+    value: "President & VP",
+    label: "Chaired directly by Indonesia's President and Vice President.",
+  },
+  {
+    value: "4 pillars",
+    label: "Halal industry, Islamic finance, Islamic-values business, and zakat and waqf.",
+  },
+];
+
+/**
+ * The second hero panel: the KNEKS partnership. KNEKS's own account of itself
+ * (kneks.go.id, Tentang Kami) is condensed into the lede and the three facts.
+ */
+function KneksSlide() {
+  return (
+    // The blue holds through the first third so the copy, which sits left,
+    // keeps its contrast; the green opens out behind the facts.
+    <section className="h-full bg-[linear-gradient(116deg,#156ba5_30%,#1db45f)] text-white">
+      <Container className="grid gap-16 pb-[96px] pt-[64px] lg:pb-[194px] lg:pt-[78px] xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div>
+          <div data-slide-rise className="flex items-center gap-4 sm:gap-5">
+            <Image
+              src="/assets/brand/wordmark-hero.svg"
+              alt="Moria Ventures"
+              width={388}
+              height={59}
+              className="h-6 w-auto min-w-0 object-contain object-left sm:h-8 lg:h-[44px]"
+            />
+            <span aria-hidden className="text-[18px] leading-none text-white lg:text-[22px]">
+              ×
+            </span>
+            <KneksLogo />
+          </div>
+          <h2 data-slide-rise className="t-hero mt-8 uppercase lg:mt-[41px]">
+            Partners in
+            <br className="hidden sm:block" /> Indonesia&apos;s
+            <br className="hidden sm:block" /> Islamic economy
+          </h2>
+          <p data-slide-rise className="t-lede mt-10 max-w-[680px] lg:mt-[52px]">
+            <span className="font-semibold">KNEKS</span>, the
+            National Committee for Islamic Economy and Finance, coordinates
+            Indonesia&apos;s Islamic economy across ministries and institutions.
+            Together we bring its SMEs in front of investors from the Gulf and
+            Southeast Asia.
+          </p>
+          <div data-slide-rise className="mt-12 flex flex-wrap gap-4">
+            <Button href="/kneks" tone="gold">
+              Explore the program
+            </Button>
+            <a
+              href="https://kneks.go.id/tentang-kami"
+              target="_blank"
+              rel="noreferrer"
+              className="t-label inline-flex h-[47px] items-center justify-center gap-2 border border-white px-[34px] transition-colors hover:bg-white hover:text-[#156ba5]"
+            >
+              About KNEKS
+              <svg viewBox="0 0 16 16" aria-hidden className="size-3" fill="none" stroke="currentColor" strokeWidth={1.8}>
+                <path d="M4 12l8-8M6 4h6v6" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        {/*
+          Only beside the copy, from xl up. Stacked under it they would make
+          this panel, and so the whole hero, taller than the first.
+        */}
+        <dl data-slide-rise className="hidden gap-4 self-end xl:grid">
+          {KNEKS_FACTS.map((fact) => (
+            <div
+              key={fact.value}
+              className="rounded-xl border border-white/25 bg-white/10 px-6 py-5 backdrop-blur-[6px]"
+            >
+              <dt className="text-[28px] font-bold leading-[34px] tracking-[-0.01em] text-gold">
+                {fact.value}
+              </dt>
+              <dd className="mt-2 text-[14px] leading-[21px]">{fact.label}</dd>
+            </div>
+          ))}
+        </dl>
+      </Container>
+    </section>
   );
 }
