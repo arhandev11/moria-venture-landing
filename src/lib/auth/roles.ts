@@ -27,7 +27,7 @@ export const ROLE_LABELS: Record<AdminRole, string> = {
 
 export const ROLE_SUMMARIES: Record<AdminRole, string> = {
   superadmin: "Everything, including investor requests and other admins.",
-  kneks: "Only the SMEs and success stories on the KNEKS page. No investor requests, no emails.",
+  kneks: "KNEKS ROLE",
 };
 
 export function isAdminRole(value: unknown): value is AdminRole {
