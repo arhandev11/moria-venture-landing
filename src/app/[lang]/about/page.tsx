@@ -23,7 +23,7 @@ const BOARD: {
   photo?: string;
 }[] = [
   { name: "Husni Muhammad", photo: "/assets/team/wide-husni.png" },
-  { name: "Riko Mersandro" },
+  { name: "Riko Mersandro", photo: "/assets/team/wide-riko.png" },
   { name: "Faris Achmad Kuddah", photo: "/assets/team/wide-faris.png" },
   { name: "Musab Mazen Bin Nosair", photo: "/assets/team/wide-musab.png" },
 ];
