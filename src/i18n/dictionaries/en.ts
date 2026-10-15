@@ -146,9 +146,9 @@ const en = {
       attribution: "Husni Muhammad B, Managing Partner, Moria Ventures",
     },
     stats: [
-      { value: "$25M+", label: "Deployed Capital" },
+      { value: "IDR\u00a025M+", label: "Deployed Capital" },
       { value: "~40%", label: "Blended ROI" },
-      { value: "15+", label: "Portfolio Companies" },
+      { value: "20+", label: "Portfolio Companies" },
       { value: "2", label: "Active Markets" },
     ],
     engines: {
@@ -409,7 +409,7 @@ const en = {
     meta: {
       title: "Portfolio",
       description:
-        "15+ companies across fintech, logistics, agritech, and the halal economy, bridging Indonesia and the GCC.",
+        "20+ companies across fintech, logistics, agritech, and the halal economy, bridging Indonesia and the GCC.",
     },
     hero: {
       title: "Portfolio",
@@ -418,8 +418,8 @@ const en = {
       applyForFunding: "Apply for Funding",
     },
     stats: [
-      { value: "15+", label: "Companies" },
-      { value: "$25M+", label: "Deployed" },
+      { value: "20+", label: "Companies" },
+      { value: "IDR\u00a025M+", label: "Deployed" },
       { value: "~40%", label: "Blended ROI" },
       { value: "2", label: "Markets" },
     ],
