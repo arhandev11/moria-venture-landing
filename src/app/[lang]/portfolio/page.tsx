@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { PortfolioFilter, type Investment } from "@/components/portfolio-table";
+import { StatFigure } from "@/components/stat-figure";
 import {
   Button,
   Container,
@@ -75,16 +76,18 @@ export default async function PortfolioPage({ params }: PageProps<"/[lang]/portf
           className="object-cover"
         />
         <Container className="relative pb-[80px] pt-[80px]">
-          <div className="grid grid-cols-2 gap-y-10 lg:grid-cols-[302px_302px_302px_minmax(0,1fr)]">
+          <div className="grid grid-cols-2 gap-y-10 lg:grid-cols-4 xl:grid-cols-[302px_302px_302px_minmax(0,1fr)]">
             {t.stats.map(({ value, label }, i) => (
               <div
                 key={label}
-                className={`lg:h-[110px] lg:pt-[9px] ${
-                  i === 0 ? "" : "border-s border-[#babec2] ps-6"
+                // Two columns on phones, four from lg: a divider only where a
+                // column has a neighbour before it on the same row.
+                className={`border-[#babec2] lg:h-[110px] lg:pt-[9px] ${
+                  i === 0 ? "" : i % 2 === 1 ? "border-s ps-6" : "lg:border-s lg:ps-6"
                 }`}
               >
-                <p className="text-[64px] font-bold leading-none tracking-[-0.02em] text-indigo-brand">
-                  <bdi dir="ltr">{value}</bdi>
+                <p className="text-[40px] font-bold leading-none tracking-[-0.02em] text-indigo-brand sm:text-[52px] lg:text-[clamp(48px,4.45vw,64px)]">
+                  <StatFigure value={value} />
                 </p>
                 <p className="mt-[24px] text-[14px] font-bold uppercase leading-none tracking-[0.01em] text-ink">
                   {label}

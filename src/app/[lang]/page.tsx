@@ -5,6 +5,7 @@ import { HeroSlider } from "@/components/hero-slider";
 import { KneksFacts } from "@/components/kneks/kneks-facts";
 import { KneksLogo } from "@/components/kneks/kneks-logo";
 import { LogoMarquee } from "@/components/logo-marquee";
+import { StatFigure } from "@/components/stat-figure";
 import { Button, Container, Section, SectionTitle } from "@/components/ui";
 import { lines, rich } from "@/i18n/rich";
 import { loadPage, metadataFor } from "@/i18n/server";
@@ -146,8 +147,8 @@ export default async function HomePage({ params }: PageProps<"/[lang]">) {
                   <dt className="mt-[23px] text-[11px] font-bold uppercase leading-none tracking-[0.02em] text-ink">
                     {stat.label}
                   </dt>
-                  <dd className="text-[44px] font-bold leading-none tracking-[-0.02em] text-indigo-brand lg:text-[67px]">
-                    <bdi dir="ltr">{stat.value}</bdi>
+                  <dd className="text-[44px] font-bold leading-none tracking-[-0.02em] text-indigo-brand lg:text-[clamp(44px,4.65vw,67px)]">
+                    <StatFigure value={stat.value} />
                   </dd>
                 </div>
               ))}
